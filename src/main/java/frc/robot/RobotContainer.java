@@ -4,9 +4,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.swerve.Swerve;
 
 public class RobotContainer {
+
+  public final XboxController driver = new XboxController(0);
+  public final Swerve swerve = new Swerve();
 
   public RobotContainer() { }
 

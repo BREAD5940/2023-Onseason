@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
@@ -37,14 +38,13 @@ public class Swerve extends SubsystemBase {
     };
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(FL_LOCATION, FR_LOCATION, BL_LOCATION, BR_LOCATION);
-    private final SwerveDrivePoseEstimator poseEstimator =
-      new SwerveDrivePoseEstimator(
+    private final SwerveDriveOdometry poseEstimator =
+      new SwerveDriveOdometry(
           kinematics,
           getRotation2d(),
           getSwerveModulePositions(),
-          new Pose2d(),
-          VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
-          VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(30)));
+          new Pose2d()
+      );
 
     private Pose2d pose = new Pose2d(); 
     public final Field2d field = new Field2d();
@@ -65,12 +65,12 @@ public class Swerve extends SubsystemBase {
 
     /** Constructs a new swerve object */
     public Swerve() {
-        gyroIO = new GyroIONavX();
+        gyroIO = new GyroIOPigeon2();
 
-        moduleIOs[0] = new ModuleIOTalonFX(DRIVE_IDS[0], STEER_IDS[0], AZIMUTH_CHANNELS[0], AZIMUTH_OFFSETS[0], DRIVE_INVERT_TYPES[0], STEERS_ARE_REVERSED[0], AZIMUTHS_ARE_REVERSED[0], "FL");
-        moduleIOs[1] = new ModuleIOTalonFX(DRIVE_IDS[1], STEER_IDS[1], AZIMUTH_CHANNELS[1], AZIMUTH_OFFSETS[1], DRIVE_INVERT_TYPES[1], STEERS_ARE_REVERSED[1], AZIMUTHS_ARE_REVERSED[1], "FR");
-        moduleIOs[2] = new ModuleIOTalonFX(DRIVE_IDS[2], STEER_IDS[2], AZIMUTH_CHANNELS[2], AZIMUTH_OFFSETS[2], DRIVE_INVERT_TYPES[2], STEERS_ARE_REVERSED[2], AZIMUTHS_ARE_REVERSED[2], "BL");
-        moduleIOs[3] = new ModuleIOTalonFX(DRIVE_IDS[3], STEER_IDS[3], AZIMUTH_CHANNELS[3], AZIMUTH_OFFSETS[3], DRIVE_INVERT_TYPES[3], STEERS_ARE_REVERSED[3], AZIMUTHS_ARE_REVERSED[3], "BR");
+            moduleIOs[0] = new ModuleIOTalonFX(DRIVE_IDS[0], STEER_IDS[0], AZIMUTH_CHANNELS[0], AZIMUTH_OFFSETS[0], DRIVE_INVERT_TYPES[0], STEER_INVERT_TYPES[0], AZIMUTHS_ARE_REVERSED[0], "FL");
+            moduleIOs[1] = new ModuleIOTalonFX(DRIVE_IDS[1], STEER_IDS[1], AZIMUTH_CHANNELS[1], AZIMUTH_OFFSETS[1], DRIVE_INVERT_TYPES[1], STEER_INVERT_TYPES[1], AZIMUTHS_ARE_REVERSED[1], "FR");
+            moduleIOs[2] = new ModuleIOTalonFX(DRIVE_IDS[2], STEER_IDS[2], AZIMUTH_CHANNELS[2], AZIMUTH_OFFSETS[2], DRIVE_INVERT_TYPES[2], STEER_INVERT_TYPES[2], AZIMUTHS_ARE_REVERSED[2], "BL");
+            moduleIOs[3] = new ModuleIOTalonFX(DRIVE_IDS[3], STEER_IDS[3], AZIMUTH_CHANNELS[3], AZIMUTH_OFFSETS[3], DRIVE_INVERT_TYPES[3], STEER_INVERT_TYPES[3], AZIMUTHS_ARE_REVERSED[3], "BR");
 
         field.setRobotPose(pose);
 
@@ -89,6 +89,7 @@ public class Swerve extends SubsystemBase {
             moduleIOs[i].updateInputs(moduleInputs[i]);
             Logger.getInstance().processInputs("Swerve/Module" + Integer.toString(i), moduleInputs[i]);
         }
+        Logger.getInstance().recordOutput("Odometry", getPose());
 
         /** Generate module setpoints */
         Rotation2d[] turnPositions = new Rotation2d[4];
@@ -185,7 +186,7 @@ public class Swerve extends SubsystemBase {
     /** Resets the swerve drive odometry */
     public void reset(Pose2d newPose) {
         poseEstimator.resetPosition(getRotation2d(), getSwerveModulePositions(), newPose);
-        pose = poseEstimator.getEstimatedPosition();
+        pose = poseEstimator.getPoseMeters();
         gyroIO.reset();
     }
 

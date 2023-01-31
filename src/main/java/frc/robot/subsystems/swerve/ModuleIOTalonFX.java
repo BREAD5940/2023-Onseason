@@ -10,11 +10,14 @@ import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 
 import static frc.robot.Constants.Drive.*;
+import static frc.robot.Constants.Electrical.*;
 
 public class ModuleIOTalonFX implements ModuleIO {
 
@@ -23,9 +26,9 @@ public class ModuleIOTalonFX implements ModuleIO {
     public final CANCoder azimuth;
     public double[] desiredState = {0, 0};
 
-     public ModuleIOTalonFX(int driveID, int steerID, int azimuthID, Rotation2d offset, TalonFXInvertType driveDirection, boolean steerReversed, boolean azimuthReversed, String moduleIdentifier) {
+     public ModuleIOTalonFX(int driveID, int steerID, int azimuthID, Rotation2d offset, TalonFXInvertType driveDirection, TalonFXInvertType steerReversed, boolean azimuthReversed, String moduleIdentifier) {
         // Configure the driving motor
-        drive = new TalonFX(driveID);
+        drive = new TalonFX(driveID, CANIVORE_BUS_NAME);
         TalonFXConfiguration driveConfig = new TalonFXConfiguration();
         driveConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.IntegratedSensor;
         driveConfig.slot0.kP = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.05) * 1023.0; // TODO check this
@@ -43,6 +46,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveConfig.statorCurrLimit = new StatorCurrentLimitConfiguration(true, 80.0, 80.0, 1.5);
         drive.setInverted(driveDirection);
         drive.setNeutralMode(NeutralMode.Brake); // TODO change back
+        drive.configAllSettings(driveConfig);
         drive.set(ControlMode.Velocity, 0.0);
         drive.enableVoltageCompensation(true);
         drive.selectProfileSlot(1, 0);
@@ -50,10 +54,14 @@ public class ModuleIOTalonFX implements ModuleIO {
         drive.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 15);
 
         // Create CAN Coder object
-        azimuth = new CANCoder(azimuthID);
+        azimuth = new CANCoder(azimuthID, CANIVORE_BUS_NAME);
+        azimuth.configMagnetOffset(offset.getDegrees());
+        azimuth.configSensorDirection(false);
+        azimuth.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
+        azimuth.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
 
         // Configure the steering motor
-        steer = new TalonFX(steerID);
+        steer = new TalonFX(steerID, CANIVORE_BUS_NAME);
         TalonFXConfiguration steerConfig = new TalonFXConfiguration();
         steerConfig.remoteFilter0.remoteSensorDeviceID = azimuth.getDeviceID();
         steerConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
@@ -69,6 +77,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         steer.setNeutralMode(NeutralMode.Brake);
         steer.setSensorPhase(true);
         steer.set(ControlMode.Velocity, 0.0);
+        steer.configAllSettings(steerConfig);
         steer.selectProfileSlot(0, 0);
         steer.setStatusFramePeriod(StatusFrame.Status_1_General, 99);
         steer.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 15);
@@ -80,6 +89,9 @@ public class ModuleIOTalonFX implements ModuleIO {
         inputs.driveAppliedVolts = drive.getMotorOutputVoltage();
         inputs.driveCurrentAmps = drive.getStatorCurrent();
         inputs.driveTempCelcius = drive.getTemperature();
+        inputs.driveDistance = (MODULE_GEARING * drive.getSelectedSensorPosition() * 2.0 * Math.PI * WHEEL_RADIUS)/2048.0;
+        inputs.driveBusVoltage = drive.getBusVoltage();
+        inputs.driveOutputPercent = drive.getMotorOutputPercent();
 
         inputs.turnAbsolutePositionRad = Units.degreesToRadians(azimuth.getPosition());
         inputs.turnAppliedVolts = steer.getMotorOutputVoltage();
