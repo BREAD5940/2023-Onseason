@@ -43,11 +43,14 @@ public class Robot extends LoggedRobot {
     }
     
     Logger.getInstance().start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+
+    m_robotContainer.armIO.resetArm();
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+    RobotContainer.elevatorArmLowLevel.periodic();
   }
 
   @Override
@@ -73,6 +76,8 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+    m_robotContainer.elevatorArmLowLevel.requestHome();
   }
 
   @Override

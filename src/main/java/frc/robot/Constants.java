@@ -97,6 +97,40 @@ public final class Constants {
 
     }
 
+    // Constantsp pertaining to the elevator subsystem go here 
+    public static class Elevator {
+        public static final int ELEVATOR_LEFT_ID = 11;
+        public static final int ELEVATOR_RIGHT_ID = 12;
+
+        public static final double ELEVATOR_GEARING = 0.13636363636;
+        public static final double ELEVATOR_PULLEY_PITCH_DIAMETER = 0.028575;
+        public static final double GRAVITY_FF = 0.00907380849;
+
+        public static final double ELEVATOR_MIN_LIMITED_ARM_ROM = 0.5;
+        public static final double ELEVATOR_MIN = 0.0;
+        public static final double ELEVATOR_MAX = 1.0;
+        public static final double ELEVATOR_SETPOINT_TOLERANCE = Units.inchesToMeters(3.0);
+    }
+
+    // Constants pertaining to the arm subsystem go here
+    public static class Arm {
+        public static final int ARM_ID = 14; 
+        public static final TalonFXInvertType ARM_INVERT_TYPE = TalonFXInvertType.Clockwise;
+        public static final Rotation2d ARM_ENCODER_OFFSET = Rotation2d.fromDegrees(0.0);
+
+        public static final int ARM_AZIMUTH_ID = 31;
+        public static final double ARM_AZIMUTH_DEGREE_OFFSET = 196.875;
+        public static final double ARM_GEAR_RATIO = (1.0/78.7);
+        public static final double ARM_MAX_VELOCITY = ((1.0/78.7) * 6380.0 * 2 * Math.PI)/60.0;
+
+        public static final double ARM_MAX_LIMITED_ELEVATOR_ROM = 110.0; 
+        public static final double ARM_NEUTRAL_ANGLE = 90.0;
+        public static final double ARM_MIN = 0.0;
+        public static final double ARM_MAX = 120.0;
+        public static final double ARM_SETPOINT_TOLERANCE = 3.0;
+        public static final double ARM_NULL_RANGE = 300.0; // To 360 degrees
+    }
+
     // Constants pertaining to electrical
     public static class Electrical {
         public static final String CANIVORE_BUS_NAME = "dabus"; 

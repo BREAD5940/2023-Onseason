@@ -1,4 +1,4 @@
-package frc.robot.subsystems.elevatorwrist;
+package frc.robot.subsystems.superstructure;
 
 import org.littletonrobotics.junction.AutoLog;
 
@@ -21,6 +21,9 @@ public interface ElevatorIO {
 
     /** Sets the climber to a specified percent output */
     public default void setPercent(double percent) {}
+
+    /** Resets the climber to a specified position */
+    public default void resetHeight(double newHeightMeters) {}
 
     /* Sets the climber's neutral mode */
     public default void enableBrakeMode(boolean enable) {}
