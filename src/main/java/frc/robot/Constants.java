@@ -96,6 +96,7 @@ public final class Constants {
 
     }
 
+
     // Constantsp pertaining to the elevator subsystem go here 
     public static class Elevator {
         public static final int ELEVATOR_LEFT_ID = 11;
@@ -158,6 +159,17 @@ public final class Constants {
     public static class EndEffector {
         public static final int MOTOR_ID = 18;
         public static final boolean IS_REVERSED = false;
+    }
+
+    // Constants pertaining to the floor intake subsystem
+    public static class FloorIntake {
+        public static final int DEPLOY_ID = 16;
+        public static final int ROLLER_ID = 17;
+
+        public static final double DEPLOY_GEAR_RATIO = 1.0/83.33;
+        public static final TalonFXInvertType DEPLOY_INVERT_TYPE = TalonFXInvertType.CounterClockwise;
+        public static final TalonFXInvertType ROLLER_INVERT_TYPE = TalonFXInvertType.CounterClockwise;
+        public static final double DEPLOY_MAX_SPEED = (6380.0 * DEPLOY_GEAR_RATIO * 360.0)/60.0;
     }
 
     // Constants pertaining to electrical
