@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.Superstructure.GamePiece;
+import frc.robot.subsystems.Superstructure.Level;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -43,6 +45,8 @@ public class Robot extends LoggedRobot {
     }
     
     Logger.getInstance().start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+
+    RobotContainer.superstructure.zeroSensors();
   }
 
   @Override
@@ -73,6 +77,8 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+    RobotContainer.superstructure.requestHome();
   }
 
   @Override
@@ -94,6 +100,16 @@ public class Robot extends LoggedRobot {
     // Sets the 0 of the robot
     if (m_robotContainer.driver.getAButtonPressed()) {
       m_robotContainer.swerve.reset(new Pose2d());
+    }
+
+    if (RobotContainer.driver.getXButtonPressed()) {
+      RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
+    } 
+    if (RobotContainer.driver.getYButtonPressed()) {
+      RobotContainer.superstructure.requestScore();
+    }
+    if (RobotContainer.driver.getBButtonPressed()) {
+      RobotContainer.superstructure.requestIdle();
     }
   }
 

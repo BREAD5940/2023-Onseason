@@ -8,16 +8,15 @@ import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.I2C;
-import edu.wpi.first.wpilibj.util.Color;
 
 // All Constants
 public final class Constants {
+
+    public static boolean tuningMode = true;
     
     // Constants pertaining to the drive subsystem go here
     public static class Drive {
-        
-
+    
         // Motor IDs 
         public static final int[] DRIVE_IDS = {1, 2, 3, 4};
         public static final int[] STEER_IDS = {5, 6, 7, 8};
@@ -79,8 +78,8 @@ public final class Constants {
 
         // Measurements/Gearings
         public static final double MODULE_GEARING = (14.0/50.0) * (28.0/16.0) * (15.0/45.0);
-        public static final double ROBOT_WIDTH = Units.inchesToMeters(25.0);
-        public static final double ROBOT_LENGTH = Units.inchesToMeters(30.0);
+        public static final double ROBOT_WIDTH = Units.inchesToMeters(27.0);
+        public static final double ROBOT_LENGTH = Units.inchesToMeters(28.0);
         // Madtown field callibration constant factor is 0.97
         public static final double WHEEL_RADIUS = Units.inchesToMeters(2.0) * 0.9442667069;
         public static final Translation2d FIELD_TO_TARGET = new Translation2d(Units.feetToMeters(27), Units.feetToMeters(13.5));
@@ -95,6 +94,62 @@ public final class Constants {
         // Other
         public static final double CANCODER_RESOLUTION = 4096.0;
 
+    }
+
+    // Constantsp pertaining to the elevator subsystem go here 
+    public static class Elevator {
+        public static final int ELEVATOR_LEFT_ID = 11;
+        public static final int ELEVATOR_RIGHT_ID = 12;
+
+        public static final double ELEVATOR_GEARING = 0.13636363636;
+        public static final double ELEVATOR_PULLEY_PITCH_DIAMETER = 0.06096;
+        public static final double GRAVITY_FF = 0.00916666666;
+        public static final double CF_SPRING_FF = 0.00916666666;
+        public static final double SECOND_STAGE_HEIGHT = 0.5657486369247514;
+
+        public static final double ELEVATOR_MIN_LIMITED_ARM_ROM = 0.2529400221344551;
+        public static final double ELEVATOR_MIN = 0.0;
+        public static final double ELEVATOR_MAX = 1.1712183954944326;
+        public static final double ELEVATOR_SETPOINT_TOLERANCE = Units.inchesToMeters(3.0);
+        public static final double ELEVATOR_MAX_VELOCITY = (6380.0 * ELEVATOR_GEARING * ELEVATOR_PULLEY_PITCH_DIAMETER * Math.PI)/60.0;
+
+        public static final double ELEVATOR_PRE_CUBE_HIGH = 0.857;
+        public static final double ELEVATOR_PRE_CONE_HIGH = 1.115;
+        public static final double ELEVATOR_CONE_SLAM_HIGH = 1.115;
+        public static final double ELEVATOR_CONE_PULL_OUT_HIGH = 0.936;
+        public static final double ELEVATOR_CUBE_OFFSET = 0.509856;
+        public static final double ELEVATOR_CONE_OFFSET = 0.4702;
+        public static final double ELEVATOR_PRE_LOW = 0.34;
+        public static final double ELEVATOR_FLOOR_INTAKE_CUBE = 0.05;
+        public static final double ELEVATOR_DOUBLE_SUBSTATION_CONE = 0.98;
+        public static final double ELEVATOR_DOUBLE_SUBSTATION_CUBE = 1.0954;
+    }
+
+    // Constants pertaining to the arm subsystem go here
+    public static class Arm {
+        public static final int ARM_ID = 14; 
+        public static final TalonFXInvertType ARM_INVERT_TYPE = TalonFXInvertType.Clockwise;
+        public static final Rotation2d ARM_ENCODER_OFFSET = Rotation2d.fromDegrees(0.0);
+
+        public static final int ARM_AZIMUTH_ID = 31;
+        public static final double ARM_AZIMUTH_DEGREE_OFFSET = 196.875;
+        public static final double ARM_GEAR_RATIO = (1.0/78.7);
+        public static final double ARM_MAX_VELOCITY = ((1.0/78.7) * 6380.0 * 360.0)/60.0;
+
+        public static final double ARM_MAX_LIMITED_ELEVATOR_ROM = 117.24609375; 
+        public static final double ARM_NEUTRAL_ANGLE = 90.0;
+        public static final double ARM_MIN = 0.0;
+        public static final double ARM_MAX = 236.77734375;
+        public static final double ARM_SETPOINT_TOLERANCE = 3.0;
+        public static final double ARM_NULL_RANGE = 300.0; // To 360 degrees
+
+        public static final double ARM_PRE_SCORE_CUBE = 185.88867;
+        public static final double ARM_PRE_SCORE_CONE = 138.076;
+        public static final double ARM_SLAM_CONE = 187.3828;
+        public static final double ARM_PRE_SCORE_LOW = 230.0;
+        public static final double ARM_FLOOR_INTAKE_CUBE = 1.0;
+        public static final double ARM_DOUBLE_SUBSTATION_CONE = 178.4;
+        public static final double ARM_DOUBLE_SUBSTATION_CUBE = 211.6;
     }
 
     // Constants pertaining to electrical
