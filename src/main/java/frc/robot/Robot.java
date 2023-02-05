@@ -102,15 +102,39 @@ public class Robot extends LoggedRobot {
       m_robotContainer.swerve.reset(new Pose2d());
     }
 
-    if (RobotContainer.driver.getXButtonPressed()) {
+    if (RobotContainer.operator.getRightBumperPressed()) {
+      RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
+    }
+
+    if (RobotContainer.operator.getLeftBumperPressed()) {
+      RobotContainer.superstructure.requestIntakeCubeDoubleSubstation();
+    }
+
+    if (RobotContainer.operator.getAButtonPressed()) {
       RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
-    } 
-    if (RobotContainer.driver.getYButtonPressed()) {
+    }
+
+    if (RobotContainer.operator.getBButtonPressed()) {
+      RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
+    }
+    
+    if (RobotContainer.operator.getXButtonPressed()) {
+      RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
+    }
+
+    if (RobotContainer.operator.getYButtonPressed()) {
+      RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
+    }
+
+    if (RobotContainer.operator.getRightStickButtonPressed()) {
       RobotContainer.superstructure.requestScore();
     }
-    if (RobotContainer.driver.getBButtonPressed()) {
+
+    if (RobotContainer.operator.getLeftStickButtonPressed()) {
       RobotContainer.superstructure.requestIdle();
     }
+
+
   }
 
   @Override

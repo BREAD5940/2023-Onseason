@@ -14,14 +14,15 @@ public class EndEffectorIOSparkMax implements EndEffectorIO {
     public EndEffectorIOSparkMax() {
         motor = new CANSparkMax(MOTOR_ID, MotorType.kBrushless);
         motor.setInverted(IS_REVERSED);
-        motor.setSmartCurrentLimit(7);
-        motor.setSecondaryCurrentLimit(10);
+        motor.setSmartCurrentLimit(5);
+        motor.setSecondaryCurrentLimit(7);
     }
 
     @Override
     public void updateInputs(EndEffectorIOInputs inputs) {
         inputs.appliedVoltage = motor.getAppliedOutput() * RobotController.getBatteryVoltage(); 
-        inputs.currentAmps = motor.getOutputCurrent();
+        inputs.statorCurrentAmps = motor.getOutputCurrent();
+        inputs.tempCelcius = motor.getMotorTemperature();
     }
 
     @Override

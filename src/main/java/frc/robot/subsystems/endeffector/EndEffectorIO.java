@@ -5,8 +5,9 @@ import org.littletonrobotics.junction.AutoLog;
 public interface EndEffectorIO {
     @AutoLog
     public static class EndEffectorIOInputs {
-        public double currentAmps = 0.0;
+        public double statorCurrentAmps = 0.0;
         public double appliedVoltage = 0.0;
+        public double tempCelcius = 0.0;
     }
 
     /** Updates the set of loggable inputs */

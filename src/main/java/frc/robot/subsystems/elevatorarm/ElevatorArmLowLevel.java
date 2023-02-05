@@ -6,7 +6,6 @@ import static frc.robot.Constants.Elevator.*;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
-import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.commons.BreadUtil;
 
@@ -15,7 +14,7 @@ public class ElevatorArmLowLevel {
     /** State variables */
     private double mStateStartTime = 0.0;
     private ElevatorArmSystemStates systemState = ElevatorArmSystemStates.STARTING_CONFIG;
-    private ElevatorArmState desiredState = new ElevatorArmState(0.0, 0.0);
+    private double[] desiredState = new double[] {0.0, 0.0};
     private boolean requestHome = false;
     private boolean requestSetpointFollower = false;
     private boolean requestIdle = false;
@@ -49,16 +48,16 @@ public class ElevatorArmLowLevel {
     public void onLoop() {
         double elevatorHeight = MathUtil.clamp(heightSetpoint, armInputs.angleDegrees > ARM_MAX_LIMITED_ELEVATOR_ROM ? ELEVATOR_MIN_LIMITED_ARM_ROM : ELEVATOR_MIN, ELEVATOR_MAX);
         double armAngle = MathUtil.clamp(angleSetpoint, ARM_MIN, elevatorInputs.posMeters < ELEVATOR_MIN_LIMITED_ARM_ROM ? ARM_MAX_LIMITED_ELEVATOR_ROM : ARM_MAX);
-        desiredState = new ElevatorArmState(elevatorHeight, armAngle);
+        desiredState = new double[] {elevatorHeight, armAngle};
 
         elevatorIO.updateInputs(elevatorInputs);
         elevatorIO.updateTunableNumbers();
         armIO.updateInputs(armInputs);
 
         Logger.getInstance().processInputs("Elevator", elevatorInputs);
-        Logger.getInstance().processInputs("ArmInputs", armInputs);
+        Logger.getInstance().processInputs("Arm", armInputs);
         Logger.getInstance().recordOutput("ElevatorArmLowLevelState", systemState.toString());
-        Logger.getInstance().recordOutput("ElevatorSetpoint", desiredState.elevatorHeight);
+        Logger.getInstance().recordOutput("ElevatorSetpoint", desiredState[0]);
 
         ElevatorArmSystemStates nextSystemState = systemState;
 
@@ -103,8 +102,8 @@ public class ElevatorArmLowLevel {
                 nextSystemState = ElevatorArmSystemStates.FOLLOWING_SETPOINT;
             }
         } else if (systemState == ElevatorArmSystemStates.FOLLOWING_SETPOINT) {
-            elevatorIO.setHeight(desiredState.elevatorHeight);
-            armIO.setAngle(desiredState.armAngle);
+            elevatorIO.setHeight(desiredState[0]);
+            armIO.setAngle(desiredState[1]);
 
             if (requestHome) {
                 nextSystemState = ElevatorArmSystemStates.NEUTRALIZING_ARM;
@@ -156,22 +155,18 @@ public class ElevatorArmLowLevel {
     }
 
     /** Returns the desired state of the elevator */
-    public ElevatorArmState getDesiredState(double elevatorHeight, double armAngle) {
+    public double[] getDesiredState() {
         return desiredState;
     }
 
     /** Returns the current state of the elevator */
-    public ElevatorArmState getState() {
-        return new ElevatorArmState(elevatorInputs.posMeters, armInputs.angleDegrees);
+    public double[] getState() {
+        return new double[] {elevatorInputs.posMeters, armInputs.angleDegrees};
     }
 
     /** Returns the system state of the elevator and arm */
     public ElevatorArmSystemStates getSystemState() {
         return systemState;
     }
-
-
-    /** Record for keeping track of elevator state */
-    public record ElevatorArmState(double elevatorHeight, double armAngle) { }
 
 }
