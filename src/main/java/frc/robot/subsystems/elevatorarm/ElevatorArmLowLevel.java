@@ -1,4 +1,4 @@
-package frc.robot.subsystems.superstructure;
+package frc.robot.subsystems.elevatorarm;
 
 import static frc.robot.Constants.Arm.*;
 import static frc.robot.Constants.Elevator.*;
@@ -6,6 +6,8 @@ import static frc.robot.Constants.Elevator.*;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
+import frc.robot.Robot;
+import frc.robot.RobotContainer;
 import frc.robot.commons.BreadUtil;
 
 public class ElevatorArmLowLevel {
@@ -17,6 +19,8 @@ public class ElevatorArmLowLevel {
     private boolean requestHome = false;
     private boolean requestSetpointFollower = false;
     private boolean requestIdle = false;
+    private double heightSetpoint = 0.0;
+    private double angleSetpoint = 0.0;
 
     /** Instantiate the IO classes */
     public ArmIO armIO;
@@ -42,11 +46,19 @@ public class ElevatorArmLowLevel {
     }
 
     /** Method to be called periodically */
-    public void periodic() {
+    public void onLoop() {
+        double elevatorHeight = MathUtil.clamp(heightSetpoint, armInputs.angleDegrees > ARM_MAX_LIMITED_ELEVATOR_ROM ? ELEVATOR_MIN_LIMITED_ARM_ROM : ELEVATOR_MIN, ELEVATOR_MAX);
+        double armAngle = MathUtil.clamp(angleSetpoint, ARM_MIN, elevatorInputs.posMeters < ELEVATOR_MIN_LIMITED_ARM_ROM ? ARM_MAX_LIMITED_ELEVATOR_ROM : ARM_MAX);
+        desiredState = new ElevatorArmState(elevatorHeight, armAngle);
+
         elevatorIO.updateInputs(elevatorInputs);
+        elevatorIO.updateTunableNumbers();
         armIO.updateInputs(armInputs);
+
         Logger.getInstance().processInputs("Elevator", elevatorInputs);
         Logger.getInstance().processInputs("ArmInputs", armInputs);
+        Logger.getInstance().recordOutput("ElevatorArmLowLevelState", systemState.toString());
+        Logger.getInstance().recordOutput("ElevatorSetpoint", desiredState.elevatorHeight);
 
         ElevatorArmSystemStates nextSystemState = systemState;
 
@@ -63,19 +75,27 @@ public class ElevatorArmLowLevel {
             armIO.setAngle(ARM_NEUTRAL_ANGLE);
 
             if (atArmSetpoint(ARM_NEUTRAL_ANGLE)) {
-                // nextSystemState = ElevatorArmSystemStates.HOMING;
+                nextSystemState = ElevatorArmSystemStates.HOMING;
             }
         } else if (systemState == ElevatorArmSystemStates.HOMING) {
-            elevatorIO.setPercent(-0.3);
+            elevatorIO.setPercent(-0.2);
             armIO.setAngle(ARM_NEUTRAL_ANGLE);
 
-            if (BreadUtil.getFPGATimeSeconds() - mStateStartTime < 0.25 && elevatorInputs.velMetersPerSecond < 0.1) {
+            if (BreadUtil.getFPGATimeSeconds() - mStateStartTime > 0.25 && Math.abs(elevatorInputs.velMetersPerSecond) < 0.1) {
+                elevatorIO.resetHeight(0.0);
                 nextSystemState = ElevatorArmSystemStates.IDLE;
                 requestHome = false;
             }
         } else if (systemState == ElevatorArmSystemStates.IDLE) {
-            elevatorIO.setPercent(0.0);
-            armIO.setPercent(0.0);
+            RobotContainer.armIO.setAngle(90.0);
+
+            if (RobotContainer.driver.getRightTriggerAxis() > 0.1) {
+                RobotContainer.elevatorIO.setPercent(RobotContainer.driver.getRightTriggerAxis() * 0.3);
+            } else if (RobotContainer.driver.getLeftTriggerAxis() > 0.1) {
+                RobotContainer.elevatorIO.setPercent(-RobotContainer.driver.getLeftTriggerAxis() * 0.3);
+            } else {    
+                RobotContainer.elevatorIO.setPercent(0.0);
+            }
 
             if (requestHome) {
                 nextSystemState = ElevatorArmSystemStates.NEUTRALIZING_ARM;
@@ -105,9 +125,8 @@ public class ElevatorArmLowLevel {
         requestSetpointFollower = true;
         requestIdle = false;
         requestSetpointFollower = true;
-        elevatorHeight = MathUtil.clamp(elevatorHeight, armInputs.angleDegrees > ARM_MAX_LIMITED_ELEVATOR_ROM ? ELEVATOR_MIN_LIMITED_ARM_ROM : ELEVATOR_MIN, ELEVATOR_MAX);
-        armAngle = MathUtil.clamp(armAngle, 0.0, elevatorInputs.posMeters < ELEVATOR_MIN_LIMITED_ARM_ROM ? ARM_MAX_LIMITED_ELEVATOR_ROM : ARM_MAX);
-        desiredState = new ElevatorArmState(elevatorHeight, armAngle);
+        heightSetpoint = elevatorHeight;
+        angleSetpoint = armAngle;
     }
 
     /** Requests the elevator + arm to go into idle mode */
@@ -120,6 +139,11 @@ public class ElevatorArmLowLevel {
     public void requestHome() {
         requestHome = true;
     }
+
+    /** Zeros sensors */
+    public void zeroSensors() {
+        armIO.resetArm();
+    } 
 
     /** Returns whether or not the arm is at a certain position */
     public boolean atArmSetpoint(double setpoint) {
@@ -140,6 +164,12 @@ public class ElevatorArmLowLevel {
     public ElevatorArmState getState() {
         return new ElevatorArmState(elevatorInputs.posMeters, armInputs.angleDegrees);
     }
+
+    /** Returns the system state of the elevator and arm */
+    public ElevatorArmSystemStates getSystemState() {
+        return systemState;
+    }
+
 
     /** Record for keeping track of elevator state */
     public record ElevatorArmState(double elevatorHeight, double armAngle) { }

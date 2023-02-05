@@ -1,4 +1,4 @@
-package frc.robot.subsystems.superstructure;
+package frc.robot.subsystems.elevatorarm;
 
 import org.littletonrobotics.junction.AutoLog;
 
@@ -8,6 +8,8 @@ public interface ElevatorIO {
     public static class ElevatorIOInputs {
         public double posMeters = 0.0;
         public double velMetersPerSecond = 0.0;
+        public double velTarget = 0.0;
+        public double posTarget = 0.0;
         public double appliedVoltage = 0.0;
         public double[] currentAmps = new double[] {}; // {leader, follower}
         public double[] tempCelcius = new double[] {}; // {leader, follower}
@@ -27,5 +29,8 @@ public interface ElevatorIO {
 
     /* Sets the climber's neutral mode */
     public default void enableBrakeMode(boolean enable) {}
+
+    /* Updates tunable numbers if neccesary */
+    public default void updateTunableNumbers() {}
 
 }

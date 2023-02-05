@@ -6,21 +6,20 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.superstructure.ArmIO;
-import frc.robot.subsystems.superstructure.ArmIOTalonFX;
-import frc.robot.subsystems.superstructure.ElevatorArmLowLevel;
-import frc.robot.subsystems.superstructure.ElevatorIO;
-import frc.robot.subsystems.superstructure.ElevatorIOTalonFX;
+import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.elevatorarm.ArmIO;
+import frc.robot.subsystems.elevatorarm.ArmIOTalonFX;
+import frc.robot.subsystems.elevatorarm.ElevatorIO;
+import frc.robot.subsystems.elevatorarm.ElevatorIOTalonFX;
 import frc.robot.subsystems.swerve.Swerve;
 
 public class RobotContainer {
 
-  public final XboxController driver = new XboxController(0);
-  public final Swerve swerve = new Swerve();
-
+  public static final XboxController driver = new XboxController(0);
+  public static final Swerve swerve = new Swerve();
   public static final ElevatorIO elevatorIO = new ElevatorIOTalonFX();
   public static final ArmIO armIO = new ArmIOTalonFX();
-  public static final ElevatorArmLowLevel elevatorArmLowLevel = new ElevatorArmLowLevel(armIO, elevatorIO);
+  public static final Superstructure superstructure = new Superstructure(elevatorIO, armIO);
 
   public RobotContainer() { }
 

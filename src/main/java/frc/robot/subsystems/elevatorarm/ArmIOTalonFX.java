@@ -1,4 +1,4 @@
-package frc.robot.subsystems.superstructure;
+package frc.robot.subsystems.elevatorarm;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -31,12 +31,12 @@ public class ArmIOTalonFX implements ArmIO {
         armConfig.remoteFilter0.remoteSensorDeviceID = armAzimuth.getDeviceID();
         armConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
         armConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
-        armConfig.slot0.kP = CANCoderSensorUnitsToDegrees(1.0) * 1023.0;
+        armConfig.slot0.kP = CANCoderSensorUnitsToDegrees(0.03) * 1023.0;
         armConfig.slot0.kI = CANCoderSensorUnitsToDegrees(0) * 1023.0;
-        armConfig.slot0.kD = CANCoderSensorUnitsToDegrees(0.05) * 1023.0;
-        armConfig.slot0.kF = 1023.0/CANCoderSensorUnitsToDegreesPerSecond(1.301496);
-        armConfig.motionCruiseVelocity = degreesPerSecondToCANCoderSensorUnits(0.2);
-        armConfig.motionAcceleration = degreesPerSecondToCANCoderSensorUnits(0.4);
+        armConfig.slot0.kD = CANCoderSensorUnitsToDegrees(0.003) * 1023.0;
+        armConfig.slot0.kF = 0.0;
+        armConfig.motionCruiseVelocity = degreesPerSecondToCANCoderSensorUnits(ARM_MAX_VELOCITY);
+        armConfig.motionAcceleration = degreesPerSecondToCANCoderSensorUnits(1200.0);
         armConfig.voltageCompSaturation = 10.5;
         armConfig.neutralDeadband = 0.001;
         armConfig.statorCurrLimit = new StatorCurrentLimitConfiguration(true, 50, 50, 1.5);
@@ -53,16 +53,18 @@ public class ArmIOTalonFX implements ArmIO {
 
     @Override
     public void updateInputs(ArmIOInputs inputs) {
-        inputs.angleDegrees = armAzimuth.getPosition();
-        inputs.velDegreesPerSeconds = armAzimuth.getVelocity();
+        inputs.angleDegrees = CANCoderSensorUnitsToDegrees(arm.getSelectedSensorPosition());
+        inputs.velDegreesPerSecond = CANCoderSensorUnitsToDegreesPerSecond(arm.getSelectedSensorVelocity());
+        inputs.angleDegreesCC = armAzimuth.getPosition();
+        inputs.velDegreesPerSecondCC = armAzimuth.getVelocity();
         inputs.currentAmps = arm.getStatorCurrent();
         inputs.appliedVoltage = arm.getMotorOutputVoltage();
         inputs.tempCelcius = arm.getTemperature();
     }
 
     @Override
-    public void setAngle(double angleRadians) {
-        arm.set(ControlMode.Position, degreesToCANCoderSensorUnits(angleRadians));
+    public void setAngle(double angleDegrees) {
+        arm.set(ControlMode.MotionMagic, degreesToCANCoderSensorUnits(angleDegrees));
     }
 
     @Override
