@@ -3,12 +3,14 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.endeffector.EndEffector;
 import frc.robot.commons.BreadUtil;
-import frc.robot.commons.LoggedTunableNumber;
+import frc.robot.commons.TunableNumber;
 import frc.robot.subsystems.elevatorarm.ArmIO;
 import frc.robot.subsystems.elevatorarm.ElevatorArmLowLevel;
 import frc.robot.subsystems.elevatorarm.ElevatorIO;
 import frc.robot.subsystems.elevatorarm.ElevatorArmLowLevel.ElevatorArmSystemStates;
+import frc.robot.subsystems.endeffector.EndEffectorIO;
 
 import static frc.robot.Constants.Elevator.*;
 
@@ -20,6 +22,7 @@ public class Superstructure extends SubsystemBase {
 
     /* IO and subsystems */
     private ElevatorArmLowLevel elevatorArmLowLevel;
+    private EndEffector endEffector;
 
     /* State variables */
     private double mStateStartTime = 0.0;
@@ -35,24 +38,24 @@ public class Superstructure extends SubsystemBase {
     private GamePiece piece = GamePiece.CUBE;
 
     /* Presets */
-    LoggedTunableNumber preCubeHighHeight = new LoggedTunableNumber("Elevator/PreCubeHighHeight", ELEVATOR_PRE_CUBE_HIGH);
-    LoggedTunableNumber preConeHighHeight = new LoggedTunableNumber("Elevator/PreConeHighHeight", ELEVATOR_PRE_CONE_HIGH);
-    LoggedTunableNumber coneSlamHeight = new LoggedTunableNumber("Elevator/ConeSlamHighHeight", ELEVATOR_CONE_SLAM_HIGH);
-    LoggedTunableNumber conePulloutHeight = new LoggedTunableNumber("Elevator/ConePulloutHighHeight", ELEVATOR_CONE_PULL_OUT_HIGH);
-    LoggedTunableNumber cubeOffset = new LoggedTunableNumber("Elevator/CubeOffsetHeight", ELEVATOR_CUBE_OFFSET);
-    LoggedTunableNumber coneOffset = new LoggedTunableNumber("Elevator/ConeOffsetHeight", ELEVATOR_CONE_OFFSET);
-    LoggedTunableNumber preLowHeight = new LoggedTunableNumber("Elevator/PreLowHeight", ELEVATOR_PRE_LOW);
-    LoggedTunableNumber floorIntakeCubeHeight = new LoggedTunableNumber("Elevator/FloorIntakeCubeHeight", ELEVATOR_FLOOR_INTAKE_CUBE);
-    LoggedTunableNumber doubleSubstationConeHeight = new LoggedTunableNumber("Elevator/DoubleSubstationConeHeight", ELEVATOR_DOUBLE_SUBSTATION_CONE);
-    LoggedTunableNumber doubleSubstationCubeHeight = new LoggedTunableNumber("Elevator/DoubleSubstationCubeHeight", ELEVATOR_DOUBLE_SUBSTATION_CUBE);
+    TunableNumber preCubeHighHeight = new TunableNumber("Elevator/PreCubeHighHeight", ELEVATOR_PRE_CUBE_HIGH);
+    TunableNumber preConeHighHeight = new TunableNumber("Elevator/PreConeHighHeight", ELEVATOR_PRE_CONE_HIGH);
+    TunableNumber coneSlamHeight = new TunableNumber("Elevator/ConeSlamHighHeight", ELEVATOR_CONE_SLAM_HIGH);
+    TunableNumber conePulloutHeight = new TunableNumber("Elevator/ConePulloutHighHeight", ELEVATOR_CONE_PULL_OUT_HIGH);
+    TunableNumber cubeOffset = new TunableNumber("Elevator/CubeOffsetHeight", ELEVATOR_CUBE_OFFSET);
+    TunableNumber coneOffset = new TunableNumber("Elevator/ConeOffsetHeight", ELEVATOR_CONE_OFFSET);
+    TunableNumber preLowHeight = new TunableNumber("Elevator/PreLowHeight", ELEVATOR_PRE_LOW);
+    TunableNumber floorIntakeCubeHeight = new TunableNumber("Elevator/FloorIntakeCubeHeight", ELEVATOR_FLOOR_INTAKE_CUBE);
+    TunableNumber doubleSubstationConeHeight = new TunableNumber("Elevator/DoubleSubstationConeHeight", ELEVATOR_DOUBLE_SUBSTATION_CONE);
+    TunableNumber doubleSubstationCubeHeight = new TunableNumber("Elevator/DoubleSubstationCubeHeight", ELEVATOR_DOUBLE_SUBSTATION_CUBE);
 
-    LoggedTunableNumber cubeAngle = new LoggedTunableNumber("Arm/ArmCubeAngle", ARM_PRE_SCORE_CUBE);
-    LoggedTunableNumber coneAngle = new LoggedTunableNumber("Arm/ArmConeAngle", ARM_PRE_SCORE_CONE);
-    LoggedTunableNumber slamConeAngle = new LoggedTunableNumber("Arm/ArmSlamConeAngle", ARM_SLAM_CONE);
-    LoggedTunableNumber lowAngle = new LoggedTunableNumber("Arm/ArmLowAngle", ARM_PRE_SCORE_LOW);
-    LoggedTunableNumber floorIntakeCubeAngle = new LoggedTunableNumber("Arm/ArmFloorIntakeCube", ARM_FLOOR_INTAKE_CUBE);
-    LoggedTunableNumber doubleSubstationConeAngle = new LoggedTunableNumber("Arm/ArmDoubleSubstationConeAngle", ARM_DOUBLE_SUBSTATION_CONE);
-    LoggedTunableNumber doubleSubstationCubeAngle = new LoggedTunableNumber("Arm/ArmDoubleSubstationCubeAngle", ARM_DOUBLE_SUBSTATION_CUBE);
+    TunableNumber cubeAngle = new TunableNumber("Arm/ArmCubeAngle", ARM_PRE_SCORE_CUBE);
+    TunableNumber coneAngle = new TunableNumber("Arm/ArmConeAngle", ARM_PRE_SCORE_CONE);
+    TunableNumber slamConeAngle = new TunableNumber("Arm/ArmSlamConeAngle", ARM_SLAM_CONE);
+    TunableNumber lowAngle = new TunableNumber("Arm/ArmLowAngle", ARM_PRE_SCORE_LOW);
+    TunableNumber floorIntakeCubeAngle = new TunableNumber("Arm/ArmFloorIntakeCube", ARM_FLOOR_INTAKE_CUBE);
+    TunableNumber doubleSubstationConeAngle = new TunableNumber("Arm/ArmDoubleSubstationConeAngle", ARM_DOUBLE_SUBSTATION_CONE);
+    TunableNumber doubleSubstationCubeAngle = new TunableNumber("Arm/ArmDoubleSubstationCubeAngle", ARM_DOUBLE_SUBSTATION_CUBE);
 
     /* System States */
     public enum SuperstructureState {
@@ -80,8 +83,9 @@ public class Superstructure extends SubsystemBase {
     }
 
     /* Set IO and subsystems to what they should be equal to  */
-    public Superstructure(ElevatorIO elevatorIO, ArmIO armIO) {
+    public Superstructure(ElevatorIO elevatorIO, ArmIO armIO, EndEffectorIO endEffectorIO) {
         elevatorArmLowLevel = new ElevatorArmLowLevel(armIO, elevatorIO);
+        endEffector = new EndEffector(endEffectorIO);
     }
 
     @Override
@@ -92,11 +96,13 @@ public class Superstructure extends SubsystemBase {
 
         /* On loops */
         elevatorArmLowLevel.onLoop();
+        endEffector.onLoop();
 
         /* Statemachinet things */
         SuperstructureState nextSystemState = systemState;
         if (systemState == SuperstructureState.PRE_HOME) {
             // Outputs
+            endEffector.idling();
 
             // Transitions
             if (requestHome) {
@@ -105,6 +111,7 @@ public class Superstructure extends SubsystemBase {
             }
         } else if (systemState == SuperstructureState.HOMING) {
             // Outputs
+            endEffector.idling();
 
             // Transitions 
             if (elevatorArmLowLevel.getSystemState() == ElevatorArmSystemStates.IDLE) {
@@ -114,6 +121,7 @@ public class Superstructure extends SubsystemBase {
         } else if (systemState == SuperstructureState.IDLE) {
             // Outputs
             elevatorArmLowLevel.requestDesiredState(0.025, 90.0);
+            endEffector.holdGamePiece();
 
             // Transitions
             if (requestHome) {
@@ -134,6 +142,7 @@ public class Superstructure extends SubsystemBase {
         } else if (systemState == SuperstructureState.FLOOR_INTAKE_CUBE) {
             // Outputs
             elevatorArmLowLevel.requestDesiredState(floorIntakeCubeHeight.get(), floorIntakeCubeAngle.get());
+            endEffector.intakeCube();
 
             // Transitions
             if (requestHome) {
@@ -144,6 +153,7 @@ public class Superstructure extends SubsystemBase {
         } else if (systemState == SuperstructureState.HP_INTAKE_CONE) {
             // Outputs
             elevatorArmLowLevel.requestDesiredState(doubleSubstationConeHeight.get(), doubleSubstationConeAngle.get());
+            endEffector.intakeCone();
 
             // Transitions
             if (requestHome) {
@@ -153,7 +163,8 @@ public class Superstructure extends SubsystemBase {
             }
         } else if (systemState == SuperstructureState.HP_INTAKE_CUBE) {
             // Outputs
-            elevatorArmLowLevel.requestDesiredState(doubleSubstationConeHeight.get(), doubleSubstationCubeAngle.get());
+            elevatorArmLowLevel.requestDesiredState(doubleSubstationCubeHeight.get(), doubleSubstationCubeAngle.get());
+            endEffector.intakeCube();
 
             // Transitions
             if (requestHome) {
@@ -164,6 +175,7 @@ public class Superstructure extends SubsystemBase {
         } else if (systemState == SuperstructureState.PRE_PLACE_PIECE_LOW) {
             // Outputs
             elevatorArmLowLevel.requestDesiredState(preLowHeight.get(), lowAngle.get());
+            endEffector.holdGamePiece();
 
             // Transitions
             if (requestHome) {
@@ -180,6 +192,7 @@ public class Superstructure extends SubsystemBase {
             } else {
                 elevatorArmLowLevel.requestDesiredState(preCubeHighHeight.get(), cubeAngle.get());
             }
+            endEffector.holdGamePiece();
 
             // Transitions
             if (requestHome) {
@@ -197,6 +210,7 @@ public class Superstructure extends SubsystemBase {
             } else {
                 elevatorArmLowLevel.requestDesiredState(preConeHighHeight.get(), coneAngle.get());
             }
+            endEffector.holdGamePiece();
 
             // Transitions
             if (requestHome) {
@@ -209,6 +223,7 @@ public class Superstructure extends SubsystemBase {
         } else if (systemState == SuperstructureState.EXHAUSTING_PIECE_LOW) {
             // Outputs
             elevatorArmLowLevel.requestDesiredState(preLowHeight.get(), lowAngle.get());
+            endEffector.spitCube();
 
             // Transitions
             if (requestHome) {
@@ -223,6 +238,7 @@ public class Superstructure extends SubsystemBase {
             } else {
                 elevatorArmLowLevel.requestDesiredState(preCubeHighHeight.get(), cubeAngle.get());
             }
+            endEffector.spitCube();
 
             // Transitions
             if (requestHome) {
@@ -237,6 +253,8 @@ public class Superstructure extends SubsystemBase {
             } else {
                 elevatorArmLowLevel.requestDesiredState(coneSlamHeight.get(), slamConeAngle.get());
             }
+            endEffector.enableBrakeMode(false);
+            endEffector.idling();
 
             // Transitions
             if (requestHome) {
@@ -251,6 +269,7 @@ public class Superstructure extends SubsystemBase {
             } else {
                 elevatorArmLowLevel.requestDesiredState(conePulloutHeight.get(), slamConeAngle.get());
             }
+            endEffector.idling();
 
             // Transitions
             if (requestHome) {

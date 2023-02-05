@@ -9,7 +9,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
-import frc.robot.commons.LoggedTunableNumber;
+import frc.robot.commons.TunableNumber;
 
 import static frc.robot.Constants.Elevator.*;
 import static frc.robot.Constants.Electrical.*;
@@ -19,11 +19,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     TalonFX leader = new TalonFX(ELEVATOR_LEFT_ID, CANIVORE_BUS_NAME);
     TalonFX follower = new TalonFX(ELEVATOR_RIGHT_ID, CANIVORE_BUS_NAME);
 
-    LoggedTunableNumber kP = new LoggedTunableNumber("Elevator/kP", 0.4);
-    LoggedTunableNumber kD = new LoggedTunableNumber("Elevator/kD", 0.075);
-    LoggedTunableNumber kF = new LoggedTunableNumber("Elevator/kF", 2.7);
-    LoggedTunableNumber kMaxVelocity = new LoggedTunableNumber("Elevator/kMaxVelocity", 2.1); 
-    LoggedTunableNumber kMaxAccel = new LoggedTunableNumber("Elevator/kMaxAccel", 6.0); 
+    TunableNumber kP = new TunableNumber("Elevator/kP", 0.4);
+    TunableNumber kD = new TunableNumber("Elevator/kD", 0.075);
+    TunableNumber kF = new TunableNumber("Elevator/kF", 2.7);
+    TunableNumber kMaxVelocity = new TunableNumber("Elevator/kMaxVelocity", 2.1); 
+    TunableNumber kMaxAccel = new TunableNumber("Elevator/kMaxAccel", 6.0); 
 
 
     public ElevatorIOTalonFX() {
@@ -98,23 +98,23 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     @Override
     public void updateTunableNumbers() {
-        if (kP.hasChanged(this.hashCode())) {
+        if (kP.hasChanged()) {
             leader.config_kP(0, integratedSensorUnitsToMetersPerSecond(kP.get()) * 1023.0);
         }
 
-        if (kD.hasChanged(this.hashCode())) {
+        if (kD.hasChanged()) {
             leader.config_kD(0, integratedSensorUnitsToMetersPerSecond(kD.get()) * 1023.0);
         }
 
-        if (kF.hasChanged(this.hashCode())) {
+        if (kF.hasChanged()) {
             leader.config_kD(0, 1023.0/metersPerSecondToIntegratedSensorUnits(kF.get()));
         }
 
-        if (kMaxVelocity.hasChanged(this.hashCode())) {
+        if (kMaxVelocity.hasChanged()) {
             leader.configMotionCruiseVelocity(metersPerSecondToIntegratedSensorUnits(kMaxVelocity.get()));
         }
 
-        if (kMaxAccel.hasChanged(this.hashCode())) {
+        if (kMaxAccel.hasChanged()) {
             System.out.println("I've changed!");
             leader.configMotionAcceleration(metersPerSecondToIntegratedSensorUnits(kMaxAccel.get()));
         }

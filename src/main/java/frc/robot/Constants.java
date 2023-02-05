@@ -107,7 +107,7 @@ public final class Constants {
         public static final double CF_SPRING_FF = 0.00916666666;
         public static final double SECOND_STAGE_HEIGHT = 0.5657486369247514;
 
-        public static final double ELEVATOR_MIN_LIMITED_ARM_ROM = 0.2529400221344551;
+        public static final double ELEVATOR_MIN_LIMITED_ARM_ROM = 0.18;
         public static final double ELEVATOR_MIN = 0.0;
         public static final double ELEVATOR_MAX = 1.1712183954944326;
         public static final double ELEVATOR_SETPOINT_TOLERANCE = Units.inchesToMeters(3.0);
@@ -121,8 +121,9 @@ public final class Constants {
         public static final double ELEVATOR_CONE_OFFSET = 0.4702;
         public static final double ELEVATOR_PRE_LOW = 0.34;
         public static final double ELEVATOR_FLOOR_INTAKE_CUBE = 0.05;
-        public static final double ELEVATOR_DOUBLE_SUBSTATION_CONE = 0.98;
-        public static final double ELEVATOR_DOUBLE_SUBSTATION_CUBE = 1.0954;
+        public static final double ELEVATOR_DOUBLE_SUBSTATION_CONE = 1.1;
+        // public static final double ELEVATOR_DOUBLE_SUBSTATION_CUBE = 1.115;
+        public static final double ELEVATOR_DOUBLE_SUBSTATION_CUBE = 0.19550697818942656;
     }
 
     // Constants pertaining to the arm subsystem go here
@@ -149,7 +150,14 @@ public final class Constants {
         public static final double ARM_PRE_SCORE_LOW = 230.0;
         public static final double ARM_FLOOR_INTAKE_CUBE = 1.0;
         public static final double ARM_DOUBLE_SUBSTATION_CONE = 178.4;
-        public static final double ARM_DOUBLE_SUBSTATION_CUBE = 211.6;
+        // public static final double ARM_DOUBLE_SUBSTATION_CUBE = 211.6;
+        public static final double ARM_DOUBLE_SUBSTATION_CUBE = 155.478515625;
+    }
+
+    // Constants pertaining to the end effector subsystem go here 
+    public static class EndEffector {
+        public static final int MOTOR_ID = 18;
+        public static final boolean IS_REVERSED = false;
     }
 
     // Constants pertaining to electrical
