@@ -24,8 +24,12 @@ public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
+  private boolean intakeDeployed = false;
+  private boolean spitDeployed = false;
 
   PowerDistribution pdp;
+
+  private boolean homed = false;
 
   @Override
   public void robotInit() {
@@ -78,7 +82,10 @@ public class Robot extends LoggedRobot {
       m_autonomousCommand.cancel();
     }
 
-    RobotContainer.superstructure.requestHome();
+    if (!homed) {
+      RobotContainer.superstructure.requestHome();
+      homed = true;
+    }
   }
 
   @Override
@@ -100,6 +107,22 @@ public class Robot extends LoggedRobot {
     // Sets the 0 of the robot
     if (m_robotContainer.driver.getAButtonPressed()) {
       m_robotContainer.swerve.reset(new Pose2d());
+    }
+
+    if (RobotContainer.operator.getRightTriggerAxis() > 0.1 && !intakeDeployed) {
+      intakeDeployed = true;
+      RobotContainer.superstructure.requestFloorIntakeCube();
+    } else if (RobotContainer.operator.getRightTriggerAxis() <= 0.1 && intakeDeployed) {
+      intakeDeployed = false;
+      RobotContainer.superstructure.requestIdle();
+    }
+
+    if (RobotContainer.operator.getLeftTriggerAxis() > 0.1 && !spitDeployed) {
+      spitDeployed = true;
+      RobotContainer.superstructure.requestSpit();
+    } else if (RobotContainer.operator.getLeftTriggerAxis() <= 0.1 && spitDeployed) {
+      spitDeployed = false;
+      RobotContainer.superstructure.requestIdle();
     }
 
     if (RobotContainer.operator.getRightBumperPressed()) {
@@ -133,7 +156,6 @@ public class Robot extends LoggedRobot {
     if (RobotContainer.operator.getLeftStickButtonPressed()) {
       RobotContainer.superstructure.requestIdle();
     }
-
 
   }
 

@@ -60,6 +60,8 @@ public class ArmIOTalonFX implements ArmIO {
         inputs.currentAmps = arm.getStatorCurrent();
         inputs.appliedVoltage = arm.getMotorOutputVoltage();
         inputs.tempCelcius = arm.getTemperature();
+        inputs.armTargetPosition = CANCoderSensorUnitsToDegrees(arm.getActiveTrajectoryPosition());
+        inputs.armTargetPosition = CANCoderSensorUnitsToDegreesPerSecond(arm.getActiveTrajectoryVelocity());
     }
 
     @Override

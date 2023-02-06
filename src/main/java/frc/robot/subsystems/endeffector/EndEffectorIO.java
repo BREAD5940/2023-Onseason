@@ -18,5 +18,8 @@ public interface EndEffectorIO {
 
     /** Enables or disables brake mode for the end effector */
     public default void enableBrakeMode(boolean enable) {}
+
+    /* Sets current limit of end-effector */
+    public default void setCurrentLimit(int smartCurrent, double secondaryCurrent) {}
     
 }

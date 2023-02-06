@@ -14,6 +14,9 @@ public interface FloorIntakeIO {
         public double deployCurrentAmps = 0.0;
         public double deployAppliedVoltage = 0.0;
         public double deployTempCelcius = 0.0;
+        public double deployPositionTarget = 0.0;
+        public double deployVelocityTarget = 0.0;
+        public double deployDutyCycle = 0.0;
     }
 
     /** Updates the set of loggable inputs */
@@ -24,6 +27,9 @@ public interface FloorIntakeIO {
         
     /** Sets desired deploy angle */  
     public default void setDeployAngle(double angle) {}
+
+    /** Resets the deploy angle to a new angle */
+    public default void resetDeployAngle(double newAngleDegrees) {}
 
     /** Sets percent for deploy motor  */
     public default void setDeployPercent(double percent) {}

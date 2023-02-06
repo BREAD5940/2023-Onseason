@@ -34,5 +34,11 @@ public class EndEffectorIOSparkMax implements EndEffectorIO {
     public void enableBrakeMode(boolean enable) {
         motor.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
     }
+
+    @Override
+    public void setCurrentLimit(int smartCurrent, double secondaryCurrent) {
+        motor.setSmartCurrentLimit(smartCurrent);
+        motor.setSecondaryCurrentLimit(secondaryCurrent);
+    }
 }
 
