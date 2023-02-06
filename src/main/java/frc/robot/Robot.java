@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
+import frc.robot.subsystems.Superstructure.SuperstructureState;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -95,9 +96,10 @@ public class Robot extends LoggedRobot {
     double omega = m_robotContainer.driver.getLeftX();
 
     // Movement Outputs
-    double dx = Math.abs(x) > 0.075 ? Math.pow(-x, 1) : 0.0;
-    double dy = Math.abs(y) > 0.075 ? Math.pow(-y, 1) : 0.0;
-    double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.5 : 0.0;
+    double scale = RobotContainer.driver.getRightBumper() ? 0.25 : 1.0;
+    double dx = Math.abs(x) > 0.075 ? Math.pow(-x, 1) * scale : 0.0;
+    double dy = Math.abs(y) > 0.075 ? Math.pow(-y, 1) * scale : 0.0;
+    double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.5  * scale: 0.0;
     m_robotContainer.swerve.requestPercent(new ChassisSpeeds(dx, dy, rot), true);
 
     if (m_robotContainer.driver.getAButtonPressed()) {

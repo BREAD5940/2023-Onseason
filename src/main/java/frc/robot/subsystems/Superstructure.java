@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.endeffector.EndEffector;
@@ -174,6 +175,9 @@ public class Superstructure extends SubsystemBase {
             if (requestHome) {
                 nextSystemState = SuperstructureState.PRE_HOME;
             } else if (!requestHPIntakeCone) {
+                nextSystemState = SuperstructureState.IDLE;
+            } else if (endEffector.getStatorCurrent() > 10.0 * 12.5/RobotController.getBatteryVoltage()) {
+                requestHPIntakeCone = false;
                 nextSystemState = SuperstructureState.IDLE;
             }
         } else if (systemState == SuperstructureState.HP_INTAKE_CUBE) {
@@ -381,6 +385,11 @@ public class Superstructure extends SubsystemBase {
     /** Zeroes all sensors */
     public void zeroSensors() {
         elevatorArmLowLevel.zeroSensors();
+    }
+
+    /** Returns the system state */
+    public SuperstructureState getSystemState() {
+        return systemState;
     }
 
 }

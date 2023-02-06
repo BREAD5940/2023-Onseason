@@ -5,11 +5,14 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.RobotController;
+import frc.robot.commons.AveragingFilter;
 
 import static frc.robot.Constants.EndEffector.*;
 
 public class EndEffectorIOSparkMax implements EndEffectorIO {
+
     CANSparkMax motor;
+    AveragingFilter filter = new AveragingFilter(13);
 
     public EndEffectorIOSparkMax() {
         motor = new CANSparkMax(MOTOR_ID, MotorType.kBrushless);
@@ -22,6 +25,7 @@ public class EndEffectorIOSparkMax implements EndEffectorIO {
     public void updateInputs(EndEffectorIOInputs inputs) {
         inputs.appliedVoltage = motor.getAppliedOutput() * RobotController.getBatteryVoltage(); 
         inputs.statorCurrentAmps = motor.getOutputCurrent();
+        inputs.avgStatorCurrentAmps = filter.getAverage();
         inputs.tempCelcius = motor.getMotorTemperature();
     }
 
@@ -39,6 +43,11 @@ public class EndEffectorIOSparkMax implements EndEffectorIO {
     public void setCurrentLimit(int smartCurrent, double secondaryCurrent) {
         motor.setSmartCurrentLimit(smartCurrent);
         motor.setSecondaryCurrentLimit(secondaryCurrent);
+    }
+
+    @Override
+    public void updateFilter() {
+        filter.addSample(motor.getOutputCurrent());
     }
 }
 

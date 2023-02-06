@@ -26,6 +26,7 @@ public class EndEffector {
     public void onLoop() {
         endEffectorIO.updateInputs(endEffectorInputs);
         Logger.getInstance().processInputs("EndEffector", endEffectorInputs);
+        endEffectorIO.updateFilter();
     }
 
     /* For intaking cones */
@@ -61,5 +62,10 @@ public class EndEffector {
     /* Enables/disables brake mode */
     public void enableBrakeMode(boolean enable) {
         endEffectorIO.enableBrakeMode(enable);
+    }
+
+    /* Returns the stator current of the end effector */
+    public double getStatorCurrent() {
+        return endEffectorInputs.avgStatorCurrentAmps;
     }
 }
