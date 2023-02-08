@@ -158,7 +158,7 @@ public final class Constants {
     // Constants pertaining to the end effector subsystem go here 
     public static class EndEffector {
         public static final int MOTOR_ID = 18;
-        public static final boolean IS_REVERSED = false;
+        public static final boolean IS_REVERSED = true;
     }
 
     // Constants pertaining to the floor intake subsystem
