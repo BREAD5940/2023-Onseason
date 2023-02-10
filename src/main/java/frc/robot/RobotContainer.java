@@ -4,30 +4,115 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.GamePiece;
+import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.subsystems.elevatorarm.ArmIO;
 import frc.robot.subsystems.elevatorarm.ArmIOTalonFX;
 import frc.robot.subsystems.elevatorarm.ElevatorIO;
 import frc.robot.subsystems.elevatorarm.ElevatorIOTalonFX;
 import frc.robot.subsystems.endeffector.EndEffectorIO;
 import frc.robot.subsystems.endeffector.EndEffectorIOSparkMax;
+import frc.robot.subsystems.floorintake.FloorIntakeIO;
+import frc.robot.subsystems.floorintake.FloorIntakeIOTalonFX;
+import frc.robot.subsystems.swerve.Point2PointFollower;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.vision.Vision;
+
+import static frc.robot.FieldConstants.*;
 
 public class RobotContainer {
 
+  public static final Vision vision = new Vision();
   public static final XboxController driver = new XboxController(0);
   public static final XboxController operator = new XboxController(1);
   public static final Swerve swerve = new Swerve();
   public static final ElevatorIO elevatorIO = new ElevatorIOTalonFX();
   public static final ArmIO armIO = new ArmIOTalonFX();
   public static final EndEffectorIO endEffectorIO = new EndEffectorIOSparkMax();
-  public static final Superstructure superstructure = new Superstructure(elevatorIO, armIO, endEffectorIO);
+  public static final FloorIntakeIO floorIntakeIO = new FloorIntakeIOTalonFX();
+  public static final Superstructure superstructure = new Superstructure(elevatorIO, armIO, endEffectorIO, floorIntakeIO);
 
-  public RobotContainer() { }
+  public RobotContainer() { 
+    configureControls();
+  }
+
+  private void configureControls() {
+    swerve.setDefaultCommand(new RunCommand(() -> {
+      double x = driver.getRightY();
+      double y = driver.getRightX();
+      double omega = driver.getLeftX();
+
+      // Movement Outputs
+      double scale = RobotContainer.driver.getRightBumper() ? 0.25 : 1.0;
+      double dx = Math.abs(x) > 0.075 ? Math.pow(-x, 1) * scale : 0.0;
+      double dy = Math.abs(y) > 0.075 ? Math.pow(-y, 1) * scale : 0.0;
+      double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.5  * scale: 0.0;
+      swerve.requestPercent(new ChassisSpeeds(dx, dy, rot), true);
+
+      if (driver.getAButtonPressed()) {
+        swerve.reset(new Pose2d());
+      }
+
+      // Sets the 0 of the robot
+      if (driver.getAButtonPressed()) {
+        swerve.reset(new Pose2d());
+      }
+    }, swerve));
+
+    superstructure.setDefaultCommand(new RunCommand(() -> {
+      if (RobotContainer.operator.getRightBumperPressed()) {
+        RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
+      }
+  
+      if (RobotContainer.operator.getLeftBumperPressed()) {
+        RobotContainer.superstructure.requestIntakeCubeDoubleSubstation();
+      }
+  
+      if (RobotContainer.operator.getAButtonPressed()) {
+        RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
+      }
+  
+      if (RobotContainer.operator.getBButtonPressed()) {
+        RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
+      }
+      
+      if (RobotContainer.operator.getXButtonPressed()) {
+        RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
+      }
+  
+      if (RobotContainer.operator.getYButtonPressed()) {
+        RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
+      }
+  
+      if (RobotContainer.operator.getRightStickButtonPressed()) {
+        RobotContainer.superstructure.requestScore();
+      }
+  
+      if (RobotContainer.operator.getLeftStickButtonPressed()) {
+        RobotContainer.superstructure.requestIdle();
+      }
+    }, superstructure));
+
+    new JoystickButton(driver, XboxController.Button.kRightBumper.value).whileTrue(new Point2PointFollower(
+      () -> new Pose2d(1.312749431033244, aprilTags.get(4).getY(), new Rotation2d(Math.PI)), 
+      (pose, time) -> new Rotation2d(Math.PI), 
+      swerve, 
+      superstructure
+    ));
+  }
 
   public Command getAutonomousCommand() {
     return null;
   }
 }
+
+
+

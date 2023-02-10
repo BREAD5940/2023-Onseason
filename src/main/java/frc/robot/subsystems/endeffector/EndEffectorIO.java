@@ -6,6 +6,7 @@ public interface EndEffectorIO {
     @AutoLog
     public static class EndEffectorIOInputs {
         public double statorCurrentAmps = 0.0;
+        public double avgStatorCurrentAmps = 0.0;
         public double appliedVoltage = 0.0;
         public double tempCelcius = 0.0;
     }
@@ -18,5 +19,11 @@ public interface EndEffectorIO {
 
     /** Enables or disables brake mode for the end effector */
     public default void enableBrakeMode(boolean enable) {}
+
+    /* Sets current limit of end-effector */
+    public default void setCurrentLimit(int smartCurrent, double secondaryCurrent) {}
+
+    /* Updates filters */
+    public default void updateFilter() {}
     
 }

@@ -6,6 +6,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch FloorIntakeIOTalonFX",
+      "request": "launch",
+      "mainClass": "frc.robot.subsystems.floorintake.FloorIntakeIOTalonFX",
+      "projectName": "2023-Beta"
+    },
+    {
+      "type": "java",
       "name": "Launch Constants",
       "request": "launch",
       "mainClass": "frc.robot.Constants",

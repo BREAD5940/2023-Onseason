@@ -11,6 +11,11 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPoint;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -19,13 +24,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
+import frc.robot.subsystems.Superstructure.SuperstructureState;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
+  private boolean intakeDeployed = false;
+  private boolean spitDeployed = false;
 
   PowerDistribution pdp;
+
+  private boolean homed = false;
 
   @Override
   public void robotInit() {
@@ -78,62 +88,14 @@ public class Robot extends LoggedRobot {
       m_autonomousCommand.cancel();
     }
 
-    RobotContainer.superstructure.requestHome();
+    if (!homed) {
+      RobotContainer.superstructure.requestHome();
+      homed = true;
+    }
   }
 
   @Override
   public void teleopPeriodic() {
-    double x = m_robotContainer.driver.getRightY();
-    double y = m_robotContainer.driver.getRightX();
-    double omega = m_robotContainer.driver.getLeftX();
-
-    // Movement Outputs
-    double dx = Math.abs(x) > 0.075 ? Math.pow(-x, 1) : 0.0;
-    double dy = Math.abs(y) > 0.075 ? Math.pow(-y, 1) : 0.0;
-    double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.5 : 0.0;
-    m_robotContainer.swerve.requestPercent(new ChassisSpeeds(dx, dy, rot), true);
-
-    if (m_robotContainer.driver.getAButtonPressed()) {
-      m_robotContainer.swerve.reset(new Pose2d());
-    }
-
-    // Sets the 0 of the robot
-    if (m_robotContainer.driver.getAButtonPressed()) {
-      m_robotContainer.swerve.reset(new Pose2d());
-    }
-
-    if (RobotContainer.operator.getRightBumperPressed()) {
-      RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
-    }
-
-    if (RobotContainer.operator.getLeftBumperPressed()) {
-      RobotContainer.superstructure.requestIntakeCubeDoubleSubstation();
-    }
-
-    if (RobotContainer.operator.getAButtonPressed()) {
-      RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
-    }
-
-    if (RobotContainer.operator.getBButtonPressed()) {
-      RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
-    }
-    
-    if (RobotContainer.operator.getXButtonPressed()) {
-      RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
-    }
-
-    if (RobotContainer.operator.getYButtonPressed()) {
-      RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
-    }
-
-    if (RobotContainer.operator.getRightStickButtonPressed()) {
-      RobotContainer.superstructure.requestScore();
-    }
-
-    if (RobotContainer.operator.getLeftStickButtonPressed()) {
-      RobotContainer.superstructure.requestIdle();
-    }
-
 
   }
 
