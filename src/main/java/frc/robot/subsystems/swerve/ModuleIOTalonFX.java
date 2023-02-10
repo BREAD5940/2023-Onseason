@@ -31,11 +31,11 @@ public class ModuleIOTalonFX implements ModuleIO {
         drive = new TalonFX(driveID, CANIVORE_BUS_NAME);
         TalonFXConfiguration driveConfig = new TalonFXConfiguration();
         driveConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.IntegratedSensor;
-        driveConfig.slot0.kP = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.05) * 1023.0; // TODO check this
+        driveConfig.slot0.kP = integratedSensorUnitsToWheelSpeedMetersPerSecond(10.0) * 1023.0; // TODO check this
         driveConfig.slot0.kI = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.0);
         driveConfig.slot0.kD = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.0);
         driveConfig.slot0.kF = 1023.0/wheelSpeedMetersPerSecondToIntegratedSensorUnits(ROBOT_MAX_SPEED);
-        driveConfig.slot1.kP = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.001) * 1023.0;
+        driveConfig.slot1.kP = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.2) * 1023.0;
         driveConfig.slot1.kI = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.0);
         driveConfig.slot1.kD = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.0);
         driveConfig.slot1.kF = 1023.0/wheelSpeedMetersPerSecondToIntegratedSensorUnits(ROBOT_MAX_SPEED);

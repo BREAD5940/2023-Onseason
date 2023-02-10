@@ -118,6 +118,8 @@ public class Swerve extends SubsystemBase {
         }
 
         SwerveModuleState[] setpointStatesOptimized = new SwerveModuleState[] {null, null, null, null};
+        double[] desiredAngles = {0, 0, 0, 0};
+        double[] desiredVelocities = {0, 0, 0, 0};
 
         for (int i = 0; i < 4; i++) {
             setpointStatesOptimized[i] = SwerveModuleState.optimize(setpointStates[i], turnPositions[i]);
@@ -133,6 +135,8 @@ public class Swerve extends SubsystemBase {
                 double[] desiredState = getContinousOutput(setpointStatesOptimized[i], moduleInputs[i].turnAbsolutePositionRad);
                 moduleIOs[i].setDrivePercent(desiredState[0]);
                 moduleIOs[i].setTurnAngle(desiredState[1]);
+                desiredVelocities[i] = desiredState[0];
+                desiredAngles[i] = desiredState[1];
             }
 
             if (requestVelocity) {
@@ -145,6 +149,8 @@ public class Swerve extends SubsystemBase {
                 double[] desiredState = getContinousOutput(setpointStatesOptimized[i], moduleInputs[i].turnAbsolutePositionRad);
                 moduleIOs[i].setDriveVelocity(desiredState[0]);
                 moduleIOs[i].setTurnAngle(desiredState[1]);
+                desiredVelocities[i] = desiredState[0];
+                desiredAngles[i] = desiredState[1];
             }
 
             if (requestPercent) {
@@ -161,6 +167,8 @@ public class Swerve extends SubsystemBase {
         logModuleStates("SwerveModuleStates/MeasuredStates", measuredStates);
         updateOdometry();
         Logger.getInstance().recordOutput("Odometry/Robot", pose);
+        Logger.getInstance().recordOutput("Desired Angles", desiredAngles);
+        Logger.getInstance().recordOutput("Desired Velocities", desiredVelocities);
     }
 
     /** Requests a provided percent output to the swerve drive */
