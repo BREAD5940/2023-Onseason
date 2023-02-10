@@ -22,7 +22,7 @@ import frc.robot.subsystems.endeffector.EndEffectorIO;
 import frc.robot.subsystems.endeffector.EndEffectorIOSparkMax;
 import frc.robot.subsystems.floorintake.FloorIntakeIO;
 import frc.robot.subsystems.floorintake.FloorIntakeIOTalonFX;
-import frc.robot.subsystems.swerve.Point2PointFollower;
+import frc.robot.subsystems.swerve.AutoPickupRoutine;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.vision.Vision;
 
@@ -101,7 +101,7 @@ public class RobotContainer {
       }
     }, superstructure));
 
-    new JoystickButton(driver, XboxController.Button.kRightBumper.value).whileTrue(new Point2PointFollower(
+    new JoystickButton(driver, XboxController.Button.kRightBumper.value).whileTrue(new AutoPickupRoutine(
       () -> new Pose2d(1.312749431033244, aprilTags.get(4).getY(), new Rotation2d(Math.PI)), 
       (pose, time) -> new Rotation2d(Math.PI), 
       swerve, 
