@@ -8,14 +8,11 @@ import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
-import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.commons.BreadHolonomicDriveController;
@@ -28,7 +25,6 @@ public class Drive2Point extends CommandBase {
     private final Swerve swerve;
     private final double endVelocity;
     private final PathConstraints constraints;
-    private final Superstructure superstructure;
     private final Timer timer = new Timer();
     private boolean failedToCreateTrajectory = false;
     public final BreadHolonomicDriveController autonomousController = new BreadHolonomicDriveController(
@@ -37,12 +33,11 @@ public class Drive2Point extends CommandBase {
         new PIDController(2.0, 0, 0.1)
     );
 
-    public Drive2Point(Supplier<Pose2d> endPosition, double endVelocity, PathConstraints constraints, Swerve swerve, Superstructure superstructure) {
+    public Drive2Point(Supplier<Pose2d> endPosition, double endVelocity, PathConstraints constraints, Swerve swerve) {
         this.endPosition = endPosition;
         this.endVelocity = endVelocity;
         this.constraints = constraints;
         this.swerve = swerve;
-        this.superstructure = superstructure;
     }
     
     @Override

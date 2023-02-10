@@ -48,7 +48,7 @@ public class Swerve extends SubsystemBase {
             getSwerveModulePositions(),
             new Pose2d(),
             VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(0.8)),
-            VecBuilder.fill(0.6, 0.6, Units.degreesToRadians(40.0)));
+            VecBuilder.fill(0.3, 0.3, Units.degreesToRadians(20.0)));
 
     private Pose2d pose = new Pose2d(); 
     public final Field2d field = new Field2d();
