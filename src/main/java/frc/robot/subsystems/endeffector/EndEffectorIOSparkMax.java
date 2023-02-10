@@ -19,6 +19,7 @@ public class EndEffectorIOSparkMax implements EndEffectorIO {
         motor.setInverted(IS_REVERSED);
         motor.setSmartCurrentLimit(5);
         motor.setSecondaryCurrentLimit(7);
+        motor.enableVoltageCompensation(9.0);
     }
 
     @Override

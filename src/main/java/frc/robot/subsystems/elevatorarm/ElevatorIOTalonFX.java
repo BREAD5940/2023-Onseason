@@ -61,7 +61,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {
-        inputs.posMeters = getHeight();leader.getActiveTrajectoryVelocity();
+        inputs.posMeters = getHeight();
         inputs.velMetersPerSecond = integratedSensorUnitsToMetersPerSecond(leader.getSelectedSensorVelocity());
         inputs.velTarget = integratedSensorUnitsToMetersPerSecond(leader.getActiveTrajectoryVelocity());
         inputs.posTarget = integratedSensorUnitsToMeters(leader.getActiveTrajectoryPosition());

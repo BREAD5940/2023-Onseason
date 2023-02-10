@@ -176,7 +176,7 @@ public class Superstructure extends SubsystemBase {
                 nextSystemState = SuperstructureState.PRE_HOME;
             } else if (!requestHPIntakeCone) {
                 nextSystemState = SuperstructureState.IDLE;
-            } else if (endEffector.getStatorCurrent() > 10.0 * 12.5/RobotController.getBatteryVoltage()) {
+            } else if (endEffector.getStatorCurrent() > 13.0) {
                 requestHPIntakeCone = false;
                 nextSystemState = SuperstructureState.IDLE;
             }

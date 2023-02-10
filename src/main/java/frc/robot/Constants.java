@@ -6,7 +6,10 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
 // All Constants
@@ -177,6 +180,15 @@ public final class Constants {
     // Constants pertaining to electrical
     public static class Electrical {
         public static final String CANIVORE_BUS_NAME = "dabus"; 
+    }
+
+    // Constants pertaining to the camera
+    public static class Camera {
+        public static final String CAMERA_NAME = "BreadCam";
+        public static final Transform3d ROBOT_TO_CAM =
+                new Transform3d(
+                        new Translation3d(0.26, 0.25, 0.29),
+                        new Rotation3d(Units.degreesToRadians(0.7496413), Units.degreesToRadians(23.6230562), 0.0));//Units.degreesToRadians(1.6593493)));
     }
   
 }

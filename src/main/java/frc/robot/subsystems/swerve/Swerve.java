@@ -20,7 +20,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
+import frc.robot.commons.BreadPoseEstimator;
 import frc.robot.commons.BreadUtil;
+import frc.robot.subsystems.vision.Vision.TimestampedPose2d;
 
 import static frc.robot.Constants.Drive.*;
 
@@ -38,13 +41,14 @@ public class Swerve extends SubsystemBase {
     };
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(FL_LOCATION, FR_LOCATION, BL_LOCATION, BR_LOCATION);
-    private final SwerveDriveOdometry poseEstimator =
-      new SwerveDriveOdometry(
-          kinematics,
-          getRotation2d(),
-          getSwerveModulePositions(),
-          new Pose2d()
-      );
+    private final BreadPoseEstimator poseEstimator =
+        new BreadPoseEstimator(
+            kinematics,
+            getRotation2d(),
+            getSwerveModulePositions(),
+            new Pose2d(),
+            VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(0.8)),
+            VecBuilder.fill(0.6, 0.6, Units.degreesToRadians(40.0)));
 
     private Pose2d pose = new Pose2d(); 
     public final Field2d field = new Field2d();
@@ -186,7 +190,7 @@ public class Swerve extends SubsystemBase {
     /** Resets the swerve drive odometry */
     public void reset(Pose2d newPose) {
         poseEstimator.resetPosition(getRotation2d(), getSwerveModulePositions(), newPose);
-        pose = poseEstimator.getPoseMeters();
+        pose = poseEstimator.getEstimatedPosition();
         gyroIO.reset();
     }
 
@@ -196,6 +200,18 @@ public class Swerve extends SubsystemBase {
             getRotation2d(),
             getSwerveModulePositions()
         );  
+
+        while (RobotContainer.vision.hasMeasurements()) {
+            TimestampedPose2d result = RobotContainer.vision.popMeasurement();
+            double timestamp = result.timestamp();
+            Pose2d pose = result.pose();
+            poseEstimator.addVisionMeasurement(pose, timestamp);
+            Pose2d bufferPose = poseEstimator.getPoseAtTime(timestamp);
+            Logger.getInstance().recordOutput("Odometry/VisionErrorXInches",  Units.metersToInches(bufferPose.getX()-pose.getX()));
+            Logger.getInstance().recordOutput("Odometry/VisionErrorYInches",  Units.metersToInches(bufferPose.getY()-pose.getY()));
+            Logger.getInstance().recordOutput("Odometry/VisionErrorRotationDeg",  bufferPose.getRotation().getDegrees()-pose.getRotation().getDegrees());
+            Logger.getInstance().recordOutput("Odometry/VisionRobot", pose);
+        }
     }
 
     /** Sets the neutral modes for the swerve modules */

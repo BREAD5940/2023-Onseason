@@ -11,6 +11,11 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPoint;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -91,73 +96,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopPeriodic() {
-    double x = m_robotContainer.driver.getRightY();
-    double y = m_robotContainer.driver.getRightX();
-    double omega = m_robotContainer.driver.getLeftX();
-
-    // Movement Outputs
-    double scale = RobotContainer.driver.getRightBumper() ? 0.25 : 1.0;
-    double dx = Math.abs(x) > 0.075 ? Math.pow(-x, 1) * scale : 0.0;
-    double dy = Math.abs(y) > 0.075 ? Math.pow(-y, 1) * scale : 0.0;
-    double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.5  * scale: 0.0;
-    m_robotContainer.swerve.requestPercent(new ChassisSpeeds(dx, dy, rot), true);
-
-    if (m_robotContainer.driver.getAButtonPressed()) {
-      m_robotContainer.swerve.reset(new Pose2d());
-    }
-
-    // Sets the 0 of the robot
-    if (m_robotContainer.driver.getAButtonPressed()) {
-      m_robotContainer.swerve.reset(new Pose2d());
-    }
-
-    if (RobotContainer.operator.getRightTriggerAxis() > 0.1 && !intakeDeployed) {
-      intakeDeployed = true;
-      RobotContainer.superstructure.requestFloorIntakeCube();
-    } else if (RobotContainer.operator.getRightTriggerAxis() <= 0.1 && intakeDeployed) {
-      intakeDeployed = false;
-      RobotContainer.superstructure.requestIdle();
-    }
-
-    if (RobotContainer.operator.getLeftTriggerAxis() > 0.1 && !spitDeployed) {
-      spitDeployed = true;
-      RobotContainer.superstructure.requestSpit();
-    } else if (RobotContainer.operator.getLeftTriggerAxis() <= 0.1 && spitDeployed) {
-      spitDeployed = false;
-      RobotContainer.superstructure.requestIdle();
-    }
-
-    if (RobotContainer.operator.getRightBumperPressed()) {
-      RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
-    }
-
-    if (RobotContainer.operator.getLeftBumperPressed()) {
-      RobotContainer.superstructure.requestIntakeCubeDoubleSubstation();
-    }
-
-    if (RobotContainer.operator.getAButtonPressed()) {
-      RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
-    }
-
-    if (RobotContainer.operator.getBButtonPressed()) {
-      RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
-    }
-    
-    if (RobotContainer.operator.getXButtonPressed()) {
-      RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
-    }
-
-    if (RobotContainer.operator.getYButtonPressed()) {
-      RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
-    }
-
-    if (RobotContainer.operator.getRightStickButtonPressed()) {
-      RobotContainer.superstructure.requestScore();
-    }
-
-    if (RobotContainer.operator.getLeftStickButtonPressed()) {
-      RobotContainer.superstructure.requestIdle();
-    }
 
   }
 
