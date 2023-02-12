@@ -3,6 +3,7 @@ package frc.robot.subsystems.floorintake;
 import org.littletonrobotics.junction.Logger;
 
 import frc.robot.commons.BreadUtil;
+import frc.robot.commons.TunableNumber;
 
 public class FloorIntake {
 
@@ -110,6 +111,16 @@ public class FloorIntake {
     /** Returns the system state of the intake */
     public FloorIntakeStates getSystemState() {
         return systemState;
+    }
+
+    /** Returns the current of the roller */
+    public double getRollerCurrent() {
+        return floorIntakeInputs.rollerCurrentAmps;
+    }
+
+    /** Returns the angle of the floor intake */
+    public double getAngle() {
+        return floorIntakeInputs.deployAngleDegrees;
     }
     
 }
