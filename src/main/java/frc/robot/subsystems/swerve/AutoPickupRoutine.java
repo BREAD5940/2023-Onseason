@@ -51,7 +51,7 @@ public class AutoPickupRoutine extends CommandBase {
             trajectory = Trajectories.generateTrajectory(true, List.of(
                 new Pose2d(swerve.getPose().getTranslation(), endPosition.get().getRotation()),
                 new Pose2d(endPosition.get().getX(), endPosition.get().getY(), endPosition.get().getRotation())
-            ), 2.0, 1.0, swerve.getVelocity().getNorm(), 0.0);
+            ), 3.0, 2.0, swerve.getVelocity().getNorm(), 0.0);
             Logger.getInstance().recordOutput("OnTheFlyTrajectoryGeneration", trajectory);
             timer.reset();
             timer.start();
@@ -59,7 +59,6 @@ public class AutoPickupRoutine extends CommandBase {
             System.out.println("Failed to create on-the-fly trajectory!");
             failedToCreateTrajectory = true;
         }
-        superstructure.requestIntakeConeDoubleSubstation();
     }
 
     @Override
@@ -73,6 +72,10 @@ public class AutoPickupRoutine extends CommandBase {
         Logger.getInstance().recordOutput("TrajectoryThetaError", autonomusController.m_poseError.getRotation().getDegrees());
         System.out.printf("%f.2 %f.2 %f.2\n", adjustedSpeeds.vxMetersPerSecond, adjustedSpeeds.vyMetersPerSecond, adjustedSpeeds.omegaRadiansPerSecond);
         swerve.requestVelocity(adjustedSpeeds, false);
+
+        if (timer.get() >= trajectory.getTotalTimeSeconds() - 1.5) {
+            superstructure.requestIntakeConeDoubleSubstation();
+        }
     }
 
     @Override
