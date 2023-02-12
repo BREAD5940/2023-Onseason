@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -33,6 +34,8 @@ public class RobotContainer {
   public static final Vision vision = new Vision();
   public static final XboxController driver = new XboxController(0);
   public static final XboxController operator = new XboxController(1);
+  public static final GenericHID keyboard = new GenericHID(2);
+
   public static final Swerve swerve = new Swerve();
   public static final ElevatorIO elevatorIO = new ElevatorIOTalonFX();
   public static final ArmIO armIO = new ArmIOTalonFX();
@@ -68,6 +71,7 @@ public class RobotContainer {
     }, swerve));
 
     superstructure.setDefaultCommand(new RunCommand(() -> {
+      System.out.println("running");
       if (RobotContainer.operator.getRightBumperPressed()) {
         RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
       }
@@ -99,6 +103,47 @@ public class RobotContainer {
       if (RobotContainer.operator.getLeftStickButtonPressed()) {
         RobotContainer.superstructure.requestIdle();
       }
+
+      if (RobotContainer.keyboard.getRawButtonPressed(1) ) {
+        System.out.println("button 1 pressed");
+        RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
+      }
+
+      if (RobotContainer.keyboard.getRawButtonPressed(2) ) {
+        System.out.println("button 2 pressed");
+        RobotContainer.superstructure.requestIntakeCubeDoubleSubstation();
+      }
+
+      if (RobotContainer.keyboard.getRawButtonPressed(3) ) {
+        System.out.println("button 3 pressed");
+        RobotContainer.superstructure.requestScore();
+      }
+
+      if (RobotContainer.keyboard.getRawButtonPressed(4) ) {
+        System.out.println("button 4 pressed");
+        RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
+      }
+
+      if (RobotContainer.keyboard.getRawButtonPressed(6) ) {
+        System.out.println("button 6 pressed");
+        RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
+      }
+
+      if (RobotContainer.keyboard.getRawButtonPressed(7) ) {
+        System.out.println("button 7 pressed");
+        RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
+      }
+
+      if (RobotContainer.keyboard.getRawButtonPressed(9) ) {
+        System.out.println("button 9 pressed");
+        RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
+      }
+
+      if (RobotContainer.keyboard.getRawButtonPressed(11) ) {
+        System.out.println("button 11 pressed");
+        RobotContainer.superstructure.requestIdle();
+      }
+      
     }, superstructure));
 
     new JoystickButton(driver, XboxController.Button.kRightBumper.value).whileTrue(new AutoPickupRoutine(

@@ -117,7 +117,7 @@ public class Superstructure extends SubsystemBase {
             // Transitions
             if (requestHome) {
                 elevatorArmLowLevel.requestHome();
-                floorIntake.requestHome();
+                //floorIntake.requestHome();
                 nextSystemState = SuperstructureState.HOMING;
             }
         } else if (systemState == SuperstructureState.HOMING) {
