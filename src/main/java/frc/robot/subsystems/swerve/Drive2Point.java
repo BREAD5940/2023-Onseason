@@ -27,6 +27,8 @@ public class Drive2Point extends CommandBase {
     private final PathConstraints constraints;
     private final Timer timer = new Timer();
     private boolean failedToCreateTrajectory = false;
+    private final Superstructure superstructure;
+
     public final BreadHolonomicDriveController autonomousController = new BreadHolonomicDriveController(
         new PIDController(8, 0, 0), 
         new PIDController(8, 0, 0), 
@@ -43,10 +45,17 @@ public class Drive2Point extends CommandBase {
     @Override
     public void initialize() {
         try {
+            Rotation2d currentHeading;
+
+            if (swerve.getVelocity().getNorm() < 0.2) {
+                currentHeading = endPosition.get().getRotation();
+            } else {
+                currentHeading = swerve.getVelocity().rotateBy(swerve.getRotation2d()).getAngle();
+            }
             trajectory = PathPlanner.generatePath(
                 constraints, 
-                new PathPoint(swerve.getPose().getTranslation(), swerve.getPose().getRotation(), new Rotation2d(), swerve.getVelocity().getNorm()),
-                new PathPoint(endPosition.get().getTranslation(), endPosition.get().getRotation(), new Rotation2d(), endVelocity)
+                new PathPoint(swerve.getPose().getTranslation(), currentHeading, swerve.getPose().getRotation(), swerve.getVelocity().getNorm()),
+                new PathPoint(endPosition.get().getTranslation(), endPosition.get().getRotation(), endPosition.get().getRotation())
             );
             Logger.getInstance().recordOutput("OnTheFlyTrajectoryGeneration", trajectory);
         } catch (Exception e) {
@@ -59,8 +68,8 @@ public class Drive2Point extends CommandBase {
 
     @Override
     public void execute() {
-        Trajectory.State goal = trajectory.sample(timer.get());
-        ChassisSpeeds adjustedSpeeds = autonomousController.calculate(swerve.getPose(), goal, goal.poseMeters.getRotation()); 
+        PathPlannerState goal = (PathPlannerState) trajectory.sample(timer.get());
+        ChassisSpeeds adjustedSpeeds = autonomousController.calculate(swerve.getPose(), goal, goal.holonomicRotation); 
         Logger.getInstance().recordOutput("TrajectoryVXMetersPerSecond", adjustedSpeeds.vxMetersPerSecond);
         Logger.getInstance().recordOutput("TrajectoryVYMetersPerSecond", adjustedSpeeds.vyMetersPerSecond);
         Logger.getInstance().recordOutput("TrajectoryxError", autonomousController.m_poseError.getX());
@@ -68,6 +77,10 @@ public class Drive2Point extends CommandBase {
         Logger.getInstance().recordOutput("TrajectoryThetaError", autonomousController.m_poseError.getRotation().getDegrees());
         System.out.printf("%f.2 %f.2 %f.2\n", adjustedSpeeds.vxMetersPerSecond, adjustedSpeeds.vyMetersPerSecond, adjustedSpeeds.omegaRadiansPerSecond);
         swerve.requestVelocity(adjustedSpeeds, false);
+
+        if (timer.get() >= trajectory.getTotalTimeSeconds() - 1.5) {
+            superstructure.requestIntakeConeDoubleSubstation();
+        }
     }
 
     @Override
