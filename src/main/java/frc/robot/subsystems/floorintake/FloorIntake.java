@@ -14,7 +14,7 @@ public class FloorIntake {
     /* Variables to keep track of system state */
     private double mStateStartTime = 0.0;
     private FloorIntakeStates systemState = FloorIntakeStates.PRE_HOME;
-    private boolean requestHome = false;
+    private boolean requestHome = true;
     private boolean requestIdle = false;
     private boolean requestClosedLoop = false;
     private double[] closedLoopSetpoint = new double[] {0.0, 0.0};

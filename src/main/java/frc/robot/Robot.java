@@ -130,50 +130,50 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopPeriodic() {
-    if (RobotContainer.operator.getRightBumperPressed()) {
-      RobotContainer.superstructure.requestFloorIntakeCone();
-    }
+    // if (RobotContainer.operator.getRightBumperPressed()) {
+    //   RobotContainer.superstructure.requestFloorIntakeCone();
+    // }
 
-    if (RobotContainer.operator.getRightTriggerAxis() > 0.05 && !intakeTriggered) {
-      Supplier<Double> pressure = () -> {
-        if (RobotContainer.operator.getRightTriggerAxis() < 0.75) {
-           return 0.0;
-        } else {
-          return (RobotContainer.operator.getRightTriggerAxis() - 0.75) * (1.0/0.25);
-        }
-      };
-      RobotContainer.superstructure.requestFloorIntakeCube(pressure);
-      intakeTriggered = true;
-    } 
+    // if (RobotContainer.operator.getRightTriggerAxis() > 0.05 && !intakeTriggered) {
+    //   Supplier<Double> pressure = () -> {
+    //     if (RobotContainer.operator.getRightTriggerAxis() < 0.75) {
+    //        return 0.0;
+    //     } else {
+    //       return (RobotContainer.operator.getRightTriggerAxis() - 0.75) * (1.0/0.25);
+    //     }
+    //   };
+    //   RobotContainer.superstructure.requestFloorIntakeCube(pressure);
+    //   intakeTriggered = true;
+    // } 
 
-    if (RobotContainer.operator.getRightTriggerAxis() <= 0.05 && intakeTriggered) {
-      intakeTriggered = false;
-      RobotContainer.superstructure.requestIdle();
-    }
+    // if (RobotContainer.operator.getRightTriggerAxis() <= 0.05 && intakeTriggered) {
+    //   intakeTriggered = false;
+    //   RobotContainer.superstructure.requestIdle();
+    // }
 
-    if (RobotContainer.operator.getAButtonPressed()) {
-      RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
-    }
+    // if (RobotContainer.operator.getAButtonPressed()) {
+    //   RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
+    // }
 
-    if (RobotContainer.operator.getBButtonPressed()) {
-      RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
-    }
+    // if (RobotContainer.operator.getBButtonPressed()) {
+    //   RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
+    // }
     
-    if (RobotContainer.operator.getXButtonPressed()) {
-      RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
-    }
+    // if (RobotContainer.operator.getXButtonPressed()) {
+    //   RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
+    // }
 
-    if (RobotContainer.operator.getYButtonPressed()) {
-      RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
-    }
+    // if (RobotContainer.operator.getYButtonPressed()) {
+    //   RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
+    // }
 
-    if (RobotContainer.operator.getRightStickButtonPressed()) {
-      RobotContainer.superstructure.requestScore();
-    }
+    // if (RobotContainer.operator.getRightStickButtonPressed()) {
+    //   RobotContainer.superstructure.requestScore();
+    // }
 
-    if (RobotContainer.operator.getLeftStickButtonPressed()) {
-      RobotContainer.superstructure.requestIdle();
-    }
+    // if (RobotContainer.operator.getLeftStickButtonPressed()) {
+    //   RobotContainer.superstructure.requestIdle();
+    // }
    }
 
   @Override
