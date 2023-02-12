@@ -174,7 +174,7 @@ public final class Constants {
         public static final TalonFXInvertType ROLLER_INVERT_TYPE = TalonFXInvertType.CounterClockwise;
         public static final double DEPLOY_MAX_SPEED = (6380.0 * DEPLOY_GEAR_RATIO * 360.0)/60.0;
         public static final double INTAKE_MIN_POSITION = 0.0;
-        public static final double INTAKE_MAX_POSITION = 147.61996729869196;
+        public static final double INTAKE_MAX_POSITION = 190.75;
     }
 
     // Constants pertaining to electrical

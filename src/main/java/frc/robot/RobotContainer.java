@@ -69,11 +69,11 @@ public class RobotContainer {
 
     superstructure.setDefaultCommand(new RunCommand(() -> {
       if (RobotContainer.operator.getRightBumperPressed()) {
-        RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
+        RobotContainer.superstructure.requestFloorIntakeCone();
       }
   
       if (RobotContainer.operator.getLeftBumperPressed()) {
-        RobotContainer.superstructure.requestIntakeCubeDoubleSubstation();
+        RobotContainer.superstructure.requestFloorIntakeCube();
       }
   
       if (RobotContainer.operator.getAButtonPressed()) {
