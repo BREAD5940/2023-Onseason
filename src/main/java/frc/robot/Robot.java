@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commons.TunableNumber;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
@@ -36,6 +37,13 @@ public class Robot extends LoggedRobot {
   PowerDistribution pdp;
 
   private boolean homed = false;
+
+  public static PathPlannerTrajectory threePieceA;
+  public static PathPlannerTrajectory threePieceB;  
+  public static PathPlannerTrajectory threePieceC;
+  public static PathPlannerTrajectory threePieceD;
+  public static PathPlannerTrajectory threePieceE;
+
 
   @Override
   public void robotInit() {
@@ -57,6 +65,12 @@ public class Robot extends LoggedRobot {
     Logger.getInstance().start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
 
     RobotContainer.superstructure.zeroSensors();
+
+    threePieceA = PathPlanner.loadPath("Three Piece A", new PathConstraints(4.0, 2.0));
+    threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(4.0, 2.0));
+    threePieceC = PathPlanner.loadPath("Three Piece C", new PathConstraints(1.0, 0.5));
+    threePieceD = PathPlanner.loadPath("Three Piece D", new PathConstraints(4.0, 2.0));
+    threePieceE = PathPlanner.loadPath("Three Piece E", new PathConstraints(4.0, 2.0));
   }
 
   @Override
@@ -95,9 +109,7 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {
-
-  }
+  public void teleopPeriodic() { }
 
   @Override
   public void testInit() {

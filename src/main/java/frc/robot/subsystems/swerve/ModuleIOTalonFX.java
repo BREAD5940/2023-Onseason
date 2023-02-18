@@ -1,6 +1,7 @@
 package frc.robot.subsystems.swerve;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
@@ -35,14 +36,14 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveConfig.slot0.kI = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.0);
         driveConfig.slot0.kD = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.0);
         driveConfig.slot0.kF = 1023.0/wheelSpeedMetersPerSecondToIntegratedSensorUnits(ROBOT_MAX_SPEED);
-        driveConfig.slot1.kP = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.2) * 1023.0;
+        driveConfig.slot1.kP = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.35) * 1023.0;
         driveConfig.slot1.kI = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.0);
         driveConfig.slot1.kD = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.0);
-        driveConfig.slot1.kF = 1023.0/wheelSpeedMetersPerSecondToIntegratedSensorUnits(ROBOT_MAX_SPEED);
+        driveConfig.slot1.kF = 1023.0/wheelSpeedMetersPerSecondToIntegratedSensorUnits(ROBOT_MAX_SPEED) * 1.0/0.86 * 1.0/0.86;
         driveConfig.slot0.closedLoopPeakOutput = 1.0;
         driveConfig.peakOutputForward = 1.0;
         driveConfig.peakOutputReverse = -1.0;
-        driveConfig.voltageCompSaturation = 12.0;
+        driveConfig.voltageCompSaturation = 10.0;
         driveConfig.statorCurrLimit = new StatorCurrentLimitConfiguration(true, 80.0, 80.0, 1.5);
         drive.setInverted(driveDirection);
         drive.setNeutralMode(NeutralMode.Brake); // TODO change back
@@ -52,6 +53,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         drive.selectProfileSlot(1, 0);
         drive.setStatusFramePeriod(StatusFrame.Status_1_General, 97);
         drive.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 15);
+        drive.setSelectedSensorPosition(0.0);
 
         // Create CAN Coder object
         azimuth = new CANCoder(azimuthID, CANIVORE_BUS_NAME);
@@ -101,7 +103,8 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     @Override
     public void setDriveVelocity(double velocityMetersPerSecond) {
-        drive.set(TalonFXControlMode.Velocity, wheelSpeedMetersPerSecondToIntegratedSensorUnits(velocityMetersPerSecond));
+        double ff = 0.06;
+        drive.set(TalonFXControlMode.Velocity, wheelSpeedMetersPerSecondToIntegratedSensorUnits(velocityMetersPerSecond), DemandType.ArbitraryFeedForward, ff);
     }
 
     @Override

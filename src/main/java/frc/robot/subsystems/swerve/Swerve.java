@@ -107,7 +107,7 @@ public class Swerve extends SubsystemBase {
                 robotSetpoints.vxMetersPerSecond, 
                 robotSetpoints.vyMetersPerSecond, 
                 robotSetpoints.omegaRadiansPerSecond, 
-                new Rotation2d(gyroInputs.positionRad)
+                pose.getRotation()
             ));
         } else {
             setpointStates = kinematics.toSwerveModuleStates(new ChassisSpeeds(
@@ -203,7 +203,6 @@ public class Swerve extends SubsystemBase {
     public void reset(Pose2d newPose) {
         poseEstimator.resetPosition(getRotation2d(), getSwerveModulePositions(), newPose);
         pose = poseEstimator.getEstimatedPosition();
-        gyroIO.reset();
     }
 
     /** Updates the swerve drive odometry */

@@ -9,8 +9,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.autonomous.modes.ThreePieceMode;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
@@ -51,10 +53,10 @@ public class RobotContainer {
       double omega = driver.getLeftX();
 
       // Movement Outputs
-      double scale = RobotContainer.driver.getRightBumper() ? 0.25 : 1.0;
+      double scale = RobotContainer.driver.getLeftBumper() ? 0.25 : 1.0;
       double dx = Math.abs(x) > 0.075 ? Math.pow(-x, 1) * scale : 0.0;
       double dy = Math.abs(y) > 0.075 ? Math.pow(-y, 1) * scale : 0.0;
-      double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.5  * scale: 0.0;
+      double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.75  * scale: 0.0;
       swerve.requestPercent(new ChassisSpeeds(dx, dy, rot), true);
 
       if (driver.getAButtonPressed()) {
@@ -101,16 +103,25 @@ public class RobotContainer {
       }
     }, superstructure));
 
+    // new JoystickButton(operator, XboxController.Button.kRightBumper.value).onTrue(
+    //   new InstantCommand(() -> superstructure.requestFloorIntakeCone())
+    // );
+    
+
+    new JoystickButton(operator, XboxController.Button.kStart.value).onTrue(
+      new InstantCommand(() -> superstructure.requestHome(), superstructure)
+    );
+
     new JoystickButton(driver, XboxController.Button.kRightBumper.value).whileTrue(new AutoPickupRoutine(
-      () -> new Pose2d(1.312749431033244, aprilTags.get(4).getY(), new Rotation2d(Math.PI)), 
-      (pose, time) -> new Rotation2d(Math.PI), 
+      () -> new Pose2d(fieldLength - 1.312749431033244, aprilTags.get(4).getY(), new Rotation2d(0.0)), 
+      (pose, time) -> new Rotation2d(0.0), 
       swerve, 
       superstructure
     ));
   }
 
   public Command getAutonomousCommand() {
-    return null;
+    return new ThreePieceMode(superstructure, swerve);
   }
 }
 
