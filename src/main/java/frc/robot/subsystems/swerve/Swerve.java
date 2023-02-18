@@ -98,10 +98,11 @@ public class Swerve extends SubsystemBase {
         SwerveModuleState[] setpointStates;
         if (fieldRelative) {
             setpointStates = kinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(
-                    robotSetpoints.vxMetersPerSecond,
-                    robotSetpoints.vyMetersPerSecond,
-                    robotSetpoints.omegaRadiansPerSecond,
-                    new Rotation2d(gyroInputs.positionRad)));
+                robotSetpoints.vxMetersPerSecond, 
+                robotSetpoints.vyMetersPerSecond, 
+                robotSetpoints.omegaRadiansPerSecond, 
+                pose.getRotation()
+            ));
         } else {
             setpointStates = kinematics.toSwerveModuleStates(new ChassisSpeeds(
                     robotSetpoints.vxMetersPerSecond,

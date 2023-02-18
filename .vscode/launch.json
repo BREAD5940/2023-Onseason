@@ -6,6 +6,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch ThreePieceMode",
+      "request": "launch",
+      "mainClass": "frc.robot.autonomous.modes.ThreePieceMode",
+      "projectName": "2023-Beta"
+    },
+    {
+      "type": "java",
       "name": "Launch FloorIntakeIOTalonFX",
       "request": "launch",
       "mainClass": "frc.robot.subsystems.floorintake.FloorIntakeIOTalonFX",

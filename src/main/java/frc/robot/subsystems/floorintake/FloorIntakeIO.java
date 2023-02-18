@@ -34,6 +34,9 @@ public interface FloorIntakeIO {
     /** Sets percent for deploy motor  */
     public default void setDeployPercent(double percent) {}
 
+    /** Sets velocity for deploy motor */
+    public default void setDeployVelocity(double velocityDegreesPerSecond) {}
+
     /** Sets current limit for deploy motor */
     public default void setCurrentLimit(double currentLimit, double currentLimitTriggerThreshold, double currentLimitThresholdTime) {}
 

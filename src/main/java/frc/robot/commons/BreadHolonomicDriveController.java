@@ -4,8 +4,11 @@
 
 package frc.robot.commons;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -28,6 +31,7 @@ public class BreadHolonomicDriveController {
   public Rotation2d m_rotationError = new Rotation2d();
   private Pose2d m_poseTolerance = new Pose2d();
   private boolean m_enabled = true;
+  private boolean m_firstRun = true;
 
   private final PIDController m_xController;
   private final PIDController m_yController;
@@ -97,6 +101,8 @@ public class BreadHolonomicDriveController {
         -clampAdd,
         clampAdd
     );
+
+    Logger.getInstance().recordOutput("Trajectory Theta Feedback", thetaFF);
 
     m_poseError = poseRef.relativeTo(currentPose);
     m_rotationError = angleRef.minus(currentPose.getRotation());
