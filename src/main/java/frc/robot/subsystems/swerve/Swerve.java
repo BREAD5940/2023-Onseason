@@ -216,7 +216,9 @@ public class Swerve extends SubsystemBase {
             TimestampedPose2d result = RobotContainer.vision.popMeasurement();
             double timestamp = result.timestamp();
             Pose2d pose = result.pose();
-            poseEstimator.addVisionMeasurement(pose, timestamp);
+            if (pose.getX() < 3.6) {
+                poseEstimator.addVisionMeasurement(pose, timestamp);
+            }
             Pose2d bufferPose = poseEstimator.getPoseAtTime(timestamp);
             Logger.getInstance().recordOutput("Odometry/VisionErrorXInches",  Units.metersToInches(bufferPose.getX()-pose.getX()));
             Logger.getInstance().recordOutput("Odometry/VisionErrorYInches",  Units.metersToInches(bufferPose.getY()-pose.getY()));
