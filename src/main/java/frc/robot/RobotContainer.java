@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -11,6 +12,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commons.PoseEstimator;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
@@ -25,6 +27,8 @@ import frc.robot.subsystems.floorintake.FloorIntakeIOTalonFX;
 import frc.robot.subsystems.swerve.AutoPickupRoutine;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.northstar.AprilTagVision;
+import frc.robot.subsystems.vision.northstar.AprilTagVisionIO;
 
 import static frc.robot.FieldConstants.*;
 
@@ -38,10 +42,15 @@ public class RobotContainer {
   public static final ArmIO armIO = new ArmIOTalonFX();
   public static final EndEffectorIO endEffectorIO = new EndEffectorIOSparkMax();
   public static final FloorIntakeIO floorIntakeIO = new FloorIntakeIOTalonFX();
-  public static final Superstructure superstructure = new Superstructure(elevatorIO, armIO, endEffectorIO, floorIntakeIO);
+  public static final Superstructure superstructure = new Superstructure(elevatorIO, armIO, endEffectorIO,
+      floorIntakeIO);
+  public static final AprilTagVision northstarVision = new AprilTagVision(new AprilTagVisionIO() {
+  });
+  public static final PoseEstimator poseEstimator = new PoseEstimator(VecBuilder.fill(0.005, 0.005, 0.0005));
 
-  public RobotContainer() { 
+  public RobotContainer() {
     configureControls();
+    configureNorthstarVision();
   }
 
   private void configureControls() {
@@ -54,16 +63,16 @@ public class RobotContainer {
       double scale = RobotContainer.driver.getRightBumper() ? 0.25 : 1.0;
       double dx = Math.abs(x) > 0.075 ? Math.pow(-x, 1) * scale : 0.0;
       double dy = Math.abs(y) > 0.075 ? Math.pow(-y, 1) * scale : 0.0;
-      double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.5  * scale: 0.0;
+      double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.5 * scale : 0.0;
       swerve.requestPercent(new ChassisSpeeds(dx, dy, rot), true);
 
       if (driver.getAButtonPressed()) {
-        swerve.reset(new Pose2d());
+        poseEstimator.resetPose(new Pose2d());
       }
 
       // Sets the 0 of the robot
       if (driver.getAButtonPressed()) {
-        swerve.reset(new Pose2d());
+        poseEstimator.resetPose(new Pose2d());
       }
     }, swerve));
 
@@ -71,48 +80,48 @@ public class RobotContainer {
       if (RobotContainer.operator.getRightBumperPressed()) {
         RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
       }
-  
+
       if (RobotContainer.operator.getLeftBumperPressed()) {
         RobotContainer.superstructure.requestIntakeCubeDoubleSubstation();
       }
-  
+
       if (RobotContainer.operator.getAButtonPressed()) {
         RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
       }
-  
+
       if (RobotContainer.operator.getBButtonPressed()) {
         RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
       }
-      
+
       if (RobotContainer.operator.getXButtonPressed()) {
         RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
       }
-  
+
       if (RobotContainer.operator.getYButtonPressed()) {
         RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
       }
-  
+
       if (RobotContainer.operator.getRightStickButtonPressed()) {
         RobotContainer.superstructure.requestScore();
       }
-  
+
       if (RobotContainer.operator.getLeftStickButtonPressed()) {
         RobotContainer.superstructure.requestIdle();
       }
     }, superstructure));
 
     new JoystickButton(driver, XboxController.Button.kRightBumper.value).whileTrue(new AutoPickupRoutine(
-      () -> new Pose2d(1.312749431033244, aprilTags.get(4).getY(), new Rotation2d(Math.PI)), 
-      (pose, time) -> new Rotation2d(Math.PI), 
-      swerve, 
-      superstructure
-    ));
+        () -> new Pose2d(1.312749431033244, aprilTags.get(4).getY(), new Rotation2d(Math.PI)),
+        (pose, time) -> new Rotation2d(Math.PI),
+        swerve,
+        superstructure));
+  }
+
+  private void configureNorthstarVision() {
+    northstarVision.setDataInterfaces(swerve::getPose, poseEstimator::addVisionData);
   }
 
   public Command getAutonomousCommand() {
     return null;
   }
 }
-
-
-
