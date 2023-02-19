@@ -1,68 +1,80 @@
 package frc.robot.subsystems.swerve;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.PathPoint;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.autonomous.Trajectories;
 import frc.robot.commons.BreadHolonomicDriveController;
 import frc.robot.subsystems.Superstructure;
 
 public class Drive2Point extends CommandBase {
 
-    private PathPlannerTrajectory trajectory;
+    private Trajectory trajectory;
     private final Supplier<Pose2d> endPosition;
     private final Swerve swerve;
     private final double endVelocity;
-    private final PathConstraints constraints;
+    private final double maxVelocity;
+    private final double maxAccel;
     private final Timer timer = new Timer();
     private boolean failedToCreateTrajectory = false;
+
     public final BreadHolonomicDriveController autonomousController = new BreadHolonomicDriveController(
-        new PIDController(8, 0, 0), 
-        new PIDController(8, 0, 0), 
-        new PIDController(2.0, 0, 0.1)
+        new PIDController(0, 0, 0), 
+        new PIDController(0, 0, 0), 
+        new PIDController(0, 0, 0)
     );
 
-    public Drive2Point(Supplier<Pose2d> endPosition, double endVelocity, PathConstraints constraints, Swerve swerve) {
+    public Drive2Point(Supplier<Pose2d> endPosition, double endVelocity, double maxVelocity, double maxAccel, Swerve swerve) {
         this.endPosition = endPosition;
         this.endVelocity = endVelocity;
-        this.constraints = constraints;
+        this.maxVelocity = maxVelocity;
+        this.maxAccel = maxAccel;
         this.swerve = swerve;
     }
     
     @Override
     public void initialize() {
+        failedToCreateTrajectory = false;
         try {
-            trajectory = PathPlanner.generatePath(
-                constraints, 
-                new PathPoint(swerve.getPose().getTranslation(), swerve.getPose().getRotation(), new Rotation2d(), swerve.getVelocity().getNorm()),
-                new PathPoint(endPosition.get().getTranslation(), endPosition.get().getRotation(), new Rotation2d(), endVelocity)
-            );
+            timer.reset();
+            timer.start();
+            Rotation2d currentHeading;
+            if (swerve.getVelocity().getNorm() < 0.2) {
+                currentHeading = Rotation2d.fromDegrees(180.0);
+            } else {
+                currentHeading = swerve.getVelocity().rotateBy(swerve.getRotation2d().rotateBy(Rotation2d.fromDegrees(180.0))).getAngle();
+            }                
+            trajectory = Trajectories.generateTrajectory(true, List.of(
+                new Pose2d(swerve.getPose().getTranslation(), currentHeading),
+                endPosition.get()
+            ), maxVelocity, maxAccel, swerve.getVelocity().getNorm(), endVelocity);
             Logger.getInstance().recordOutput("OnTheFlyTrajectoryGeneration", trajectory);
         } catch (Exception e) {
             System.out.println("Failed to create on-the-fly trajectory!");
             failedToCreateTrajectory = true;
         }
-        timer.reset();
-        timer.start();
     }
 
     @Override
     public void execute() {
         Trajectory.State goal = trajectory.sample(timer.get());
-        ChassisSpeeds adjustedSpeeds = autonomousController.calculate(swerve.getPose(), goal, goal.poseMeters.getRotation()); 
-        Logger.getInstance().recordOutput("TrajectoryVXMetersPerSecond", adjustedSpeeds.vxMetersPerSecond);
-        Logger.getInstance().recordOutput("TrajectoryVYMetersPerSecond", adjustedSpeeds.vyMetersPerSecond);
+        ChassisSpeeds adjustedSpeeds = autonomousController.calculate(swerve.getPose(), goal, Rotation2d.fromDegrees(0.0)); 
+        Logger.getInstance().recordOutput("AdjustedTrajectoryVXMetersPerSecond", adjustedSpeeds.vxMetersPerSecond);
+        Logger.getInstance().recordOutput("AdjustedTrajectoryVYMetersPerSecond", adjustedSpeeds.vyMetersPerSecond);
+        Logger.getInstance().recordOutput("TrajectoryGoalMetersPerSecond", goal.velocityMetersPerSecond);
         Logger.getInstance().recordOutput("TrajectoryxError", autonomousController.m_poseError.getX());
         Logger.getInstance().recordOutput("TrajectoryYError", autonomousController.m_poseError.getY());
         Logger.getInstance().recordOutput("TrajectoryThetaError", autonomousController.m_poseError.getRotation().getDegrees());

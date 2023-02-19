@@ -25,9 +25,13 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
         deployConfig.slot0.kP = degreesToIntegratedSensorUnits(0.0000001) * 1023.0;
         deployConfig.slot0.kI = degreesToIntegratedSensorUnits(0) * 1023.0;
         deployConfig.slot0.kD = degreesToIntegratedSensorUnits(0.0) * 1023.0;
-        deployConfig.slot0.kF = 1023.0/degreesPerSecondToIntegratedSensorUnits(DEPLOY_MAX_SPEED) * 1.36; // 1.36 is an empiracally obtained constant that adjusts the feedforward so that the intake can track its motion profile well without feedback
-        deployConfig.motionCruiseVelocity = degreesPerSecondToIntegratedSensorUnits(300.0);
-        deployConfig.motionAcceleration = degreesPerSecondToIntegratedSensorUnits(800.0);
+        deployConfig.slot0.kF = 1023.0/degreesPerSecondToIntegratedSensorUnits(DEPLOY_MAX_SPEED) * 1.36 * 50.0/55.8; // 1.36 is an empiracally obtained constant that adjusts the feedforward so that the intake can track its motion profile well without feedback
+        deployConfig.slot1.kP = degreesPerSecondToIntegratedSensorUnits(0.01);
+        deployConfig.slot1.kI = degreesPerSecondToIntegratedSensorUnits(0.0);
+        deployConfig.slot1.kD = degreesPerSecondToIntegratedSensorUnits(0.0);
+        deployConfig.slot1.kF = 1023.0/degreesPerSecondToIntegratedSensorUnits(DEPLOY_MAX_SPEED) * 1.36 * 50.0/55.8;
+        deployConfig.motionCruiseVelocity = degreesPerSecondToIntegratedSensorUnits(200.0);
+        deployConfig.motionAcceleration = degreesPerSecondToIntegratedSensorUnits(400.0);
         deployConfig.voltageCompSaturation = 10.5;
         deployConfig.statorCurrLimit = new StatorCurrentLimitConfiguration(true, 30.0, 40.0, 1.5);
         deployConfig.neutralDeadband = 0.001;
@@ -41,6 +45,7 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
         deploy.setSelectedSensorPosition(0.0);
 
         roller.setInverted(ROLLER_INVERT_TYPE);
+        roller.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 50.0, 60.0, 1.5));
     }
 
     @Override
@@ -65,9 +70,16 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
 
     @Override
     public void setDeployAngle(double angle) {
-        double arbFF = Math.sin(Units.degreesToRadians(getAngle())) * -0.025; // -0.025 is an empirically obtained gravity feedforward to offset gravity (multiplied by the angle of the intake to increase/decrease the factor depending on where the intake is)
+        deploy.selectProfileSlot(0, 0);
+        double arbFF = Math.sin(Units.degreesToRadians(getAngle() - 30.0)) * -0.025; // -0.025 is an empirically obtained gravity feedforward to offset gravity (multiplied by the angle of the intake to increase/decrease the factor depending on where the intake is)
         angle = MathUtil.clamp(angle, INTAKE_MIN_POSITION, INTAKE_MAX_POSITION);
         deploy.set(ControlMode.MotionMagic, degreesToIntegratedSensorUnits(angle), DemandType.ArbitraryFeedForward, arbFF);
+    }
+    @Override
+    public void setDeployVelocity(double velocityDegreesPerSecond) {
+        deploy.selectProfileSlot(1, 0);
+        double arbFF = Math.sin(Units.degreesToRadians(getAngle() - 30.0)) * 0.025; // -0.025 is an empirically obtained gravity feedforward to offset gravity (multiplied by the angle of the intake to increase/decrease the factor depending on where the intake is)
+        deploy.set(ControlMode.Velocity, degreesPerSecondToIntegratedSensorUnits(velocityDegreesPerSecond), DemandType.ArbitraryFeedForward, arbFF);
     }
 
     @Override

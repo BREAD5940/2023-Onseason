@@ -98,10 +98,11 @@ public class Swerve extends SubsystemBase {
         SwerveModuleState[] setpointStates;
         if (fieldRelative) {
             setpointStates = kinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(
-                    robotSetpoints.vxMetersPerSecond,
-                    robotSetpoints.vyMetersPerSecond,
-                    robotSetpoints.omegaRadiansPerSecond,
-                    new Rotation2d(gyroInputs.positionRad)));
+                robotSetpoints.vxMetersPerSecond, 
+                robotSetpoints.vyMetersPerSecond, 
+                robotSetpoints.omegaRadiansPerSecond, 
+                pose.getRotation()
+            ));
         } else {
             setpointStates = kinematics.toSwerveModuleStates(new ChassisSpeeds(
                     robotSetpoints.vxMetersPerSecond,
@@ -163,6 +164,10 @@ public class Swerve extends SubsystemBase {
         Logger.getInstance().recordOutput("Odometry/Robot", pose);
         Logger.getInstance().recordOutput("Desired Angles", desiredAngles);
         Logger.getInstance().recordOutput("Desired Velocities", desiredVelocities);
+        Logger.getInstance().recordOutput("Swerve Velocity (mag.)", getVelocity().getNorm());
+        Logger.getInstance().recordOutput("Field-Relative Swerve Velocity (angle)", getVelocity().rotateBy(getRotation2d()).getAngle().getDegrees());
+        Logger.getInstance().recordOutput("Robot-Relative Swerve Velocity (angle)", getVelocity().getAngle().getDegrees());
+
     }
 
     /** Requests a provided percent output to the swerve drive */

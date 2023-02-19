@@ -3,6 +3,7 @@ package frc.robot.subsystems.floorintake;
 import org.littletonrobotics.junction.Logger;
 
 import frc.robot.commons.BreadUtil;
+import frc.robot.commons.TunableNumber;
 
 public class FloorIntake {
 
@@ -43,6 +44,7 @@ public class FloorIntake {
             // Outputs
             floorIntakeIO.setRollerPercent(0.0);
             floorIntakeIO.setDeployPercent(0.0);
+            floorIntakeIO.setCurrentLimit(5.0, 10.0, 0.0);
 
             // Transitions
             if (requestHome) {
@@ -51,10 +53,11 @@ public class FloorIntake {
         } else if (systemState == FloorIntakeStates.HOMING) {
             // Outputs
             floorIntakeIO.setRollerPercent(0.0);
-            floorIntakeIO.setDeployPercent(-0.3);
+            floorIntakeIO.setDeployVelocity(-50.0);
+            floorIntakeIO.setCurrentLimit(10.0, 15.0, 0.0);
 
             // Transitions
-            if (BreadUtil.getFPGATimeSeconds() - mStateStartTime > 0.25 && Math.abs(floorIntakeInputs.deployVelDegreesPerSecond) < 5.0) {
+            if (BreadUtil.getFPGATimeSeconds() - mStateStartTime > 0.25 && Math.abs(floorIntakeInputs.deployVelDegreesPerSecond) < 10.0) {
                 floorIntakeIO.resetDeployAngle(0.0);
                 nextSystemState = FloorIntakeStates.IDLE;
                 requestHome = false;
@@ -63,6 +66,7 @@ public class FloorIntake {
             // Outputs
             floorIntakeIO.setRollerPercent(0.0);
             floorIntakeIO.setDeployPercent(0.0);
+            floorIntakeIO.setCurrentLimit(5.0, 10.0, 0.0);
 
             // Transitions
             if (requestHome) {
@@ -74,6 +78,7 @@ public class FloorIntake {
             // Outputs
             floorIntakeIO.setRollerPercent(closedLoopSetpoint[0]);
             floorIntakeIO.setDeployAngle(closedLoopSetpoint[1]);
+            floorIntakeIO.setCurrentLimit(30.0, 40.0, 0.0);
 
             // Transitions
             if (requestHome) {
@@ -110,6 +115,21 @@ public class FloorIntake {
     /** Returns the system state of the intake */
     public FloorIntakeStates getSystemState() {
         return systemState;
+    }
+
+    /** Returns the current of the roller */
+    public double getRollerCurrent() {
+        return floorIntakeInputs.rollerCurrentAmps;
+    }
+
+    /** Returns the angle of the floor intake */
+    public double getAngle() {
+        return floorIntakeInputs.deployAngleDegrees;
+    }
+
+    /** Enables coast mode on the intake */
+    public void requestBrakeMode(boolean enable) {
+        floorIntakeIO.enableDeployBrakeMode(enable);
     }
     
 }

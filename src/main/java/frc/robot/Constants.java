@@ -117,14 +117,14 @@ public final class Constants {
         public static final double ELEVATOR_SETPOINT_TOLERANCE = Units.inchesToMeters(3.0);
         public static final double ELEVATOR_MAX_VELOCITY = (6380.0 * ELEVATOR_GEARING * ELEVATOR_PULLEY_PITCH_DIAMETER * Math.PI)/60.0;
 
-        public static final double ELEVATOR_PRE_CUBE_HIGH = 0.857;
+        public static final double ELEVATOR_PRE_CUBE_HIGH = 1.021;
         public static final double ELEVATOR_PRE_CONE_HIGH = 1.115;
         public static final double ELEVATOR_CONE_SLAM_HIGH = 1.115;
-        public static final double ELEVATOR_CONE_PULL_OUT_HIGH = 0.936;
+        public static final double ELEVATOR_CONE_PULL_OUT_HIGH = 1.0;
         public static final double ELEVATOR_CUBE_OFFSET = 0.509856;
         public static final double ELEVATOR_CONE_OFFSET = 0.4702;
         public static final double ELEVATOR_PRE_LOW = 0.34;
-        public static final double ELEVATOR_FLOOR_INTAKE_CUBE = 0.05;
+        public static final double ELEVATOR_FLOOR_INTAKE_CUBE = 0.15;
         public static final double ELEVATOR_DOUBLE_SUBSTATION_CONE = 1.1;
         // public static final double ELEVATOR_DOUBLE_SUBSTATION_CUBE = 1.115;
         public static final double ELEVATOR_DOUBLE_SUBSTATION_CUBE = 0.19550697818942656;
@@ -148,7 +148,7 @@ public final class Constants {
         public static final double ARM_SETPOINT_TOLERANCE = 3.0;
         public static final double ARM_NULL_RANGE = 300.0; // To 360 degrees
 
-        public static final double ARM_PRE_SCORE_CUBE = 185.88867;
+        public static final double ARM_PRE_SCORE_CUBE = 182.88867;
         public static final double ARM_PRE_SCORE_CONE = 138.076;
         public static final double ARM_SLAM_CONE = 187.3828;
         public static final double ARM_PRE_SCORE_LOW = 230.0;
@@ -174,7 +174,7 @@ public final class Constants {
         public static final TalonFXInvertType ROLLER_INVERT_TYPE = TalonFXInvertType.CounterClockwise;
         public static final double DEPLOY_MAX_SPEED = (6380.0 * DEPLOY_GEAR_RATIO * 360.0)/60.0;
         public static final double INTAKE_MIN_POSITION = 0.0;
-        public static final double INTAKE_MAX_POSITION = 147.61996729869196;
+        public static final double INTAKE_MAX_POSITION = 190.75;
     }
 
     // Constants pertaining to electrical
