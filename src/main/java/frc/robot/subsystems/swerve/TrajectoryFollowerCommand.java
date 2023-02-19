@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.RobotContainer;
 import frc.robot.commons.BreadHolonomicDriveController;
 
 public class TrajectoryFollowerCommand extends CommandBase {
@@ -45,7 +46,7 @@ public class TrajectoryFollowerCommand extends CommandBase {
     @Override
     public void initialize() {
         if (startHeading != null) {
-            swerve.reset(new Pose2d(
+            RobotContainer.poseEstimator.resetPose(new Pose2d(
                 trajectory.sample(0.0).poseMeters.getTranslation(), 
                 startHeading.get()
             ));
