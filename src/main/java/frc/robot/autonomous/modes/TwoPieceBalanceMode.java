@@ -27,34 +27,29 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 
-public class ThreePieceMode extends SequentialCommandGroup {
+public class TwoPieceBalanceMode extends SequentialCommandGroup {
 
-    public ThreePieceMode(Superstructure superstructure, Swerve swerve) {
+    public TwoPieceBalanceMode(Superstructure superstructure, Swerve swerve) {
         addRequirements(superstructure, swerve);
         addCommands(
             new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CONE)),
             new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_PRE_CONE_HIGH)),
             new InstantCommand(() -> superstructure.requestScore()),
             new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_CONE_PULL_OUT_HIGH)),
-            new InstantCommand(() -> superstructure.requestFloorIntakeCone()),
-            new TrajectoryFollowerCommand(Robot.threePieceA, () -> Robot.threePieceA.getInitialHolonomicPose().getRotation(), swerve, true),
-            new WaitCommand(0.2),
-            new TrajectoryFollowerCommand(Robot.threePieceB, swerve, true),
-            new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CONE)),
-            new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_PRE_CONE_HIGH)),
-            new InstantCommand(() -> superstructure.requestScore()),
-            new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_CONE_PULL_OUT_HIGH)),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0)),
-            new TrajectoryFollowerCommand(Robot.threePieceC, swerve, true), 
+            new TrajectoryFollowerCommand(Robot.twoPieceBalanceA, () -> Robot.twoPieceBalanceA.getInitialHolonomicPose().getRotation(), swerve, true),
             new WaitCommand(0.2),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
-            new TrajectoryFollowerCommand(Robot.threePieceD, swerve, true).alongWith(new SequentialCommandGroup(
+            new TrajectoryFollowerCommand(Robot.twoPieceBalanceB, swerve, true).alongWith(new SequentialCommandGroup(
                 new WaitCommand(1.5),
                 new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE))
             )),
             new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_PRE_CUBE_HIGH)),
-            new InstantCommand(() -> superstructure.requestScore())
-
+            new InstantCommand(() -> superstructure.requestScore()),
+            new WaitCommand(0.35),
+            new InstantCommand(() -> superstructure.requestIdle()), 
+            new WaitCommand(0.25),
+            new TrajectoryFollowerCommand(Robot.twoPieceBalanceC, swerve, false)
         );
     }
     

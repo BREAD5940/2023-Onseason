@@ -19,6 +19,8 @@ import frc.robot.subsystems.floorintake.FloorIntake.FloorIntakeStates;
 
 import static frc.robot.Constants.Elevator.*;
 
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.Logger;
 
 import static frc.robot.Constants.Arm.*;
@@ -41,6 +43,7 @@ public class Superstructure extends SubsystemBase {
     private boolean requestScore = false;
     private boolean requestSpit = false;
     private boolean requestFloorIntakeCone = false;
+    private Supplier<Double> floorIntakePressure = () -> 0.0;
     Timer currentTriggerTimer = new Timer();
     boolean currentTriggerTimerStarted = false;
 
@@ -150,7 +153,7 @@ public class Superstructure extends SubsystemBase {
             }
         } else if (systemState == SuperstructureState.IDLE) {
             // Outputs
-            elevatorArmLowLevel.requestDesiredState(0.25, 90.0);
+            elevatorArmLowLevel.requestDesiredState(0.223, 90.0);
             endEffector.holdGamePiece();
             floorIntake.requestClosedLoop(0.0, 50.0);
             currentTriggerTimerStarted = false;
@@ -179,7 +182,7 @@ public class Superstructure extends SubsystemBase {
             // Outputs
             elevatorArmLowLevel.requestDesiredState(floorIntakeCubeHeight.get(), floorIntakeCubeAngle.get());
             endEffector.intakeCube();
-            floorIntake.requestClosedLoop(0.7, 148.0);
+            floorIntake.requestClosedLoop(0.7, 148.0 + floorIntakePressure.get() * 20.0);
 
             if (endEffector.getStatorCurrent() > 14.0 && !currentTriggerTimerStarted) {
                 currentTriggerTimerStarted = true;
@@ -435,9 +438,10 @@ public class Superstructure extends SubsystemBase {
     }
 
     /* Requests the system to floor intake a cube */
-    public void requestFloorIntakeCube() {
+    public void requestFloorIntakeCube(Supplier<Double> floorIntakePressure) {
         unsetAllRequests();
         requestFloorIntakeCube = true;
+        this.floorIntakePressure = floorIntakePressure;
     }
 
     /* Requests the system to spit */

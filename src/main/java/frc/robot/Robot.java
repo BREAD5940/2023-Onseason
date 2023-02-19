@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -37,12 +39,19 @@ public class Robot extends LoggedRobot {
   PowerDistribution pdp;
 
   private boolean homed = false;
+  private boolean intakeTriggered = false;
 
   public static PathPlannerTrajectory threePieceA;
   public static PathPlannerTrajectory threePieceB;  
   public static PathPlannerTrajectory threePieceC;
   public static PathPlannerTrajectory threePieceD;
   public static PathPlannerTrajectory threePieceE;
+
+  public static PathPlannerTrajectory twoPieceBalanceA;
+  public static PathPlannerTrajectory twoPieceBalanceB;
+  public static PathPlannerTrajectory twoPieceBalanceC;
+
+  public static PathPlannerTrajectory test;
 
 
   @Override
@@ -67,10 +76,14 @@ public class Robot extends LoggedRobot {
     RobotContainer.superstructure.zeroSensors();
 
     threePieceA = PathPlanner.loadPath("Three Piece A", new PathConstraints(4.0, 2.0));
-    threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(4.0, 2.0));
-    threePieceC = PathPlanner.loadPath("Three Piece C", new PathConstraints(1.0, 0.5));
+    threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(3.0, 2.0));
+    threePieceC = PathPlanner.loadPath("Three Piece C", new PathConstraints(4.0, 2.5));
     threePieceD = PathPlanner.loadPath("Three Piece D", new PathConstraints(4.0, 2.0));
     threePieceE = PathPlanner.loadPath("Three Piece E", new PathConstraints(4.0, 2.0));
+    twoPieceBalanceA = PathPlanner.loadPath("Two Piece Balance A", new PathConstraints(4.0, 2.0));
+    twoPieceBalanceB = PathPlanner.loadPath("Two Piece Balance B", new PathConstraints(4.0, 2.0));
+    twoPieceBalanceC = PathPlanner.loadPath("Two Piece Balance C", new PathConstraints(2.0, 2.0));
+    test = PathPlanner.loadPath("Test", new PathConstraints(1.0, 0.5));
   }
 
   @Override
@@ -109,7 +122,52 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void teleopPeriodic() { }
+  public void teleopPeriodic() {
+    if (RobotContainer.operator.getRightBumperPressed()) {
+      RobotContainer.superstructure.requestFloorIntakeCone();
+    }
+
+    if (RobotContainer.operator.getRightTriggerAxis() > 0.05 && !intakeTriggered) {
+      Supplier<Double> pressure = () -> {
+        if (RobotContainer.operator.getRightTriggerAxis() < 0.75) {
+           return 0.0;
+        } else {
+          return (RobotContainer.operator.getRightTriggerAxis() - 0.75) * (1.0/0.25);
+        }
+      };
+      RobotContainer.superstructure.requestFloorIntakeCube(pressure);
+      intakeTriggered = true;
+    } 
+
+    if (RobotContainer.operator.getRightTriggerAxis() <= 0.05 && intakeTriggered) {
+      intakeTriggered = false;
+      RobotContainer.superstructure.requestIdle();
+    }
+
+    if (RobotContainer.operator.getAButtonPressed()) {
+      RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
+    }
+
+    if (RobotContainer.operator.getBButtonPressed()) {
+      RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
+    }
+    
+    if (RobotContainer.operator.getXButtonPressed()) {
+      RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
+    }
+
+    if (RobotContainer.operator.getYButtonPressed()) {
+      RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
+    }
+
+    if (RobotContainer.operator.getRightStickButtonPressed()) {
+      RobotContainer.superstructure.requestScore();
+    }
+
+    if (RobotContainer.operator.getLeftStickButtonPressed()) {
+      RobotContainer.superstructure.requestIdle();
+    }
+   }
 
   @Override
   public void testInit() {

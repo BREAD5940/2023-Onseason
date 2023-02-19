@@ -50,7 +50,7 @@ public class EndEffector {
     /* For spitting a cube */
     public void spitCube() {
         endEffectorIO.setPercent(spitCubePercent.get());
-        endEffectorIO.setCurrentLimit(5, 7.0);
+        endEffectorIO.setCurrentLimit(20, 30.0);
     }
 
     /* For idling */
