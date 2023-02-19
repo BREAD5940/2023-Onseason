@@ -23,21 +23,23 @@ public class TrajectoryFollowerCommand extends CommandBase {
     private final Supplier<Rotation2d> startHeading;
     private final Swerve swerve;
     private final Timer timer = new Timer();
+    private final boolean stop;
     public final BreadHolonomicDriveController autonomusController = new BreadHolonomicDriveController(
         new PIDController(8.0, 0, 0), 
         new PIDController(8.0, 0, 0), 
-        new PIDController(6.0, 0, 0)
+        new PIDController(4.0, 0, 0)
     );
 
-    public TrajectoryFollowerCommand(PathPlannerTrajectory trajectory, Supplier<Rotation2d> startHeading, Swerve swerve) {
+    public TrajectoryFollowerCommand(PathPlannerTrajectory trajectory, Supplier<Rotation2d> startHeading, Swerve swerve, boolean stop) {
         this.trajectory = trajectory;
         this.startHeading = startHeading;
         this.swerve = swerve;
+        this.stop = stop;
         addRequirements(swerve);
     }
 
-    public TrajectoryFollowerCommand(PathPlannerTrajectory trajectory, Swerve swerve) {
-        this(trajectory, null, swerve);
+    public TrajectoryFollowerCommand(PathPlannerTrajectory trajectory, Swerve swerve, boolean stop) {
+        this(trajectory, null, swerve, stop);
     }
 
     @Override
@@ -66,7 +68,11 @@ public class TrajectoryFollowerCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return timer.get() >= trajectory.getTotalTimeSeconds();
+        if (stop) {
+            return timer.get() >= trajectory.getTotalTimeSeconds();
+        } else {
+            return false;
+        }
     }
 
     @Override

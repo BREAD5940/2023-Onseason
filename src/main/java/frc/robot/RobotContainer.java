@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commons.PoseEstimator;
 import frc.robot.autonomous.modes.ThreePieceMode;
+import frc.robot.autonomous.modes.TwoPieceBalanceMode;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
@@ -78,39 +79,39 @@ public class RobotContainer {
       }
     }, swerve));
 
-    superstructure.setDefaultCommand(new RunCommand(() -> {
-      if (RobotContainer.operator.getRightBumperPressed()) {
-        RobotContainer.superstructure.requestFloorIntakeCone();
-      }
-
-      if (RobotContainer.operator.getLeftBumperPressed()) {
-        RobotContainer.superstructure.requestFloorIntakeCube();
-      }
-
-      if (RobotContainer.operator.getAButtonPressed()) {
-        RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
-      }
-
-      if (RobotContainer.operator.getBButtonPressed()) {
-        RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
-      }
-
-      if (RobotContainer.operator.getXButtonPressed()) {
-        RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
-      }
-
-      if (RobotContainer.operator.getYButtonPressed()) {
-        RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
-      }
-
-      if (RobotContainer.operator.getRightStickButtonPressed()) {
-        RobotContainer.superstructure.requestScore();
-      }
-
-      if (RobotContainer.operator.getLeftStickButtonPressed()) {
-        RobotContainer.superstructure.requestIdle();
-      }
-    }, superstructure));
+    // superstructure.setDefaultCommand(new RunCommand(() -> {
+      // if (RobotContainer.operator.getRightBumperPressed()) {
+      //   RobotContainer.superstructure.requestFloorIntakeCone();
+      // }
+  
+      // if (RobotContainer.operator.getLeftBumperPressed()) {
+      //   RobotContainer.superstructure.requestFloorIntakeCube();
+      // }
+  
+      // if (RobotContainer.operator.getAButtonPressed()) {
+      //   RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
+      // }
+  
+      // if (RobotContainer.operator.getBButtonPressed()) {
+      //   RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
+      // }
+      
+      // if (RobotContainer.operator.getXButtonPressed()) {
+      //   RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
+      // }
+  
+      // if (RobotContainer.operator.getYButtonPressed()) {
+      //   RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
+      // }
+  
+      // if (RobotContainer.operator.getRightStickButtonPressed()) {
+      //   RobotContainer.superstructure.requestScore();
+      // }
+  
+      // if (RobotContainer.operator.getLeftStickButtonPressed()) {
+      //   RobotContainer.superstructure.requestIdle();
+      // }
+    // }, superstructure));
 
     // new JoystickButton(operator, XboxController.Button.kRightBumper.value).onTrue(
     //   new InstantCommand(() -> superstructure.requestFloorIntakeCone())
