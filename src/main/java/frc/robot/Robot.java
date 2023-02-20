@@ -50,6 +50,10 @@ public class Robot extends LoggedRobot {
   public static PathPlannerTrajectory twoPieceBalanceA;
   public static PathPlannerTrajectory twoPieceBalanceB;
   public static PathPlannerTrajectory twoPieceBalanceC;
+  
+  public static PathPlannerTrajectory twoPieceBalanceBumpA;
+  public static PathPlannerTrajectory twoPieceBalanceBumpB;
+  public static PathPlannerTrajectory twoPieceBalanceBumpC;
 
   public static PathPlannerTrajectory test;
 
@@ -80,9 +84,12 @@ public class Robot extends LoggedRobot {
     threePieceC = PathPlanner.loadPath("Three Piece C", new PathConstraints(4.0, 2.5));
     threePieceD = PathPlanner.loadPath("Three Piece D", new PathConstraints(4.0, 2.0));
     threePieceE = PathPlanner.loadPath("Three Piece E", new PathConstraints(4.0, 2.0));
-    twoPieceBalanceA = PathPlanner.loadPath("Two Piece Balance A", new PathConstraints(4.0, 2.0));
-    twoPieceBalanceB = PathPlanner.loadPath("Two Piece Balance B", new PathConstraints(4.0, 2.0));
+    twoPieceBalanceA = PathPlanner.loadPath("Two Piece Balance A", new PathConstraints(4.5, 3.5));
+    twoPieceBalanceB = PathPlanner.loadPath("Two Piece Balance B", new PathConstraints(4.5, 3.5));
     twoPieceBalanceC = PathPlanner.loadPath("Two Piece Balance C", new PathConstraints(2.0, 2.0));
+    twoPieceBalanceBumpA = PathPlanner.loadPath("Two Piece Balance Bump A", new PathConstraints(4.0, 2.0));
+    twoPieceBalanceBumpB = PathPlanner.loadPath("Two Piece Balance Bump B", new PathConstraints(4.0, 2.0));
+    twoPieceBalanceBumpC = PathPlanner.loadPath("Two Piece Balance Bump C", new PathConstraints(2.0, 2.0));
     test = PathPlanner.loadPath("Test", new PathConstraints(1.0, 0.5));
   }
 

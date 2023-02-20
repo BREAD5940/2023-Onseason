@@ -19,17 +19,9 @@ import frc.robot.subsystems.swerve.TrajectoryFollowerCommand;
 
 import static frc.robot.Constants.Elevator.*;
 
-import java.util.List;
+public class TwoPieceBalanceBumpMode extends SequentialCommandGroup {
 
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.PathPoint;
-import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
-
-public class TwoPieceBalanceMode extends SequentialCommandGroup {
-
-    public TwoPieceBalanceMode(Superstructure superstructure, Swerve swerve) {
+    public TwoPieceBalanceBumpMode(Superstructure superstructure, Swerve swerve) {
         addRequirements(superstructure, swerve);
         addCommands(
             new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CONE)),
@@ -37,10 +29,10 @@ public class TwoPieceBalanceMode extends SequentialCommandGroup {
             new InstantCommand(() -> superstructure.requestScore()),
             new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_CONE_PULL_OUT_HIGH)),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0)),
-            new TrajectoryFollowerCommand(Robot.twoPieceBalanceA, () -> Robot.twoPieceBalanceA.getInitialHolonomicPose().getRotation(), swerve, true),
-            new WaitCommand(0.05),
+            new TrajectoryFollowerCommand(Robot.twoPieceBalanceBumpA, () -> Robot.twoPieceBalanceBumpA.getInitialHolonomicPose().getRotation(), swerve, true),
+            new WaitCommand(0.2),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
-            new TrajectoryFollowerCommand(Robot.twoPieceBalanceB, swerve, true).alongWith(new SequentialCommandGroup(
+            new TrajectoryFollowerCommand(Robot.twoPieceBalanceBumpB, swerve, true).alongWith(new SequentialCommandGroup(
                 new WaitCommand(1.5),
                 new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE))
             )),
@@ -49,7 +41,7 @@ public class TwoPieceBalanceMode extends SequentialCommandGroup {
             new WaitCommand(0.35),
             new InstantCommand(() -> superstructure.requestIdle()), 
             new WaitCommand(0.25),
-            new TrajectoryFollowerCommand(Robot.twoPieceBalanceC, swerve, false)
+            new TrajectoryFollowerCommand(Robot.twoPieceBalanceBumpC, swerve, false)
         );
     }
     

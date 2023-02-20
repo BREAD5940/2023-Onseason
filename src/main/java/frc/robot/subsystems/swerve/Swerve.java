@@ -41,9 +41,6 @@ public class Swerve extends SubsystemBase {
     private double[] lastModulePositionsMeters = new double[] { 0.0, 0.0, 0.0, 0.0 };
     private Rotation2d lastGyroYaw = new Rotation2d();
 
-    private Pose2d pose = new Pose2d();
-    public final Field2d field = new Field2d();
-
     // State Variables
     private ChassisSpeeds robotSetpoints = new ChassisSpeeds(0, 0, 0);
     private SwerveState systemState = SwerveState.PERCENT;
@@ -70,8 +67,6 @@ public class Swerve extends SubsystemBase {
         moduleIOs[3] = new ModuleIOTalonFX(DRIVE_IDS[3], STEER_IDS[3], AZIMUTH_CHANNELS[3], AZIMUTH_OFFSETS[3],
                 DRIVE_INVERT_TYPES[3], STEER_INVERT_TYPES[3], AZIMUTHS_ARE_REVERSED[3], "BR");
 
-        field.setRobotPose(pose);
-
         for (int i = 0; i < 4; i++) {
             moduleIOs[i].setDriveBrakeMode(true);
             moduleIOs[i].setTurnBrakeMode(true);
@@ -87,7 +82,6 @@ public class Swerve extends SubsystemBase {
             moduleIOs[i].updateInputs(moduleInputs[i]);
             Logger.getInstance().processInputs("Swerve/Module" + Integer.toString(i), moduleInputs[i]);
         }
-        Logger.getInstance().recordOutput("Odometry", getPose());
 
         /** Generate module setpoints */
         Rotation2d[] turnPositions = new Rotation2d[4];
@@ -101,7 +95,7 @@ public class Swerve extends SubsystemBase {
                 robotSetpoints.vxMetersPerSecond, 
                 robotSetpoints.vyMetersPerSecond, 
                 robotSetpoints.omegaRadiansPerSecond, 
-                pose.getRotation()
+                RobotContainer.poseEstimator.getLatestPose().getRotation()
             ));
         } else {
             setpointStates = kinematics.toSwerveModuleStates(new ChassisSpeeds(
@@ -161,7 +155,6 @@ public class Swerve extends SubsystemBase {
         logModuleStates("SwerveModuleStates/SetpointsOptimized", setpointStatesOptimized);
         logModuleStates("SwerveModuleStates/MeasuredStates", measuredStates);
         updateOdometry();
-        Logger.getInstance().recordOutput("Odometry/Robot", pose);
         Logger.getInstance().recordOutput("Desired Angles", desiredAngles);
         Logger.getInstance().recordOutput("Desired Velocities", desiredVelocities);
         Logger.getInstance().recordOutput("Swerve Velocity (mag.)", getVelocity().getNorm());
@@ -199,6 +192,7 @@ public class Swerve extends SubsystemBase {
     /** Updates the swerve drive odometry */
     public void updateOdometry() {
         var twist = kinematics.toTwist2d(getDeltaSwerveModulePositions());
+
         var gyroYaw = new Rotation2d(gyroInputs.positionRad);
         if (gyroInputs.connected) {
             twist = new Twist2d(twist.dx, twist.dy, gyroYaw.minus(lastGyroYaw).getRadians());
@@ -268,11 +262,6 @@ public class Swerve extends SubsystemBase {
         return new Translation2d(
                 speeds.vxMetersPerSecond,
                 speeds.vyMetersPerSecond);
-    }
-
-    /** Returns the pose of the robot */
-    public Pose2d getPose() {
-        return pose;
     }
 
     /** Returns continous output */

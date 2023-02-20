@@ -20,6 +20,7 @@ import edu.wpi.first.math.trajectory.constraint.TrajectoryConstraint;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.RobotContainer;
 import frc.robot.FieldConstants.LoadingZone;
 import frc.robot.autonomous.Trajectories;
 import frc.robot.commons.BreadHolonomicDriveController;
@@ -72,7 +73,7 @@ public class AutoPickupRoutine extends CommandBase {
             // }                
             Rotation2d currentHeading = new Rotation2d();
             trajectory = Trajectories.generateTrajectory(false, List.of(
-                new Pose2d(swerve.getPose().getTranslation(), currentHeading),
+                new Pose2d(RobotContainer.poseEstimator.getLatestPose().getTranslation(), currentHeading),
                 // new Pose2d(endPosition.get().getX() - Units.feetToMeters(4-.0), endPosition.get().getY(), endPosition.get().getRotation()),
                 new Pose2d(endPosition.get().getX(), endPosition.get().getY(), endPosition.get().getRotation())
             ), 1.5, 1.0, swerve.getVelocity().getNorm(), 0.0);
@@ -87,7 +88,7 @@ public class AutoPickupRoutine extends CommandBase {
     @Override
     public void execute() {
         Trajectory.State goal = trajectory.sample(timer.get());
-        ChassisSpeeds adjustedSpeeds = autonomusController.calculate(swerve.getPose(), goal, refHeading.apply(swerve.getPose(), timer.get())); 
+        ChassisSpeeds adjustedSpeeds = autonomusController.calculate(RobotContainer.poseEstimator.getLatestPose(), goal, refHeading.apply(RobotContainer.poseEstimator.getLatestPose(), timer.get())); 
         Logger.getInstance().recordOutput("AdjustedTrajectoryVXMetersPerSecond", adjustedSpeeds.vxMetersPerSecond);
         Logger.getInstance().recordOutput("AdjustedTrajectoryVYMetersPerSecond", adjustedSpeeds.vyMetersPerSecond);
         Logger.getInstance().recordOutput("TrajectoryGoalMetersPerSecond", goal.velocityMetersPerSecond);

@@ -58,7 +58,7 @@ public class TrajectoryFollowerCommand extends CommandBase {
     @Override
     public void execute() {
         PathPlannerState goal = (PathPlannerState) trajectory.sample(timer.get());
-        ChassisSpeeds adjustedSpeeds = autonomusController.calculate(swerve.getPose(), goal, goal.holonomicRotation); 
+        ChassisSpeeds adjustedSpeeds = autonomusController.calculate(RobotContainer.poseEstimator.getLatestPose(), goal, goal.holonomicRotation); 
         swerve.requestVelocity(
             adjustedSpeeds, false
         );

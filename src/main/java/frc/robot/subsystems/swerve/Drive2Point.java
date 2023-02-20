@@ -16,6 +16,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.RobotContainer;
 import frc.robot.autonomous.Trajectories;
 import frc.robot.commons.BreadHolonomicDriveController;
 import frc.robot.subsystems.Superstructure;
@@ -58,7 +59,7 @@ public class Drive2Point extends CommandBase {
                 currentHeading = swerve.getVelocity().rotateBy(swerve.getRotation2d().rotateBy(Rotation2d.fromDegrees(180.0))).getAngle();
             }                
             trajectory = Trajectories.generateTrajectory(true, List.of(
-                new Pose2d(swerve.getPose().getTranslation(), currentHeading),
+                new Pose2d(RobotContainer.poseEstimator.getLatestPose().getTranslation(), currentHeading),
                 endPosition.get()
             ), maxVelocity, maxAccel, swerve.getVelocity().getNorm(), endVelocity);
             Logger.getInstance().recordOutput("OnTheFlyTrajectoryGeneration", trajectory);
@@ -71,7 +72,7 @@ public class Drive2Point extends CommandBase {
     @Override
     public void execute() {
         Trajectory.State goal = trajectory.sample(timer.get());
-        ChassisSpeeds adjustedSpeeds = autonomousController.calculate(swerve.getPose(), goal, Rotation2d.fromDegrees(0.0)); 
+        ChassisSpeeds adjustedSpeeds = autonomousController.calculate(RobotContainer.poseEstimator.getLatestPose(), goal, Rotation2d.fromDegrees(0.0)); 
         Logger.getInstance().recordOutput("AdjustedTrajectoryVXMetersPerSecond", adjustedSpeeds.vxMetersPerSecond);
         Logger.getInstance().recordOutput("AdjustedTrajectoryVYMetersPerSecond", adjustedSpeeds.vyMetersPerSecond);
         Logger.getInstance().recordOutput("TrajectoryGoalMetersPerSecond", goal.velocityMetersPerSecond);
