@@ -38,7 +38,7 @@ public class TwoPieceBalanceMode extends SequentialCommandGroup {
             new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_CONE_PULL_OUT_HIGH)),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0)),
             new TrajectoryFollowerCommand(Robot.twoPieceBalanceA, () -> Robot.twoPieceBalanceA.getInitialHolonomicPose().getRotation(), swerve, true),
-            new WaitCommand(0.2),
+            new WaitCommand(0.05),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
             new TrajectoryFollowerCommand(Robot.twoPieceBalanceB, swerve, true).alongWith(new SequentialCommandGroup(
                 new WaitCommand(1.5),

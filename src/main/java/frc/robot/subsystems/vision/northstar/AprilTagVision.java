@@ -32,6 +32,7 @@ import org.littletonrobotics.junction.Logger;
 public class AprilTagVision extends SubsystemBase {
         private static final double ambiguityThreshold = 0.15;
         private static final double targetLogTimeSecs = 0.1;
+        private static final double stdDevConst = 1.4;
         private static final Pose3d[] cameraPoses;
         private static final PolynomialRegression xyStdDevModel;
         private static final PolynomialRegression thetaStdDevModel;
@@ -46,20 +47,10 @@ public class AprilTagVision extends SubsystemBase {
 
         static {
                 cameraPoses = new Pose3d[] {
-                                new Pose3d(
-                                                Units.inchesToMeters(0.0),
-                                                Units.inchesToMeters(0.0),
-                                                Units.inchesToMeters(0.0),
-                                                new Rotation3d(0.0, 0.0, 0.0)
-                                                                .rotateBy(new Rotation3d(0.0,
-                                                                                Units.degreesToRadians(0.0), 0.0))),
-                                                                                new Pose3d(
-                                                                                        Units.inchesToMeters(0.0),
-                                                                                        Units.inchesToMeters(0.0),
-                                                                                        Units.inchesToMeters(0.0),
-                                                                                        new Rotation3d(0.0, 0.0, 0.0)
-                                                                                                        .rotateBy(new Rotation3d(0.0,
-                                                                                                                        Units.degreesToRadians(0.0), 0.0)))
+                        new Pose3d(-0.245, 0.33, 0.345,
+                                new Rotation3d(3.031, 0.049, 0.593)),
+                        new Pose3d(-0.245, -0.33, 0.345,
+                                new Rotation3d(-0.055, -0.03, -0.491))
 
                 };
                 xyStdDevModel = new PolynomialRegression(
@@ -193,14 +184,18 @@ public class AprilTagVision extends SubsystemBase {
                                                 robotPose3d = robotPose1;
                                         }
 
-                                        Transform3d tagToRobot = new Transform3d(new Translation3d(0.7626, -0.5631, -Units.inchesToMeters(18.22)), new Rotation3d(0.0, 0.0, Math.PI));
-                                        Pose3d robotToField = FieldConstants.aprilTags.get(8).transformBy(tagToRobot);
-                                        Transform3d robotToCam = new Transform3d(robotToField, robotPose3d);
-                                        Logger.getInstance().recordOutput("Pose0", robotPose0);
-                                        Logger.getInstance().recordOutput("Pose1", robotPose1);
-                                        Logger.getInstance().recordOutput("Robot To Field", robotToField);
-                                        Logger.getInstance().recordOutput("Camera To Field", robotPose3d);
-                                        Logger.getInstance().recordOutput("Robot To Cam", GeomUtil.transform3dToPose3d(robotToCam));
+                                        /* Measurements of camera transforms */
+                                        // Transform3d tagToRobot = new Transform3d(new Translation3d(0.7096, 1.1261, -Units.inchesToMeters(18.22)), new Rotation3d(0.0, 0.0, Math.PI));
+                                        // Pose3d robotToField = FieldConstants.aprilTags.get(7).transformBy(tagToRobot);
+                                        // Transform3d robotToCam = new Transform3d(robotToField, robotPose3d);
+                                        // Logger.getInstance().recordOutput("Pose0", robotPose0);
+                                        // Logger.getInstance().recordOutput("Pose1", robotPose1);
+                                        // Logger.getInstance().recordOutput("Robot To Field", robotToField);
+                                        // Logger.getInstance().recordOutput("Camera To Field", robotPose3d);
+                                        // Logger.getInstance().recordOutput("CameraToFieldRoll", robotToCam.getRotation().getX());
+                                        // Logger.getInstance().recordOutput("CameraToFieldPitch", robotToCam.getRotation().getY());
+                                        // Logger.getInstance().recordOutput("CameraToFieldYaw", robotToCam.getRotation().getZ());
+                                        // Logger.getInstance().recordOutput("Robot To Cam", GeomUtil.transform3dToPose3d(robotToCam));
 
 
 
@@ -211,13 +206,14 @@ public class AprilTagVision extends SubsystemBase {
 
                                         // Add to vision updates
                                         double tagDistance = tagPose.getTranslation().getNorm();
-                                        double xyStdDev = xyStdDevModel.predict(tagDistance);
-                                        double thetaStdDev = thetaStdDevModel.predict(tagDistance);
+                                        double xyStdDev = xyStdDevModel.predict(tagDistance) * stdDevConst;
+                                        double thetaStdDev = thetaStdDevModel.predict(tagDistance) * stdDevConst;
                                         visionUpdates.add(
                                                         new TimestampedVisionUpdate(
                                                                         timestamp, robotPose, VecBuilder.fill(xyStdDev,
                                                                                         xyStdDev, thetaStdDev)));
                                         visionPose2ds.add(robotPose);
+                                        Logger.getInstance().recordOutput("VisionData/" + instanceIndex, robotPose);
                                 }
                         }
 

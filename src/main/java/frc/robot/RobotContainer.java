@@ -28,6 +28,7 @@ import frc.robot.subsystems.endeffector.EndEffectorIOSparkMax;
 import frc.robot.subsystems.floorintake.FloorIntakeIO;
 import frc.robot.subsystems.floorintake.FloorIntakeIOTalonFX;
 import frc.robot.subsystems.swerve.AutoPickupRoutine;
+import frc.robot.subsystems.swerve.AutoPlaceCommand;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.vision.northstar.AprilTagVision;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIO;
@@ -124,6 +125,8 @@ public class RobotContainer {
       swerve, 
       superstructure
     ));
+
+    new JoystickButton(driver, XboxController.Button.kB.value).whileTrue(new AutoPlaceCommand(3, Level.HIGH, swerve, superstructure));
   }
 
   private void configureNorthstarVision() {
@@ -131,6 +134,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new ThreePieceMode(superstructure, swerve);
+    return new TwoPieceBalanceMode(superstructure, swerve);
   }
 }
