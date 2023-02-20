@@ -48,10 +48,14 @@ public class AprilTagVision extends SubsystemBase {
         static {
                 cameraPoses = new Pose3d[] {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> e4314bf (Add auto placement and tune autos)
                         new Pose3d(-0.245, 0.33, 0.345,
                                 new Rotation3d(3.031, 0.049, 0.593)),
                         new Pose3d(-0.245, -0.33, 0.345,
                                 new Rotation3d(-0.055, -0.03, -0.491))
+<<<<<<< HEAD
 =======
                                 new Pose3d(
                                                 Units.inchesToMeters(0.0),
@@ -68,6 +72,8 @@ public class AprilTagVision extends SubsystemBase {
                                                                                                         .rotateBy(new Rotation3d(0.0,
                                                                                                                         Units.degreesToRadians(0.0), 0.0)))
 >>>>>>> 50f11bf (Working on april tag detection)
+=======
+>>>>>>> e4314bf (Add auto placement and tune autos)
 
                 };
                 xyStdDevModel = new PolynomialRegression(
@@ -202,6 +208,9 @@ public class AprilTagVision extends SubsystemBase {
                                         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> e4314bf (Add auto placement and tune autos)
                                         /* Measurements of camera transforms */
                                         // Transform3d tagToRobot = new Transform3d(new Translation3d(0.7096, 1.1261, -Units.inchesToMeters(18.22)), new Rotation3d(0.0, 0.0, Math.PI));
                                         // Pose3d robotToField = FieldConstants.aprilTags.get(7).transformBy(tagToRobot);
@@ -214,6 +223,7 @@ public class AprilTagVision extends SubsystemBase {
                                         // Logger.getInstance().recordOutput("CameraToFieldPitch", robotToCam.getRotation().getY());
                                         // Logger.getInstance().recordOutput("CameraToFieldYaw", robotToCam.getRotation().getZ());
                                         // Logger.getInstance().recordOutput("Robot To Cam", GeomUtil.transform3dToPose3d(robotToCam));
+<<<<<<< HEAD
 =======
                                         Transform3d tagToRobot = new Transform3d(new Translation3d(0.7626, -0.5631, -Units.inchesToMeters(18.22)), new Rotation3d(0.0, 0.0, Math.PI));
                                         Pose3d robotToField = FieldConstants.aprilTags.get(8).transformBy(tagToRobot);
@@ -224,6 +234,8 @@ public class AprilTagVision extends SubsystemBase {
                                         Logger.getInstance().recordOutput("Camera To Field", robotPose3d);
                                         Logger.getInstance().recordOutput("Robot To Cam", GeomUtil.transform3dToPose3d(robotToCam));
 >>>>>>> 50f11bf (Working on april tag detection)
+=======
+>>>>>>> e4314bf (Add auto placement and tune autos)
 
 
 
