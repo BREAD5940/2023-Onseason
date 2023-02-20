@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
+import org.littletonrobotics.junction.Logger;
+
 public class PoseEstimator {
     private static final double historyLengthSecs = 0.3;
 
@@ -110,6 +112,7 @@ public class PoseEstimator {
         for (var updateEntry : updates.entrySet()) {
             latestPose = updateEntry.getValue().apply(latestPose, q);
         }
+        Logger.getInstance().recordOutput("Odometry/RobotPosition", latestPose);
     }
 
     /**

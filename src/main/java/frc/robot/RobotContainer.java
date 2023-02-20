@@ -29,15 +29,14 @@ import frc.robot.subsystems.floorintake.FloorIntakeIO;
 import frc.robot.subsystems.floorintake.FloorIntakeIOTalonFX;
 import frc.robot.subsystems.swerve.AutoPickupRoutine;
 import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.northstar.AprilTagVision;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIO;
+import frc.robot.subsystems.vision.northstar.AprilTagVisionIONorthstar;
 
 import static frc.robot.FieldConstants.*;
 
 public class RobotContainer {
 
-  public static final Vision vision = new Vision();
   public static final XboxController driver = new XboxController(0);
   public static final XboxController operator = new XboxController(1);
   public static final Swerve swerve = new Swerve();
@@ -47,8 +46,9 @@ public class RobotContainer {
   public static final FloorIntakeIO floorIntakeIO = new FloorIntakeIOTalonFX();
   public static final Superstructure superstructure = new Superstructure(elevatorIO, armIO, endEffectorIO,
       floorIntakeIO);
-  public static final AprilTagVision northstarVision = new AprilTagVision(new AprilTagVisionIO() {
-  });
+  private static final AprilTagVisionIO leftCamera = new AprilTagVisionIONorthstar("northstar-left");
+  private static final AprilTagVisionIO rightCamera = new AprilTagVisionIONorthstar("northstar-right");
+  public static final AprilTagVision northstarVision = new AprilTagVision(leftCamera, rightCamera);
   public static final PoseEstimator poseEstimator = new PoseEstimator(VecBuilder.fill(0.005, 0.005, 0.0005));
 
   public RobotContainer() {
@@ -68,10 +68,6 @@ public class RobotContainer {
       double dy = Math.abs(y) > 0.075 ? Math.pow(-y, 1) * scale : 0.0;
       double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.75  * scale: 0.0;
       swerve.requestPercent(new ChassisSpeeds(dx, dy, rot), true);
-
-      if (driver.getAButtonPressed()) {
-        poseEstimator.resetPose(new Pose2d());
-      }
 
       // Sets the 0 of the robot
       if (driver.getAButtonPressed()) {
@@ -131,7 +127,7 @@ public class RobotContainer {
   }
 
   private void configureNorthstarVision() {
-    northstarVision.setDataInterfaces(swerve::getPose, poseEstimator::addVisionData);
+    northstarVision.setDataInterfaces(poseEstimator::getLatestPose, poseEstimator::addVisionData);
   }
 
   public Command getAutonomousCommand() {

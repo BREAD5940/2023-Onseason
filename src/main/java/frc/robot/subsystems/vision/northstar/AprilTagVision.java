@@ -4,7 +4,9 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -22,6 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
+import javax.xml.crypto.dsig.Transform;
+
 import org.littletonrobotics.junction.Logger;
 
 public class AprilTagVision extends SubsystemBase {
@@ -42,12 +47,20 @@ public class AprilTagVision extends SubsystemBase {
         static {
                 cameraPoses = new Pose3d[] {
                                 new Pose3d(
-                                                Units.inchesToMeters(12.5),
-                                                Units.inchesToMeters(6.0),
-                                                Units.inchesToMeters(9.5),
-                                                new Rotation3d(0.0, 0.0, Math.PI)
+                                                Units.inchesToMeters(0.0),
+                                                Units.inchesToMeters(0.0),
+                                                Units.inchesToMeters(0.0),
+                                                new Rotation3d(0.0, 0.0, 0.0)
                                                                 .rotateBy(new Rotation3d(0.0,
-                                                                                Units.degreesToRadians(25.0), 0.0)))
+                                                                                Units.degreesToRadians(0.0), 0.0))),
+                                                                                new Pose3d(
+                                                                                        Units.inchesToMeters(0.0),
+                                                                                        Units.inchesToMeters(0.0),
+                                                                                        Units.inchesToMeters(0.0),
+                                                                                        new Rotation3d(0.0, 0.0, 0.0)
+                                                                                                        .rotateBy(new Rotation3d(0.0,
+                                                                                                                        Units.degreesToRadians(0.0), 0.0)))
+
                 };
                 xyStdDevModel = new PolynomialRegression(
                                 new double[] {
@@ -143,37 +156,53 @@ public class AprilTagVision extends SubsystemBase {
                                                         .transformBy(GeomUtil.pose3dToTransform3d(pose0).inverse())
                                                         .transformBy(GeomUtil
                                                                         .pose3dToTransform3d(cameraPoses[instanceIndex])
-                                                                        .inverse())
-                                                        .toPose2d();
+                                                                        .inverse());
+                                                        // .toPose2d();
                                         var robotPose1 = fieldToTag
                                                         .transformBy(GeomUtil.pose3dToTransform3d(pose1).inverse())
                                                         .transformBy(GeomUtil
                                                                         .pose3dToTransform3d(cameraPoses[instanceIndex])
-                                                                        .inverse())
-                                                        .toPose2d();
+                                                                        .inverse());
+                                                        // .toPose2d();
 
                                         // Choose better pose
+                                        Pose3d robotPose3d;
                                         Pose2d robotPose;
                                         Pose3d tagPose;
                                         if (error0 < error1 * ambiguityThreshold) {
-                                                robotPose = robotPose0;
+                                                robotPose = robotPose0.toPose2d();
+                                                robotPose3d = robotPose0;
                                                 tagPose = pose0;
                                         } else if (error1 < error0 * ambiguityThreshold) {
-                                                robotPose = robotPose1;
+                                                robotPose = robotPose1.toPose2d();
+                                                robotPose3d = robotPose1;
                                                 tagPose = pose1;
                                         } else if (Math.abs(
-                                                        robotPose0.getRotation().minus(currentPose.getRotation())
+                                                        robotPose0.toPose2d().getRotation().minus(currentPose.getRotation())
                                                                         .getRadians()) < Math
-                                                                                        .abs(robotPose1.getRotation()
+                                                                                        .abs(robotPose1.toPose2d().getRotation()
                                                                                                         .minus(currentPose
                                                                                                                         .getRotation())
                                                                                                         .getRadians())) {
-                                                robotPose = robotPose0;
+                                                robotPose = robotPose0.toPose2d();
+                                                robotPose3d = robotPose0;
                                                 tagPose = pose0;
                                         } else {
-                                                robotPose = robotPose1;
+                                                robotPose = robotPose1.toPose2d();
                                                 tagPose = pose1;
+                                                robotPose3d = robotPose1;
                                         }
+
+                                        Transform3d tagToRobot = new Transform3d(new Translation3d(0.7626, -0.5631, -Units.inchesToMeters(18.22)), new Rotation3d(0.0, 0.0, Math.PI));
+                                        Pose3d robotToField = FieldConstants.aprilTags.get(8).transformBy(tagToRobot);
+                                        Transform3d robotToCam = new Transform3d(robotToField, robotPose3d);
+                                        Logger.getInstance().recordOutput("Pose0", robotPose0);
+                                        Logger.getInstance().recordOutput("Pose1", robotPose1);
+                                        Logger.getInstance().recordOutput("Robot To Field", robotToField);
+                                        Logger.getInstance().recordOutput("Camera To Field", robotPose3d);
+                                        Logger.getInstance().recordOutput("Robot To Cam", GeomUtil.transform3dToPose3d(robotToCam));
+
+
 
                                         // Log tag pose
                                         tagPose3ds.add(tagPose);
