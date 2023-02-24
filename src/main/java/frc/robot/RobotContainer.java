@@ -20,6 +20,9 @@ import frc.robot.autonomous.modes.TwoPieceBalanceMode;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIO;
+import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.elevatorarm.ArmIO;
 import frc.robot.subsystems.elevatorarm.ArmIOTalonFX;
 import frc.robot.subsystems.elevatorarm.ElevatorIO;
@@ -54,6 +57,8 @@ public class RobotContainer {
   private static final AprilTagVisionIO rightCamera = new AprilTagVisionIONorthstar("northstar-right");
   public static final AprilTagVision northstarVision = new AprilTagVision(leftCamera, rightCamera);
   public static final PoseEstimator poseEstimator = new PoseEstimator(VecBuilder.fill(0.005, 0.005, 0.0005));
+  public static final ClimberIOTalonFX climberIO = new ClimberIOTalonFX();
+  public static final Climber climber = new Climber(climberIO);
 
   public RobotContainer() {
     configureControls();

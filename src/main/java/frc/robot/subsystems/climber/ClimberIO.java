@@ -17,13 +17,13 @@ public interface ClimberIO {
     /* Updates the set of loggable inputs */
     public default void updateInputs(ClimberIOInputs inputs) { }
 
-    /* Deploys the climber */
-    public default void deploy() { }
+    /* Sets the percent of the climber */
+    public default void setPercent(double percent) { }
 
     /* Sets the climber to a certain height */
-    public default void setHeight() { }
+    public default void setHeight(double height) { }
 
     /* Enables brake mode on the climber motors */
-    public default void enableBrakeMode() { }    
+    public default void enableBrakeMode(boolean enable) { }    
     
 }

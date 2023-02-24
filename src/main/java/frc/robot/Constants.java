@@ -99,8 +99,7 @@ public final class Constants {
 
     }
 
-
-    // Constantsp pertaining to the elevator subsystem go here 
+    // Constants pertaining to the elevator subsystem go here 
     public static class Elevator {
         public static final int ELEVATOR_LEFT_ID = 11;
         public static final int ELEVATOR_RIGHT_ID = 12;
@@ -175,6 +174,17 @@ public final class Constants {
         public static final double DEPLOY_MAX_SPEED = (6380.0 * DEPLOY_GEAR_RATIO * 360.0)/60.0;
         public static final double INTAKE_MIN_POSITION = 0.0;
         public static final double INTAKE_MAX_POSITION = 190.75;
+    }
+
+    // Constants pertaining to the climber subsystem
+    public static class Climber {
+        public static final int CLIMBER_ID = 20;
+        public static final double CLIMBING_FF = 0.0;
+        public static final double CLIMBER_GEARING = 1.0;
+        public static final double CLIMBER_PULLEY_DIAMETER = 1.0;
+        public static final double CLIMBER_DEPLOY_HEIGHT = 0.1;
+        public static final double CLIMBER_SETPOINT_TOLERANCE = 0.05;
+        public static final TalonFXInvertType CLIMBER_INVERT_TYPE = TalonFXInvertType.Clockwise;
     }
 
     // Constants pertaining to electrical
