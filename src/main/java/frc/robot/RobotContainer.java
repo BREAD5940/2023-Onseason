@@ -30,6 +30,7 @@ import frc.robot.subsystems.floorintake.FloorIntakeIOTalonFX;
 import frc.robot.subsystems.swerve.AutoPickupRoutine;
 import frc.robot.subsystems.swerve.AutoPlaceCommand;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.vision.limelight.LimelightVision;
 import frc.robot.subsystems.vision.northstar.AprilTagVision;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIO;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIONorthstar;
@@ -50,11 +51,13 @@ public class RobotContainer {
   private static final AprilTagVisionIO leftCamera = new AprilTagVisionIONorthstar("northstar-left");
   private static final AprilTagVisionIO rightCamera = new AprilTagVisionIONorthstar("northstar-right");
   public static final AprilTagVision northstarVision = new AprilTagVision(leftCamera, rightCamera);
+  public static final LimelightVision limelightVision = new LimelightVision();
   public static final PoseEstimator poseEstimator = new PoseEstimator(VecBuilder.fill(0.005, 0.005, 0.0005));
 
   public RobotContainer() {
     configureControls();
     configureNorthstarVision();
+    configureLimelightVision();
   }
 
   private void configureControls() {
@@ -131,6 +134,10 @@ public class RobotContainer {
 
   private void configureNorthstarVision() {
     northstarVision.setDataInterfaces(poseEstimator::getLatestPose, poseEstimator::addVisionData);
+  }
+
+  private void configureLimelightVision() {
+    limelightVision.resetSettings();
   }
 
   public Command getAutonomousCommand() {

@@ -1,12 +1,15 @@
 package frc.robot.subsystems.vision.limelight;
 
+import static frc.robot.Constants.LimelightVision.*;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import static frc.robot.Constants.LimelightVision.*;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class LimelightVision {
+public class LimelightVision extends SubsystemBase {
+
   /* Variables */
   private final NetworkTable limelight = NetworkTableInstance
     .getDefault()
@@ -62,6 +65,13 @@ public class LimelightVision {
     return (cameraMode == 0.0 && hasTarget == 1.0 && ledMode == 0.0);
   }
 
+  /* Resets the settings to the defaults */
+  public void resetSettings() {
+    setCameraMode(0);
+    setLedMode(1);
+    setPipeline(0);
+  }
+
   /**
    * Sets the camera mode
    *
@@ -92,7 +102,7 @@ public class LimelightVision {
   /**
    * Gets the current LED mode of the Limelight camera
    *
-   * @return the current LED  mode
+   * @return the current LED mode
    */
   public double getLedMode() {
     return ledMode.getDouble(0.0);

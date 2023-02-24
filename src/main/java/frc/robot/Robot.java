@@ -58,9 +58,6 @@ public class Robot extends LoggedRobot {
 
   public static PathPlannerTrajectory test;
 
-  // FOR DEV | DELETE BEFORE PUSHING
-  LimelightVision limelightVision = new LimelightVision();
-
 
   @Override
   public void robotInit() {
@@ -95,17 +92,11 @@ public class Robot extends LoggedRobot {
     twoPieceBalanceBumpB = PathPlanner.loadPath("Two Piece Balance Bump B", new PathConstraints(4.0, 2.0));
     twoPieceBalanceBumpC = PathPlanner.loadPath("Two Piece Balance Bump C", new PathConstraints(2.0, 2.0));
     test = PathPlanner.loadPath("Test", new PathConstraints(1.0, 0.5));
-
-    limelightVision.setLedMode(1);
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
-    // if (limelightVision.hasTarget()) {
-    //   System.out.println(limelightVision.getDistance());
-    // }
-    System.out.println(limelightVision.hasTarget());
   }
  
   @Override
