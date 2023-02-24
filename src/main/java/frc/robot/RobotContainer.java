@@ -117,48 +117,48 @@ public class RobotContainer {
     //   new InstantCommand(() -> superstructure.requestFloorIntakeCone())
     // );
 
-    superstructure.setDefaultCommand(new RunCommand(() -> {
-      if (RobotContainer.keyboard.getRawButtonPressed(1) ) {
-        System.out.println("button 1 pressed");
-        RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
-      }
+    // superstructure.setDefaultCommand(new RunCommand(() -> {
+    //   if (RobotContainer.keyboard.getRawButtonPressed(1) ) {
+    //     System.out.println("button 1 pressed");
+    //     RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
+    //   }
 
-      if (RobotContainer.keyboard.getRawButtonPressed(2) ) {
-        System.out.println("button 2 pressed");
-        RobotContainer.superstructure.requestIntakeCubeDoubleSubstation();
-      }
+    //   if (RobotContainer.keyboard.getRawButtonPressed(2) ) {
+    //     System.out.println("button 2 pressed");
+    //     RobotContainer.superstructure.requestIntakeCubeDoubleSubstation();
+    //   }
 
-      if (RobotContainer.keyboard.getRawButtonPressed(3) ) {
-        System.out.println("button 3 pressed");
-        RobotContainer.superstructure.requestScore();
-      }
+    //   if (RobotContainer.keyboard.getRawButtonPressed(3) ) {
+    //     System.out.println("button 3 pressed");
+    //     RobotContainer.superstructure.requestScore();
+    //   }
 
-      if (RobotContainer.keyboard.getRawButtonPressed(4) ) {
-        System.out.println("button 4 pressed");
-        RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
-      }
+    //   if (RobotContainer.keyboard.getRawButtonPressed(4) ) {
+    //     System.out.println("button 4 pressed");
+    //     RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
+    //   }
 
-      if (RobotContainer.keyboard.getRawButtonPressed(6) ) {
-        System.out.println("button 6 pressed");
-        RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
-      }
+    //   if (RobotContainer.keyboard.getRawButtonPressed(6) ) {
+    //     System.out.println("button 6 pressed");
+    //     RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
+    //   }
 
-      if (RobotContainer.keyboard.getRawButtonPressed(7) ) {
-        System.out.println("button 7 pressed");
-        RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
-      }
+    //   if (RobotContainer.keyboard.getRawButtonPressed(7) ) {
+    //     System.out.println("button 7 pressed");
+    //     RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
+    //   }
 
-      if (RobotContainer.keyboard.getRawButtonPressed(9) ) {
-        System.out.println("button 9 pressed");
-        RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
-      }
+    //   if (RobotContainer.keyboard.getRawButtonPressed(9) ) {
+    //     System.out.println("button 9 pressed");
+    //     RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
+    //   }
 
-      if (RobotContainer.keyboard.getRawButtonPressed(11) ) {
-        System.out.println("button 11 pressed");
-        RobotContainer.superstructure.requestIdle();
-      }
+    //   if (RobotContainer.keyboard.getRawButtonPressed(11) ) {
+    //     System.out.println("button 11 pressed");
+    //     RobotContainer.superstructure.requestIdle();
+    //   }
       
-    }, superstructure));
+    // }, superstructure));
 
     new JoystickButton(driver, XboxController.Button.kRightBumper.value).whileTrue(new AutoPickupRoutine(
       () -> new Pose2d(fieldLength - 1.312749431033244, aprilTags.get(4).getY(), new Rotation2d(0.0)), 
@@ -167,7 +167,7 @@ public class RobotContainer {
       superstructure
     ));
 
-    new JoystickButton(driver, XboxController.Button.kB.value).whileTrue(new AutoPlaceCommand(3, Level.HIGH, swerve, superstructure));
+    new JoystickButton(driver, XboxController.Button.kLeftStick.value).whileTrue(new AutoPlaceCommand(swerve, superstructure));
   }
 
   private void configureNorthstarVision() {

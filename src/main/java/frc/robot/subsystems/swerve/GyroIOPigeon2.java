@@ -19,6 +19,10 @@ public class GyroIOPigeon2 implements GyroIO {
         inputs.positionDegRaw = pigeon.getYaw();
         inputs.positionRad = Units.degreesToRadians(inputs.positionDegRaw);
         inputs.velocityRadPerSec = 0.0;
+        inputs.pitchDeg = pigeon.getPitch();
+        inputs.rollDeg = pigeon.getRoll() - 3.515625;
+        inputs.pitchRad = Units.degreesToRadians(pigeon.getPitch());
+        inputs.rollRad = Units.degreesToRadians(inputs.rollDeg);
     }
 
     @Override

@@ -24,6 +24,8 @@ public class TrajectoryFollowerCommand extends CommandBase {
     private final Supplier<Rotation2d> startHeading;
     private final Swerve swerve;
     private final Timer timer = new Timer();
+    private final Timer balanceTimer = new Timer();
+    private boolean balanceStarted = false;
     private final boolean stop;
     public final BreadHolonomicDriveController autonomusController = new BreadHolonomicDriveController(
         new PIDController(8.0, 0, 0), 
@@ -53,6 +55,9 @@ public class TrajectoryFollowerCommand extends CommandBase {
         }
         timer.reset();
         timer.start();
+        balanceTimer.reset();
+        balanceTimer.stop();
+        balanceStarted = false;
     }
 
     @Override
@@ -72,7 +77,18 @@ public class TrajectoryFollowerCommand extends CommandBase {
         if (stop) {
             return timer.get() >= trajectory.getTotalTimeSeconds();
         } else {
-            return false;
+            if (timer.get() >= trajectory.getTotalTimeSeconds() && Math.abs(swerve.getRoll()) < 0.15 && !balanceStarted) {
+                balanceStarted  = true;
+                balanceTimer.start();
+            } 
+
+            if (timer.get() >= trajectory.getTotalTimeSeconds() && Math.abs(swerve.getRoll()) > 0.15) {
+                balanceStarted = false;
+                balanceTimer.stop();
+                balanceTimer.reset();
+            }
+
+            return timer.get() >= trajectory.getTotalTimeSeconds() && balanceTimer.get() > 0.5;
         }
     }
 

@@ -57,6 +57,9 @@ public class Robot extends LoggedRobot {
 
   public static PathPlannerTrajectory test;
 
+  public static int scoringSquare = 0; // Number 0-2
+  public static int scoringSpot = 0; // Number 0-2
+  public static Level scoringLevel = Level.HIGH;
 
   @Override
   public void robotInit() {
@@ -96,6 +99,43 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+    if (RobotContainer.keyboard.getRawButton(1)) {
+      scoringSquare = 0;
+    } else if (RobotContainer.keyboard.getRawButton(2)) {
+      scoringSquare = 1;
+    } else if (RobotContainer.keyboard.getRawButton(3)) {
+      scoringSquare = 2;
+    }
+
+    if (RobotContainer.keyboard.getRawButton(4)) {
+      scoringSpot = 0;
+      scoringLevel = Level.HIGH; 
+    } else if (RobotContainer.keyboard.getRawButton(5)) {
+      scoringSpot = 1;
+      scoringLevel = Level.HIGH; 
+    } else if (RobotContainer.keyboard.getRawButton(6)) {
+      scoringSpot = 2;
+      scoringLevel = Level.HIGH; 
+    } else if (RobotContainer.keyboard.getRawButton(7)) {
+      scoringSpot = 0;
+      scoringLevel = Level.MID; 
+    } else if (RobotContainer.keyboard.getRawButton(8)) {
+      scoringSpot = 1;
+      scoringLevel = Level.MID; 
+    } else if (RobotContainer.keyboard.getRawButton(9)) {
+      scoringSpot = 2;
+      scoringLevel = Level.MID; 
+    } else if (RobotContainer.keyboard.getRawButtonPressed(10)) {
+      RobotContainer.superstructure.requestIdle();
+    } else if (RobotContainer.keyboard.getRawButtonPressed(11)) {
+      RobotContainer.superstructure.requestFloorIntakeCube(() -> 0.0);
+    } else if (RobotContainer.keyboard.getRawButtonPressed(12)) {
+      RobotContainer.superstructure.requestFloorIntakeCone();
+    }
+
+    Logger.getInstance().recordOutput("Scoring Square", scoringSquare);
+    Logger.getInstance().recordOutput("Scoring Spot", scoringSpot);
+    Logger.getInstance().recordOutput("Scoring Level", scoringLevel.toString());
   }
 
   @Override

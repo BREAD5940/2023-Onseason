@@ -44,8 +44,8 @@ public class Superstructure extends SubsystemBase {
     private boolean requestSpit = false;
     private boolean requestFloorIntakeCone = false;
     private Supplier<Double> floorIntakePressure = () -> 0.0;
-    Timer currentTriggerTimer = new Timer();
-    boolean currentTriggerTimerStarted = false;
+    private Timer currentTriggerTimer = new Timer();
+    private boolean currentTriggerTimerStarted = false;
 
 
     private Level level = Level.LOW;
@@ -71,6 +71,8 @@ public class Superstructure extends SubsystemBase {
     TunableNumber doubleSubstationConeAngle = new TunableNumber("Arm/ArmDoubleSubstationConeAngle", ARM_DOUBLE_SUBSTATION_CONE);
     TunableNumber doubleSubstationCubeAngle = new TunableNumber("Arm/ArmDoubleSubstationCubeAngle", ARM_DOUBLE_SUBSTATION_CUBE);
     // TunableNumber floorIntakeOutput = new TunableNumber("FloorIntake/Output", 0.0);
+
+    double lastFPGATimestamp = 0.0;
 
     /* System States */
     public enum SuperstructureState {
@@ -114,6 +116,8 @@ public class Superstructure extends SubsystemBase {
 
         /* Logs */
         Logger.getInstance().recordOutput("SuperstructureState", systemState.toString());
+        Logger.getInstance().recordOutput("Superstructure/loopCycleTime", Logger.getInstance().getRealTimestamp()/1.0E6 - lastFPGATimestamp);
+        lastFPGATimestamp = Logger.getInstance().getRealTimestamp()/1.0E6;
 
         /* On loops */
         elevatorArmLowLevel.onLoop();
@@ -424,6 +428,8 @@ public class Superstructure extends SubsystemBase {
             systemState = nextSystemState;
             mStateStartTime = BreadUtil.getFPGATimeSeconds();
         }
+
+
     } 
 
     /* Requests the entire system to home */

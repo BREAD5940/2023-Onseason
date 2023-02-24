@@ -26,5 +26,17 @@ public class AveragingFilter {
         }
     }
 
+    public int getSize() {
+        return values.size();
+    }
+
+    public int getWindowSize() {
+        return maxSize;
+    }
+
+    public void clear() {
+        values.clear();
+    }
+
     
 }

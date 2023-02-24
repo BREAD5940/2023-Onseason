@@ -81,8 +81,8 @@ public final class Constants {
 
         // Measurements/Gearings
         public static final double MODULE_GEARING = (14.0/50.0) * (28.0/16.0) * (15.0/45.0);
-        public static final double ROBOT_WIDTH = Units.inchesToMeters(27.0);
-        public static final double ROBOT_LENGTH = Units.inchesToMeters(28.0);
+        public static final double ROBOT_WIDTH = Units.inchesToMeters(27.0 - 2.625 * 2.0);
+        public static final double ROBOT_LENGTH = Units.inchesToMeters(28.0 - 2.625 * 2.0);
         // Madtown field callibration constant factor is 0.97
         public static final double WHEEL_RADIUS = Units.inchesToMeters(2.0) * 0.9442667069;
         public static final Translation2d FIELD_TO_TARGET = new Translation2d(Units.feetToMeters(27), Units.feetToMeters(13.5));
@@ -149,7 +149,7 @@ public final class Constants {
         public static final double ARM_NULL_RANGE = 300.0; // To 360 degrees
 
         public static final double ARM_PRE_SCORE_CUBE = 182.88867;
-        public static final double ARM_PRE_SCORE_CONE = 138.076;
+        public static final double ARM_PRE_SCORE_CONE = 118.076;
         public static final double ARM_SLAM_CONE = 187.3828;
         public static final double ARM_PRE_SCORE_LOW = 230.0;
         public static final double ARM_FLOOR_INTAKE_CUBE = 1.0;

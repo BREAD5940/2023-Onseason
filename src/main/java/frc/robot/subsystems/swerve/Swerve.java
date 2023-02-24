@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -38,7 +39,7 @@ public class Swerve extends SubsystemBase {
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(FL_LOCATION, FR_LOCATION, BL_LOCATION,
             BR_LOCATION);
-    private double[] lastModulePositionsMeters = new double[] { 0.0, 0.0, 0.0, 0.0 };
+    private double[] lastModulePositionsMeters = new double[] { 0.0, 0.0, 0.0, 0.0};
     private Rotation2d lastGyroYaw = new Rotation2d();
 
     // State Variables
@@ -47,6 +48,7 @@ public class Swerve extends SubsystemBase {
     private boolean requestVelocity = false;
     private boolean requestPercent = false;
     private boolean fieldRelative = true;
+    private double lastFPGATimestamp = 0.0;
 
     /* Swerve States Enum */
     enum SwerveState {
@@ -82,6 +84,8 @@ public class Swerve extends SubsystemBase {
             moduleIOs[i].updateInputs(moduleInputs[i]);
             Logger.getInstance().processInputs("Swerve/Module" + Integer.toString(i), moduleInputs[i]);
         }
+        Logger.getInstance().recordOutput("Swerve/loopCycleTime", Logger.getInstance().getRealTimestamp()/1.0E6 - lastFPGATimestamp);
+        lastFPGATimestamp = Logger.getInstance().getRealTimestamp()/1.0E6;
 
         /** Generate module setpoints */
         Rotation2d[] turnPositions = new Rotation2d[4];
@@ -146,7 +150,6 @@ public class Swerve extends SubsystemBase {
                 nextSystemState = SwerveState.PERCENT;
             }
         }
-
         systemState = nextSystemState;
 
         /** Additional Logging */
@@ -158,6 +161,12 @@ public class Swerve extends SubsystemBase {
         Logger.getInstance().recordOutput("Desired Angles", desiredAngles);
         Logger.getInstance().recordOutput("Desired Velocities", desiredVelocities);
         Logger.getInstance().recordOutput("Swerve Velocity (mag.)", getVelocity().getNorm());
+        Logger.getInstance().recordOutput("Swerve X Velocity", getVelocity().rotateBy(RobotContainer.poseEstimator.getLatestPose().getRotation()).getX());
+        Logger.getInstance().recordOutput("Swerve Y Velocity", getVelocity().rotateBy(RobotContainer.poseEstimator.getLatestPose().getRotation()).getY());
+        Logger.getInstance().recordOutput("Swerve Setpoints/Swerve Desired dX", robotSetpoints.vxMetersPerSecond);
+        Logger.getInstance().recordOutput("Swerve Setpoints/Swerve Desired dY", robotSetpoints.vyMetersPerSecond);
+        Logger.getInstance().recordOutput("Swerve Setpoints/Swerve Desired Omega", robotSetpoints.omegaRadiansPerSecond);
+
         Logger.getInstance().recordOutput("Field-Relative Swerve Velocity (angle)", getVelocity().rotateBy(getRotation2d()).getAngle().getDegrees());
         Logger.getInstance().recordOutput("Robot-Relative Swerve Velocity (angle)", getVelocity().getAngle().getDegrees());
 
@@ -178,12 +187,7 @@ public class Swerve extends SubsystemBase {
 
     /** Requests a provided velocity to the swerve drive */
     public void requestVelocity(ChassisSpeeds speeds, boolean fieldRelative) {
-        if (Math.abs(speeds.vxMetersPerSecond) > 0.05 || Math.abs(speeds.vyMetersPerSecond) > 0.05
-                || Math.abs(speeds.omegaRadiansPerSecond) > 0.05) {
-            robotSetpoints = speeds;
-        } else {
-            robotSetpoints = new ChassisSpeeds(0, 0, 0);
-        }
+        robotSetpoints = speeds;
         this.fieldRelative = fieldRelative;
         this.requestPercent = false;
         this.requestVelocity = true;
@@ -236,6 +240,16 @@ public class Swerve extends SubsystemBase {
                     new Rotation2d(moduleInputs[i].turnAbsolutePositionRad));
         }
         return modulePositions;
+    }
+
+    /** Returns the roll of the swerve's gyro in radians */
+    public double getRoll() {
+        return gyroInputs.rollRad;
+    }
+
+    /** Returns the pitch of the swerve's gyro in radians */
+    public double getPitch() {
+        return gyroInputs.pitchRad;
     }
 
     public SwerveModulePosition[] getDeltaSwerveModulePositions() {
