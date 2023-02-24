@@ -54,6 +54,7 @@ public class RobotContainer {
   private static final AprilTagVisionIO rightCamera = new AprilTagVisionIONorthstar("northstar-right");
   public static final AprilTagVision northstarVision = new AprilTagVision(leftCamera, rightCamera);
   public static final PoseEstimator poseEstimator = new PoseEstimator(VecBuilder.fill(0.005, 0.005, 0.0005));
+  public static final OperatorControls operatorControls = new OperatorControls(keyboard);
 
   public RobotContainer() {
     configureControls();
@@ -79,13 +80,36 @@ public class RobotContainer {
       }
     }, swerve));
 
-    // superstructure.setDefaultCommand(new RunCommand(() -> {
+    superstructure.setDefaultCommand(new RunCommand(() -> {
+      operatorControls.updateSelection();
+      GamePiece selectedGamePiece = GamePiece.CONE;
+  
+      if (FieldConstants.canScoreCube(operatorControls.getLastSelectedLevel(), operatorControls.getLastSelectedColumn())) {
+        selectedGamePiece = GamePiece.CUBE;
+      }
+      // if (driver.getRightBumperPressed()) {
+      //   RobotContainer.superstructure.requestPreScore(operatorControls.getLastSelectedLevel(), selectedGamePiece);
+      // }
+  
+      if (driver.getRightTriggerAxis() > 0.5 ) {
+        RobotContainer.superstructure.requestScore();
+      }
+  
+      if (driver.getLeftBumperPressed()) {
+        RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
+      }
+      
+      if (driver.getLeftTriggerAxis() > 0.5 ) {
+        System.out.println("trigger value: " + driver.getLeftTriggerAxis());
+        RobotContainer.superstructure.requestIdle();
+      }
+      // System.out.println("running");
       // if (RobotContainer.operator.getRightBumperPressed()) {
-      //   RobotContainer.superstructure.requestFloorIntakeCone();
+      //   RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
       // }
   
       // if (RobotContainer.operator.getLeftBumperPressed()) {
-      //   RobotContainer.superstructure.requestFloorIntakeCube();
+      //   RobotContainer.superstructure.requestIntakeCubeDoubleSubstation();
       // }
   
       // if (RobotContainer.operator.getAButtonPressed()) {
@@ -95,7 +119,7 @@ public class RobotContainer {
       // if (RobotContainer.operator.getBButtonPressed()) {
       //   RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
       // }
-      
+
       // if (RobotContainer.operator.getXButtonPressed()) {
       //   RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
       // }
@@ -111,54 +135,48 @@ public class RobotContainer {
       // if (RobotContainer.operator.getLeftStickButtonPressed()) {
       //   RobotContainer.superstructure.requestIdle();
       // }
-    // }, superstructure));
 
-    // new JoystickButton(operator, XboxController.Button.kRightBumper.value).onTrue(
-    //   new InstantCommand(() -> superstructure.requestFloorIntakeCone())
-    // );
+      // if (RobotContainer.keyboard.getRawButtonPressed(1) ) {
+      //   System.out.println("button 1 pressed");
+      //   RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
+      // }
 
-    // superstructure.setDefaultCommand(new RunCommand(() -> {
-    //   if (RobotContainer.keyboard.getRawButtonPressed(1) ) {
-    //     System.out.println("button 1 pressed");
-    //     RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
-    //   }
+      // if (RobotContainer.keyboard.getRawButtonPressed(2) ) {
+      //   System.out.println("button 2 pressed");
+      //   RobotContainer.superstructure.requestIntakeCubeDoubleSubstation();
+      // }
 
-    //   if (RobotContainer.keyboard.getRawButtonPressed(2) ) {
-    //     System.out.println("button 2 pressed");
-    //     RobotContainer.superstructure.requestIntakeCubeDoubleSubstation();
-    //   }
+      // if (RobotContainer.keyboard.getRawButtonPressed(3) ) {
+      //   System.out.println("button 3 pressed");
+      //   RobotContainer.superstructure.requestScore();
+      // }
 
-    //   if (RobotContainer.keyboard.getRawButtonPressed(3) ) {
-    //     System.out.println("button 3 pressed");
-    //     RobotContainer.superstructure.requestScore();
-    //   }
+      // if (RobotContainer.keyboard.getRawButtonPressed(4) ) {
+      //   System.out.println("button 4 pressed");
+      //   RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
+      // }
 
-    //   if (RobotContainer.keyboard.getRawButtonPressed(4) ) {
-    //     System.out.println("button 4 pressed");
-    //     RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
-    //   }
+      // if (RobotContainer.keyboard.getRawButtonPressed(6) ) {
+      //   System.out.println("button 6 pressed");
+      //   RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
+      // }
 
-    //   if (RobotContainer.keyboard.getRawButtonPressed(6) ) {
-    //     System.out.println("button 6 pressed");
-    //     RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
-    //   }
+      // if (RobotContainer.keyboard.getRawButtonPressed(7) ) {
+      //   System.out.println("button 7 pressed");
+      //   RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
+      // }
 
-    //   if (RobotContainer.keyboard.getRawButtonPressed(7) ) {
-    //     System.out.println("button 7 pressed");
-    //     RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
-    //   }
+      // if (RobotContainer.keyboard.getRawButtonPressed(9) ) {
+      //   System.out.println("button 9 pressed");
+      //   RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
+      // }
 
-    //   if (RobotContainer.keyboard.getRawButtonPressed(9) ) {
-    //     System.out.println("button 9 pressed");
-    //     RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
-    //   }
-
-    //   if (RobotContainer.keyboard.getRawButtonPressed(11) ) {
-    //     System.out.println("button 11 pressed");
-    //     RobotContainer.superstructure.requestIdle();
-    //   }
+      // if (RobotContainer.keyboard.getRawButtonPressed(11) ) {
+      //   System.out.println("button 11 pressed");
+      //   RobotContainer.superstructure.requestIdle();
+      // }
       
-    // }, superstructure));
+    }, superstructure));
 
     new JoystickButton(driver, XboxController.Button.kRightBumper.value).whileTrue(new AutoPickupRoutine(
       () -> new Pose2d(fieldLength - 1.312749431033244, aprilTags.get(4).getY(), new Rotation2d(0.0)), 
