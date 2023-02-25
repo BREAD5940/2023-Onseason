@@ -174,6 +174,7 @@ public final class Constants {
         public static final double DEPLOY_MAX_SPEED = (6380.0 * DEPLOY_GEAR_RATIO * 360.0)/60.0;
         public static final double INTAKE_MIN_POSITION = 0.0;
         public static final double INTAKE_MAX_POSITION = 190.75;
+        public static final double INTAKE_IDLE_POSITION = 33.04046224348974;
     }
 
     // Constants pertaining to the climber subsystem
@@ -184,7 +185,7 @@ public final class Constants {
         public static final double CLIMBER_PULLEY_DIAMETER = 1.0;
         public static final double CLIMBER_DEPLOY_HEIGHT = 0.1;
         public static final double CLIMBER_SETPOINT_TOLERANCE = 0.05;
-        public static final TalonFXInvertType CLIMBER_INVERT_TYPE = TalonFXInvertType.Clockwise;
+        public static final TalonFXInvertType CLIMBER_INVERT_TYPE = TalonFXInvertType.CounterClockwise;
     }
 
     // Constants pertaining to electrical

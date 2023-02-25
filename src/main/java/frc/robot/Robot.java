@@ -216,9 +216,9 @@ public class Robot extends LoggedRobot {
     // }
 
     if (RobotContainer.driver.getRightTriggerAxis() > 0.1) {
-      RobotContainer.climberIO.setPercent(0.1);
+      RobotContainer.climberIO.setPercent(1.0);
     } else if (RobotContainer.driver.getLeftTriggerAxis() > 0.1) {
-      RobotContainer.climberIO.setPercent(-0.1);
+      RobotContainer.climberIO.setPercent(-1.0);
     } else {
       RobotContainer.climberIO.setPercent(0.0);
     }

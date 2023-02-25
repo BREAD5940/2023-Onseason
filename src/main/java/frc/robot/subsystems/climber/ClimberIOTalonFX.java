@@ -17,7 +17,7 @@ public class ClimberIOTalonFX implements ClimberIO {
     TunableNumber climbingFF = new TunableNumber("ClimbingFF", CLIMBING_FF);
     
     /** Instantiate the hardware */
-    private TalonFX climber = new TalonFX(CLIMBER_ID);
+    private TalonFX climber = new TalonFX(CLIMBER_ID, "dabus");
 
     public ClimberIOTalonFX() {
         /* Climber configs */
@@ -27,7 +27,7 @@ public class ClimberIOTalonFX implements ClimberIO {
         climberConfig.slot0.kD = integratedSensorUnitsToMeters(0.003) * 1023.0;
         climberConfig.voltageCompSaturation = 10.0;
         climberConfig.neutralDeadband = 0.001;
-        climberConfig.statorCurrLimit = new StatorCurrentLimitConfiguration(true, 50, 50, 1.5);
+        climberConfig.statorCurrLimit = new StatorCurrentLimitConfiguration(true, 100, 100, 1.5);
         climber.setInverted(CLIMBER_INVERT_TYPE);
         climber.setNeutralMode(NeutralMode.Coast);
         climber.setSensorPhase(true);
@@ -37,7 +37,15 @@ public class ClimberIOTalonFX implements ClimberIO {
         climber.set(ControlMode.PercentOutput, 0.0);
         climber.configAllSettings(climberConfig);
         climber.setSelectedSensorPosition(0.0);
+    }
 
+    @Override
+    public void updateInputs(ClimberIOInputs inputs) {
+        inputs.appliedVoltage = climber.getMotorOutputVoltage();
+        inputs.currentAmps = climber.getStatorCurrent();
+        inputs.forksDeployed = false;
+        inputs.heightMeters = integratedSensorUnitsToMeters(climber.getSelectedSensorPosition());
+        inputs.tempCelcius = climber.getTemperature();
     }
 
     @Override

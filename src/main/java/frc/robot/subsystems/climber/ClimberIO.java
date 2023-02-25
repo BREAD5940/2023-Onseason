@@ -7,11 +7,10 @@ public interface ClimberIO {
     @AutoLog
     public static class ClimberIOInputs {
         public double heightMeters = 0.0;
-        public double velMetersPerSecond = 0.0;
         public double appliedVoltage = 0.0;
         public boolean forksDeployed = false;
-        public double[] currentAmps = new double[] {}; // {leader, follower}
-        public double[] tempCelcius = new double[] {}; // {leader, follower}
+        public double currentAmps = 0.0;
+        public double tempCelcius = 0.0;
     }
 
     /* Updates the set of loggable inputs */

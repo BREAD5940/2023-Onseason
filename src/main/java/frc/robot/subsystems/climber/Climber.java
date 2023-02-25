@@ -2,11 +2,12 @@ package frc.robot.subsystems.climber;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commons.BreadUtil;
 
 import static frc.robot.Constants.Climber.*;
 
-public class Climber {
+public class Climber extends SubsystemBase {
 
     /* IO and inputs classes */
     public ClimberIO climberIO;
@@ -32,8 +33,9 @@ public class Climber {
         this.climberIO = climberIO;
     }
 
-    /* This onLoop() method is to be called periodically */
-    public void onLoop() {
+    /* Periodic method */
+    @Override
+    public void periodic() {
         climberIO.updateInputs(climberInputs);
         Logger.getInstance().processInputs("Climber", climberInputs);
 
@@ -41,7 +43,7 @@ public class Climber {
 
         if (systemState == ClimberStates.RETRACTED) {
             climberIO.enableBrakeMode(true);
-            climberIO.setPercent(0.0);
+            // climberIO.setPercent(0.0);
 
             if (requestDeploy) {
                 nextSystemState = ClimberStates.DEPLOYING;
