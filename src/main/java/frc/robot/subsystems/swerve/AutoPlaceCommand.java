@@ -8,6 +8,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.GamePiece;
@@ -15,6 +16,8 @@ import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
 
 import static frc.robot.FieldConstants.*;
+
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -27,17 +30,15 @@ public class AutoPlaceCommand extends CommandBase {
     private final PIDController zoneOneThetaController = new PIDController(5.0, 0.0, 0.0);
 
     private Pose2d goal;
-    private final int nodeNumber;
-    private final Level level;
+    private int nodeNumber;
+    private Level level;
     private final Swerve swerve;
     private final Superstructure superstructure;
     private boolean requestedPreScore = false;
     private boolean requestedScore = false;
 
-    public AutoPlaceCommand(int nodeNumber, Level level, Swerve swerve, Superstructure superstructure) {
+    public AutoPlaceCommand(Swerve swerve, Superstructure superstructure) {
         zoneOneThetaController.enableContinuousInput(-Math.PI, Math.PI);
-        this.nodeNumber = nodeNumber;
-        this.level = level;
         this.swerve = swerve;
         this.superstructure = superstructure;
         addRequirements(swerve, superstructure);
@@ -45,18 +46,33 @@ public class AutoPlaceCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        goal = new Pose2d(
-            1.85,
-            Grids.lowTranslations[nodeNumber - 1].getY(),
-            new Rotation2d(Math.PI)
-        );
+        level = Robot.scoringLevel;
+        nodeNumber = 9 - (Robot.scoringSquare * 3 + Robot.scoringSpot);
+        if (nodeNumber == 2 || nodeNumber == 5 || nodeNumber == 8) {
+            goal = new Pose2d(
+                1.95,
+                Grids.lowTranslations[nodeNumber - 1].getY(),
+                new Rotation2d(Math.PI)
+            );
+        } else {
+            goal = new Pose2d(
+                1.86,
+                Grids.lowTranslations[nodeNumber - 1].getY(),
+                new Rotation2d(Math.PI)
+            );
+        }
         requestedPreScore = false;
         requestedScore = false;
     }
 
     @Override
     public void execute() {
-        double xFeedback = zoneOneXController.calculate(RobotContainer.poseEstimator.getLatestPose().getX(), goal.getX());
+        Pose2d poseError = goal.relativeTo(RobotContainer.poseEstimator.getLatestPose());
+        double xTarget = goal.getX();
+        if (Math.abs(poseError.getY()) > Units.inchesToMeters(3.0)) {
+            xTarget = 2.1;
+        }
+        double xFeedback = zoneOneXController.calculate(RobotContainer.poseEstimator.getLatestPose().getX(), xTarget);
         double yFeedback = zoneOneYController.calculate(RobotContainer.poseEstimator.getLatestPose().getY(), goal.getY());
         double thetaFeedback = zoneOneThetaController.calculate(RobotContainer.poseEstimator.getLatestPose().getRotation().getRadians(), goal.getRotation().getRadians());
         System.out.printf("%f. %f.2 %f.2\n", goal.getX() - RobotContainer.poseEstimator.getLatestPose().getX(), goal.getY() - RobotContainer.poseEstimator.getLatestPose().getY(), goal.getRotation().getDegrees() - RobotContainer.poseEstimator.getLatestPose().getRotation().getDegrees());
@@ -64,16 +80,15 @@ public class AutoPlaceCommand extends CommandBase {
         xFeedback = MathUtil.clamp(xFeedback, -1, 1);
         yFeedback = MathUtil.clamp(yFeedback, -1, 1);
         thetaFeedback = MathUtil.clamp(thetaFeedback, -1.0, 1.0);
-        Logger.getInstance().recordOutput("AutoPlaceXFeedback", xFeedback);
-        Logger.getInstance().recordOutput("AutoPlaceYFeedback", yFeedback);
-        Logger.getInstance().recordOutput("AutoPlaceThetaFeedback", yFeedback);
+        Logger.getInstance().recordOutput("AutoPlaceXError", xTarget - RobotContainer.poseEstimator.getLatestPose().getX());
+        Logger.getInstance().recordOutput("AutoPlaceYError", goal.getY() - RobotContainer.poseEstimator.getLatestPose().getY());
+        Logger.getInstance().recordOutput("AutoPlaceThetaError", goal.getRotation().getRadians() - RobotContainer.poseEstimator.getLatestPose().getRotation().getRadians());
 
         swerve.requestVelocity(new ChassisSpeeds(xFeedback, yFeedback, thetaFeedback), true);
 
-        Pose2d poseError = goal.relativeTo(RobotContainer.poseEstimator.getLatestPose());
         if (Math.abs(poseError.getX()) < Units.inchesToMeters(1.5) && 
         Math.abs(poseError.getY()) < Units.inchesToMeters(1.0) && 
-        Math.abs(poseError.getRotation().getDegrees()) < 2.0 &&
+        Math.abs(poseError.getRotation().getDegrees()) < 1.0 &&
         !requestedPreScore) {
             requestedPreScore = true;
             if (nodeNumber == 2 || nodeNumber == 5 || nodeNumber == 8) {

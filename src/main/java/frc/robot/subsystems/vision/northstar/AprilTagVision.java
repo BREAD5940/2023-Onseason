@@ -32,7 +32,7 @@ import org.littletonrobotics.junction.Logger;
 public class AprilTagVision extends SubsystemBase {
         private static final double ambiguityThreshold = 0.15;
         private static final double targetLogTimeSecs = 0.1;
-        private static final double stdDevConst = 1.4;
+        private static final double stdDevConst = 2.0;
         private static final Pose3d[] cameraPoses;
         private static final PolynomialRegression xyStdDevModel;
         private static final PolynomialRegression thetaStdDevModel;
@@ -236,6 +236,14 @@ public class AprilTagVision extends SubsystemBase {
                                                                 "AprilTagVision/Inst" + Integer.toString(instanceIndex)
                                                                                 + "/TagIDs",
                                                                 tagIds.stream().mapToLong(Long::valueOf).toArray());
+
+                                for (int i = 0; i < visionPose2ds.size(); i++) {
+                                        Logger.getInstance()
+                                                .recordOutput(
+                                                                "AprilTagVision/Inst" + Integer.toString(instanceIndex)
+                                                                                + "/Poses/" + tagIds.get(i),
+                                                                                visionPose2ds.get(i));
+                                }
                         }
                 }
 

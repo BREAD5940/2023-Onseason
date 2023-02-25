@@ -8,6 +8,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -40,6 +41,8 @@ public class RobotContainer {
 
   public static final XboxController driver = new XboxController(0);
   public static final XboxController operator = new XboxController(1);
+  public static final GenericHID keyboard = new GenericHID(2);
+
   public static final Swerve swerve = new Swerve();
   public static final ElevatorIO elevatorIO = new ElevatorIOTalonFX();
   public static final ArmIO armIO = new ArmIOTalonFX();
@@ -67,7 +70,7 @@ public class RobotContainer {
       double scale = RobotContainer.driver.getLeftBumper() ? 0.25 : 1.0;
       double dx = Math.abs(x) > 0.075 ? Math.pow(-x, 1) * scale : 0.0;
       double dy = Math.abs(y) > 0.075 ? Math.pow(-y, 1) * scale : 0.0;
-      double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.75  * scale: 0.0;
+      double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.75 * scale : 0.0;
       swerve.requestPercent(new ChassisSpeeds(dx, dy, rot), true);
 
       // Sets the 0 of the robot
@@ -77,56 +80,52 @@ public class RobotContainer {
     }, swerve));
 
     // superstructure.setDefaultCommand(new RunCommand(() -> {
-      // if (RobotContainer.operator.getRightBumperPressed()) {
-      //   RobotContainer.superstructure.requestFloorIntakeCone();
-      // }
-  
-      // if (RobotContainer.operator.getLeftBumperPressed()) {
-      //   RobotContainer.superstructure.requestFloorIntakeCube();
-      // }
-  
-      // if (RobotContainer.operator.getAButtonPressed()) {
-      //   RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
-      // }
-  
-      // if (RobotContainer.operator.getBButtonPressed()) {
-      //   RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
-      // }
-      
-      // if (RobotContainer.operator.getXButtonPressed()) {
-      //   RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
-      // }
-  
-      // if (RobotContainer.operator.getYButtonPressed()) {
-      //   RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
-      // }
-  
-      // if (RobotContainer.operator.getRightStickButtonPressed()) {
-      //   RobotContainer.superstructure.requestScore();
-      // }
-  
-      // if (RobotContainer.operator.getLeftStickButtonPressed()) {
-      //   RobotContainer.superstructure.requestIdle();
-      // }
+    // if (RobotContainer.operator.getRightBumperPressed()) {
+    // RobotContainer.superstructure.requestFloorIntakeCone();
+    // }
+
+    // if (RobotContainer.operator.getLeftBumperPressed()) {
+    // RobotContainer.superstructure.requestFloorIntakeCube();
+    // }
+
+    // if (RobotContainer.operator.getAButtonPressed()) {
+    // RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
+    // }
+
+    // if (RobotContainer.operator.getBButtonPressed()) {
+    // RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
+    // }
+
+    // if (RobotContainer.operator.getXButtonPressed()) {
+    // RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
+    // }
+
+    // if (RobotContainer.operator.getYButtonPressed()) {
+    // RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
+    // }
+
+    // if (RobotContainer.operator.getRightStickButtonPressed()) {
+    // RobotContainer.superstructure.requestScore();
+    // }
+
+    // if (RobotContainer.operator.getLeftStickButtonPressed()) {
+    // RobotContainer.superstructure.requestIdle();
+    // }
     // }, superstructure));
 
-    // new JoystickButton(operator, XboxController.Button.kRightBumper.value).onTrue(
-    //   new InstantCommand(() -> superstructure.requestFloorIntakeCone())
+    // new JoystickButton(operator,
+    // XboxController.Button.kRightBumper.value).onTrue(
+    // new InstantCommand(() -> superstructure.requestFloorIntakeCone())
     // );
-    
-
-    new JoystickButton(operator, XboxController.Button.kStart.value).onTrue(
-      new InstantCommand(() -> superstructure.requestHome(), superstructure)
-    );
 
     new JoystickButton(driver, XboxController.Button.kRightBumper.value).whileTrue(new AutoPickupRoutine(
-      () -> new Pose2d(fieldLength - 1.312749431033244, aprilTags.get(4).getY(), new Rotation2d(0.0)), 
-      (pose, time) -> new Rotation2d(0.0), 
-      swerve, 
-      superstructure
-    ));
+        () -> new Pose2d(fieldLength - 1.312749431033244, aprilTags.get(4).getY(), new Rotation2d(0.0)),
+        (pose, time) -> new Rotation2d(0.0),
+        swerve,
+        superstructure));
 
-    new JoystickButton(driver, XboxController.Button.kB.value).whileTrue(new AutoPlaceCommand(3, Level.HIGH, swerve, superstructure));
+    new JoystickButton(driver, XboxController.Button.kLeftStick.value)
+        .whileTrue(new AutoPlaceCommand(swerve, superstructure));
   }
 
   private void configureNorthstarVision() {
