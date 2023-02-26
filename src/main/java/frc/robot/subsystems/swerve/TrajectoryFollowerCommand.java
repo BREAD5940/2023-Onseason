@@ -81,9 +81,7 @@ public class TrajectoryFollowerCommand extends CommandBase {
         swerve.requestVelocity(
             adjustedSpeeds, false
         );
-        Logger.getInstance().recordOutput("Trajectory Goal X", goal.poseMeters.getX());
-        Logger.getInstance().recordOutput("Trajectory Goal Y", goal.poseMeters.getY());
-        Logger.getInstance().recordOutput("Trajectory Goal Heading", goal.poseMeters.getRotation().getDegrees());
+        Logger.getInstance().recordOutput("Trajectory Goal", new Pose2d(wpilibGoal.poseMeters.getTranslation(), swerveRot));
     }
 
     @Override

@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -76,7 +77,7 @@ public class Swerve extends SubsystemBase {
 
         for (int i = 0; i < 4; i++) {
             moduleIOs[i].setDriveBrakeMode(true);
-            moduleIOs[i].setTurnBrakeMode(true);
+            moduleIOs[i].setTurnBrakeMode(false);
         }
     }
 
@@ -96,7 +97,7 @@ public class Swerve extends SubsystemBase {
         /** Generate module setpoints */
         Rotation2d[] turnPositions = new Rotation2d[4];
         for (int i = 0; i < 4; i++) {
-            turnPositions[i] = new Rotation2d(moduleInputs[i].turnAbsolutePositionRad);
+            turnPositions[i] = new Rotation2d(moduleInputs[i].moduleAngleRads);
         }
 
         SwerveModuleState[] setpointStates;
@@ -129,9 +130,9 @@ public class Swerve extends SubsystemBase {
 
             for (int i = 0; i < 4; i++) {
                 double[] desiredState = getContinousOutput(setpointStatesOptimized[i],
-                        moduleInputs[i].turnAbsolutePositionRad);
+                        moduleInputs[i].moduleAngleRads);
                 moduleIOs[i].setDrivePercent(desiredState[0]);
-                moduleIOs[i].setTurnAngle(desiredState[1]);
+                moduleIOs[i].setTurnAngle(Units.radiansToDegrees(desiredState[1]));
                 desiredVelocities[i] = desiredState[0];
                 desiredAngles[i] = desiredState[1];
             }
@@ -144,9 +145,9 @@ public class Swerve extends SubsystemBase {
 
             for (int i = 0; i < 4; i++) {
                 double[] desiredState = getContinousOutput(setpointStatesOptimized[i],
-                        moduleInputs[i].turnAbsolutePositionRad);
+                        moduleInputs[i].moduleAngleRads);
                 moduleIOs[i].setDriveVelocity(desiredState[0]);
-                moduleIOs[i].setTurnAngle(desiredState[1]);
+                moduleIOs[i].setTurnAngle(Units.radiansToDegrees(desiredState[1]));
                 desiredVelocities[i] = desiredState[0];
                 desiredAngles[i] = desiredState[1];
             }
@@ -252,7 +253,7 @@ public class Swerve extends SubsystemBase {
         for (int i = 0; i < 4; i++) {
             measuredStates[i] = new SwerveModuleState(
                     moduleInputs[i].driveVelocityMetersPerSec,
-                    new Rotation2d(moduleInputs[i].turnAbsolutePositionRad));
+                    new Rotation2d(moduleInputs[i].moduleAngleRads));
         }
         return measuredStates;
     }
@@ -263,7 +264,7 @@ public class Swerve extends SubsystemBase {
         for (int i = 0; i < 4; i++) {
             modulePositions[i] = new SwerveModulePosition(
                     moduleInputs[i].driveDistanceMeters,
-                    new Rotation2d(moduleInputs[i].turnAbsolutePositionRad));
+                    new Rotation2d(moduleInputs[i].moduleAngleRads));
         }
         return modulePositions;
     }
@@ -283,7 +284,7 @@ public class Swerve extends SubsystemBase {
         for (int i = 0; i < 4; i++) {
             wheelDeltas[i] = new SwerveModulePosition(
                     (moduleInputs[i].driveDistanceMeters - lastModulePositionsMeters[i]),
-                    new Rotation2d(moduleInputs[i].turnAbsolutePositionRad));
+                    new Rotation2d(moduleInputs[i].moduleAngleRads));
 
             lastModulePositionsMeters[i] = moduleInputs[i].driveDistanceMeters;
         }
@@ -337,6 +338,13 @@ public class Swerve extends SubsystemBase {
             dataArray.add(states[i].speedMetersPerSecond);
         }
         Logger.getInstance().recordOutput(key, dataArray.stream().mapToDouble(Double::doubleValue).toArray());
+    }
+
+    /** Resets the integrated sensor on the steer motors for all swerve modules */
+    public void resetAllToAbsolute() {
+        for (int i = 0; i < 4; i++) {
+            moduleIOs[i].resetToAbsolute();
+        }
     }
 
 }

@@ -14,8 +14,13 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
+
+import edu.wpi.first.math.estimator.AngleStatistics;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.commons.Alert;
+import frc.robot.commons.Conversions;
+import frc.robot.commons.Alert.AlertType;
 
 import static frc.robot.Constants.Drive.*;
 import static frc.robot.Constants.Electrical.*;
@@ -24,10 +29,13 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     private final TalonFX drive;
     private final TalonFX steer;
+    private final double offset;
     public final CANCoder azimuth;
     public double[] desiredState = {0, 0};
 
      public ModuleIOTalonFX(int driveID, int steerID, int azimuthID, Rotation2d offset, TalonFXInvertType driveDirection, TalonFXInvertType steerReversed, boolean azimuthReversed, String moduleIdentifier) {
+        this.offset = offset.getDegrees();
+
         // Configure the driving motor
         drive = new TalonFX(driveID, CANIVORE_BUS_NAME);
         TalonFXConfiguration driveConfig = new TalonFXConfiguration();
@@ -46,7 +54,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveConfig.voltageCompSaturation = 10.0;
         driveConfig.statorCurrLimit = new StatorCurrentLimitConfiguration(true, 80.0, 80.0, 1.5);
         drive.setInverted(driveDirection);
-        drive.setNeutralMode(NeutralMode.Brake); // TODO change back
+        drive.setNeutralMode(NeutralMode.Coast); // TODO change back
         drive.configAllSettings(driveConfig);
         drive.set(ControlMode.Velocity, 0.0);
         drive.enableVoltageCompensation(true);
@@ -57,26 +65,25 @@ public class ModuleIOTalonFX implements ModuleIO {
 
         // Create CAN Coder object
         azimuth = new CANCoder(azimuthID, CANIVORE_BUS_NAME);
-        azimuth.configMagnetOffset(offset.getDegrees());
+        azimuth.configMagnetOffset(0.0); 
         azimuth.configSensorDirection(false);
         azimuth.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
-        azimuth.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
+        azimuth.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
 
         // Configure the steering motor
         steer = new TalonFX(steerID, CANIVORE_BUS_NAME);
         TalonFXConfiguration steerConfig = new TalonFXConfiguration();
-        steerConfig.remoteFilter0.remoteSensorDeviceID = azimuth.getDeviceID();
-        steerConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
-        steerConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
-        steerConfig.slot0.kP = CANCoderSensorUnitsToRadians(1.0) * 1023.0;
+        steerConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.IntegratedSensor;
+        steerConfig.slot0.kP = 0.3;
         steerConfig.slot0.kI = CANCoderSensorUnitsToRadians(0.0) * 1023.0;
         steerConfig.slot0.kD = CANCoderSensorUnitsToRadians(0.0) * 1023.0;
         steerConfig.slot0.closedLoopPeakOutput = 1.0;
         steerConfig.peakOutputForward = 1.0;
         steerConfig.peakOutputReverse = -1.0;
+        steerConfig.neutralDeadband = 0.0001;
         steerConfig.statorCurrLimit = new StatorCurrentLimitConfiguration(true, 50.0, 50.0, 1.5);
         steer.setInverted(steerReversed);
-        steer.setNeutralMode(NeutralMode.Brake);
+        steer.setNeutralMode(NeutralMode.Coast);
         steer.setSensorPhase(true);
         steer.set(ControlMode.Velocity, 0.0);
         steer.configAllSettings(steerConfig);
@@ -87,15 +94,16 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     @Override
     public void updateInputs(ModuleIOInputs inputs) {
-        inputs.driveVelocityMetersPerSec = (MODULE_GEARING * drive.getSelectedSensorVelocity() * (600.0/2048.0) * 2.0 * Math.PI * WHEEL_RADIUS) / 60.0;
+        inputs.driveVelocityMetersPerSec = (DRIVE_GEARING * drive.getSelectedSensorVelocity() * (600.0/2048.0) * 2.0 * Math.PI * WHEEL_RADIUS) / 60.0;
         inputs.driveAppliedVolts = drive.getMotorOutputVoltage();
         inputs.driveCurrentAmps = drive.getStatorCurrent();
         inputs.driveTempCelcius = drive.getTemperature();
-        inputs.driveDistanceMeters = (MODULE_GEARING * drive.getSelectedSensorPosition() * 2.0 * Math.PI * WHEEL_RADIUS)/2048.0;
+        inputs.driveDistanceMeters = (DRIVE_GEARING * drive.getSelectedSensorPosition() * 2.0 * Math.PI * WHEEL_RADIUS)/2048.0;
         inputs.driveBusVoltage = drive.getBusVoltage();
         inputs.driveOutputPercent = drive.getMotorOutputPercent();
 
-        inputs.turnAbsolutePositionRad = Units.degreesToRadians(azimuth.getPosition());
+        inputs.moduleAngleRads = Units.degreesToRadians(Conversions.falconToDegrees(steer.getSelectedSensorPosition(), STEER_GEARING));
+        inputs.rawAbsolutePositionDegrees = azimuth.getAbsolutePosition();
         inputs.turnAppliedVolts = steer.getMotorOutputVoltage();
         inputs.turnCurrentAmps = steer.getStatorCurrent();
         inputs.turnTempCelcius = steer.getTemperature();
@@ -113,8 +121,8 @@ public class ModuleIOTalonFX implements ModuleIO {
     }
 
     @Override
-    public void setTurnAngle(double positionRads) {
-        steer.set(TalonFXControlMode.Position, radiansToCANCoderSensorUnits(positionRads));
+    public void setTurnAngle(double angleDeg) {
+        steer.set(TalonFXControlMode.Position, Conversions.degreesToFalcon(angleDeg, STEER_GEARING));
     }
 
     @Override
@@ -124,7 +132,16 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     @Override
     public void setTurnBrakeMode(boolean enable) {
-        drive.setNeutralMode(enable ? NeutralMode.Brake : NeutralMode.Coast);
+        steer.setNeutralMode(enable ? NeutralMode.Brake : NeutralMode.Coast);
+    }
+
+    @Override
+    public void resetToAbsolute() {
+        double absolutePosition = Conversions.degreesToFalcon(getCanCoderAbsolutePosition().getDegrees() - offset, STEER_GEARING);
+        steer.setSelectedSensorPosition(absolutePosition);
+        if (steer.getSelectedSensorPosition() == 0.0) {
+            new Alert("Steer motor with id " + steer.getDeviceID() + "did not zero properly. Please restart robot or align it properly before match begins.", AlertType.ERROR);
+        }
     }
 
     /** Converts CANCoder sensor units to radians */
@@ -139,12 +156,17 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     /** Converts integrated sensor units to wheel speed meters per second */
     private final double integratedSensorUnitsToWheelSpeedMetersPerSecond(double integratedSensorUnits) {
-        return integratedSensorUnits * (MODULE_GEARING * (600.0/2048.0) * 2.0 * Math.PI * WHEEL_RADIUS) / 60.0;
+        return integratedSensorUnits * (DRIVE_GEARING * (600.0/2048.0) * 2.0 * Math.PI * WHEEL_RADIUS) / 60.0;
     }
 
     /** Converts wheel speed meters per second to integrated sensor units */
     private final double wheelSpeedMetersPerSecondToIntegratedSensorUnits(double wheelSpeed) {
-        return wheelSpeed * 60.0 / (MODULE_GEARING * (600.0/2048.0) * 2.0 * Math.PI * WHEEL_RADIUS);
+        return wheelSpeed * 60.0 / (DRIVE_GEARING * (600.0/2048.0) * 2.0 * Math.PI * WHEEL_RADIUS);
     }  
+
+    /** Returns a rotation2d representing the angle of the CANCoder object */
+    public Rotation2d getCanCoderAbsolutePosition() {
+        return Rotation2d.fromDegrees(azimuth.getAbsolutePosition());
+    }
     
 }

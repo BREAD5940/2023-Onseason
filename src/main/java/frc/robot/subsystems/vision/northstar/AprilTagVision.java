@@ -47,10 +47,10 @@ public class AprilTagVision extends SubsystemBase {
 
         static {
                 cameraPoses = new Pose3d[] {
-                        new Pose3d(-0.245, 0.33, 0.345,
-                                new Rotation3d(3.031, 0.049, 0.593)),
-                        new Pose3d(-0.245, -0.33, 0.345,
-                                new Rotation3d(-0.055, -0.03, -0.491))
+                                new Pose3d(-0.245, 0.33, 0.345,
+                                                new Rotation3d(3.031, 0.049, 0.593)),
+                                new Pose3d(-0.245, -0.33, 0.345,
+                                                new Rotation3d(-0.055, -0.03, -0.541))
 
                 };
                 xyStdDevModel = new PolynomialRegression(
@@ -59,11 +59,15 @@ public class AprilTagVision extends SubsystemBase {
                                                 2.758358,
                                                 3.223358, 4.093358, 4.726358
                                 },
+                                // new double[] {
+                                // 0.005, 0.0135, 0.016, 0.038, 0.0515, 0.0925, 0.0695, 0.046, 0.1245,
+                                // 0.0815, 0.193
+                                // },
                                 new double[] {
-                                                0.005, 0.0135, 0.016, 0.038, 0.0515, 0.0925, 0.0695, 0.046, 0.1245,
-                                                0.0815, 0.193
+                                                0.005, 0.0135, 0.016, 0.038, 0.0515, 0.0925, 0.12, 0.14, 0.17,
+                                                0.27, 0.38
                                 },
-                                1);
+                                2);
                 thetaStdDevModel = new PolynomialRegression(
                                 new double[] {
                                                 0.752358, 1.016358, 1.296358, 1.574358, 1.913358, 2.184358, 2.493358,
@@ -148,13 +152,13 @@ public class AprilTagVision extends SubsystemBase {
                                                         .transformBy(GeomUtil
                                                                         .pose3dToTransform3d(cameraPoses[instanceIndex])
                                                                         .inverse());
-                                                        // .toPose2d();
+                                        // .toPose2d();
                                         var robotPose1 = fieldToTag
                                                         .transformBy(GeomUtil.pose3dToTransform3d(pose1).inverse())
                                                         .transformBy(GeomUtil
                                                                         .pose3dToTransform3d(cameraPoses[instanceIndex])
                                                                         .inverse());
-                                                        // .toPose2d();
+                                        // .toPose2d();
 
                                         // Choose better pose
                                         Pose3d robotPose3d;
@@ -169,9 +173,11 @@ public class AprilTagVision extends SubsystemBase {
                                                 robotPose3d = robotPose1;
                                                 tagPose = pose1;
                                         } else if (Math.abs(
-                                                        robotPose0.toPose2d().getRotation().minus(currentPose.getRotation())
+                                                        robotPose0.toPose2d().getRotation()
+                                                                        .minus(currentPose.getRotation())
                                                                         .getRadians()) < Math
-                                                                                        .abs(robotPose1.toPose2d().getRotation()
+                                                                                        .abs(robotPose1.toPose2d()
+                                                                                                        .getRotation()
                                                                                                         .minus(currentPose
                                                                                                                         .getRotation())
                                                                                                         .getRadians())) {
@@ -185,19 +191,23 @@ public class AprilTagVision extends SubsystemBase {
                                         }
 
                                         /* Measurements of camera transforms */
-                                        // Transform3d tagToRobot = new Transform3d(new Translation3d(0.7096, 1.1261, -Units.inchesToMeters(18.22)), new Rotation3d(0.0, 0.0, Math.PI));
-                                        // Pose3d robotToField = FieldConstants.aprilTags.get(7).transformBy(tagToRobot);
+                                        // Transform3d tagToRobot = new Transform3d(new Translation3d(0.7096, 1.1261,
+                                        // -Units.inchesToMeters(18.22)), new Rotation3d(0.0, 0.0, Math.PI));
+                                        // Pose3d robotToField =
+                                        // FieldConstants.aprilTags.get(7).transformBy(tagToRobot);
                                         // Transform3d robotToCam = new Transform3d(robotToField, robotPose3d);
                                         // Logger.getInstance().recordOutput("Pose0", robotPose0);
                                         // Logger.getInstance().recordOutput("Pose1", robotPose1);
                                         // Logger.getInstance().recordOutput("Robot To Field", robotToField);
                                         // Logger.getInstance().recordOutput("Camera To Field", robotPose3d);
-                                        // Logger.getInstance().recordOutput("CameraToFieldRoll", robotToCam.getRotation().getX());
-                                        // Logger.getInstance().recordOutput("CameraToFieldPitch", robotToCam.getRotation().getY());
-                                        // Logger.getInstance().recordOutput("CameraToFieldYaw", robotToCam.getRotation().getZ());
-                                        // Logger.getInstance().recordOutput("Robot To Cam", GeomUtil.transform3dToPose3d(robotToCam));
-
-
+                                        // Logger.getInstance().recordOutput("CameraToFieldRoll",
+                                        // robotToCam.getRotation().getX());
+                                        // Logger.getInstance().recordOutput("CameraToFieldPitch",
+                                        // robotToCam.getRotation().getY());
+                                        // Logger.getInstance().recordOutput("CameraToFieldYaw",
+                                        // robotToCam.getRotation().getZ());
+                                        // Logger.getInstance().recordOutput("Robot To Cam",
+                                        // GeomUtil.transform3dToPose3d(robotToCam));
 
                                         // Log tag pose
                                         tagPose3ds.add(tagPose);
@@ -239,10 +249,12 @@ public class AprilTagVision extends SubsystemBase {
 
                                 for (int i = 0; i < visionPose2ds.size(); i++) {
                                         Logger.getInstance()
-                                                .recordOutput(
-                                                                "AprilTagVision/Inst" + Integer.toString(instanceIndex)
-                                                                                + "/Poses/" + tagIds.get(i),
-                                                                                visionPose2ds.get(i));
+                                                        .recordOutput(
+                                                                        "AprilTagVision/Inst"
+                                                                                        + Integer.toString(
+                                                                                                        instanceIndex)
+                                                                                        + "/Poses/" + tagIds.get(i),
+                                                                        visionPose2ds.get(i));
                                 }
                         }
                 }

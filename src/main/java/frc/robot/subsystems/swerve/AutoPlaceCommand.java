@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import frc.robot.FieldConstants;
@@ -59,36 +60,31 @@ public class AutoPlaceCommand extends CommandBase {
             );
         } else {
             goal = new Pose2d(
-                1.86,
+                1.83,
                 Grids.lowTranslations[nodeNumber - 1].getY(),
                 new Rotation2d(Math.PI)
             );
         }
-        if (Robot.alliance == DriverStation.Alliance.Red) {
-            AllianceFlipUtil.apply(goal);
-        }
+        goal = AllianceFlipUtil.apply(goal);
         requestedPreScore = false;
         requestedScore = false;
     }
 
     @Override
     public void execute() {
-        Pose2d poseError = goal.relativeTo(RobotContainer.poseEstimator.getLatestPose());
-        double xTarget = goal.getX();
+        Pose2d realGoal = goal;
+        Pose2d poseError = realGoal.relativeTo(RobotContainer.poseEstimator.getLatestPose());
         if (Math.abs(poseError.getY()) > Units.inchesToMeters(3.0)) {
-            xTarget = 2.1;
+            realGoal = new Pose2d(Robot.alliance == Alliance.Red ? fieldLength - 2.3 : 2.3, goal.getY(), goal.getRotation());
         }
-        double xFeedback = zoneOneXController.calculate(RobotContainer.poseEstimator.getLatestPose().getX(), xTarget);
-        double yFeedback = zoneOneYController.calculate(RobotContainer.poseEstimator.getLatestPose().getY(), goal.getY());
-        double thetaFeedback = zoneOneThetaController.calculate(RobotContainer.poseEstimator.getLatestPose().getRotation().getRadians(), goal.getRotation().getRadians());
-        System.out.printf("%f. %f.2 %f.2\n", goal.getX() - RobotContainer.poseEstimator.getLatestPose().getX(), goal.getY() - RobotContainer.poseEstimator.getLatestPose().getY(), goal.getRotation().getDegrees() - RobotContainer.poseEstimator.getLatestPose().getRotation().getDegrees());
+        double xFeedback = zoneOneXController.calculate(RobotContainer.poseEstimator.getLatestPose().getX(), realGoal.getX());
+        double yFeedback = zoneOneYController.calculate(RobotContainer.poseEstimator.getLatestPose().getY(), realGoal.getY());
+        double thetaFeedback = zoneOneThetaController.calculate(RobotContainer.poseEstimator.getLatestPose().getRotation().getRadians(), realGoal.getRotation().getRadians());
 
         xFeedback = MathUtil.clamp(xFeedback, -1, 1);
         yFeedback = MathUtil.clamp(yFeedback, -1, 1);
         thetaFeedback = MathUtil.clamp(thetaFeedback, -1.0, 1.0);
-        Logger.getInstance().recordOutput("AutoPlaceXError", xTarget - RobotContainer.poseEstimator.getLatestPose().getX());
-        Logger.getInstance().recordOutput("AutoPlaceYError", goal.getY() - RobotContainer.poseEstimator.getLatestPose().getY());
-        Logger.getInstance().recordOutput("AutoPlaceThetaError", goal.getRotation().getRadians() - RobotContainer.poseEstimator.getLatestPose().getRotation().getRadians());
+        Logger.getInstance().recordOutput("AutoPlaceGoal", realGoal);
 
         swerve.requestVelocity(new ChassisSpeeds(xFeedback, yFeedback, thetaFeedback), true);
 

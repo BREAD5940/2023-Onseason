@@ -86,7 +86,7 @@ public class RobotContainer {
         dy = Math.abs(y) > 0.075 ? Math.pow(-y, 1) * scale * -1 : 0.0;
       }
       double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.75 * scale : 0.0;
-      swerve.requestPercent(new ChassisSpeeds(dx, 0.0, rot), true);
+      swerve.requestPercent(new ChassisSpeeds(dx, dy, rot), true);
 
       // Sets the 0 of the robot
       if (driver.getAButtonPressed()) {
@@ -153,6 +153,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new TwoPieceBalanceBumpMode(superstructure, swerve);
+    return new TwoPieceBalanceMode(superstructure, swerve);
   }
 }
