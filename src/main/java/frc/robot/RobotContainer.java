@@ -137,7 +137,7 @@ public class RobotContainer {
   }
 
   private void configureLimelightVision() {
-    limelightVision.resetSettings();
+    limelightVision.enable();
   }
 
   public Command getAutonomousCommand() {

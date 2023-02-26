@@ -65,8 +65,15 @@ public class LimelightVision extends SubsystemBase {
     return (cameraMode == 0.0 && hasTarget == 1.0 && ledMode == 0.0);
   }
 
-  /* Resets the settings to the defaults */
-  public void resetSettings() {
+  /* Enables the limelight */
+  public void enable() {
+    setCameraMode(0);
+    setLedMode(3);
+    setPipeline(0);
+  }
+
+  /* Disables the limelight */
+  public void disable() {
     setCameraMode(0);
     setLedMode(1);
     setPipeline(0);
