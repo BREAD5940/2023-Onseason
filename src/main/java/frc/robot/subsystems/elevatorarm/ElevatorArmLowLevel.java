@@ -58,6 +58,7 @@ public class ElevatorArmLowLevel {
         Logger.getInstance().processInputs("Arm", armInputs);
         Logger.getInstance().recordOutput("ElevatorArmLowLevelState", systemState.toString());
         Logger.getInstance().recordOutput("ElevatorSetpoint", desiredState[0]);
+        Logger.getInstance().recordOutput("ArmSetpoint", desiredState[1]);
 
         ElevatorArmSystemStates nextSystemState = systemState;
 

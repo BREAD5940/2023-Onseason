@@ -20,7 +20,9 @@ import com.pathplanner.lib.PathPoint;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -40,9 +42,10 @@ public class Robot extends LoggedRobot {
 
   private boolean homed = false;
   private boolean intakeTriggered = false;
+  private boolean coneIntakeTriggered = false;
 
   public static PathPlannerTrajectory threePieceA;
-  public static PathPlannerTrajectory threePieceB;  
+  public static PathPlannerTrajectory threePieceB;
   public static PathPlannerTrajectory threePieceC;
   public static PathPlannerTrajectory threePieceD;
   public static PathPlannerTrajectory threePieceE;
@@ -50,7 +53,7 @@ public class Robot extends LoggedRobot {
   public static PathPlannerTrajectory twoPieceBalanceA;
   public static PathPlannerTrajectory twoPieceBalanceB;
   public static PathPlannerTrajectory twoPieceBalanceC;
-  
+
   public static PathPlannerTrajectory twoPieceBalanceBumpA;
   public static PathPlannerTrajectory twoPieceBalanceBumpB;
   public static PathPlannerTrajectory twoPieceBalanceBumpC;
@@ -61,6 +64,8 @@ public class Robot extends LoggedRobot {
   public static int scoringSpot = 0; // Number 0-2
   public static Level scoringLevel = Level.HIGH;
 
+  public static Alliance alliance = DriverStation.Alliance.Red;
+
   @Override
   public void robotInit() {
     m_robotContainer = new RobotContainer();
@@ -68,17 +73,20 @@ public class Robot extends LoggedRobot {
     Logger.getInstance().recordMetadata("ProjectName", "2023-Alpha"); // Set a metadata value
 
     if (isReal()) {
-        Logger.getInstance().addDataReceiver(new WPILOGWriter("/media/sda1/")); // Log to a USB stick
-        Logger.getInstance().addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-        pdp = new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+      Logger.getInstance().addDataReceiver(new WPILOGWriter("/media/sda1/")); // Log to a USB stick
+      Logger.getInstance().addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+      pdp = new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
     } else {
-        setUseTiming(false); // Run as fast as possible
-        String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-        Logger.getInstance().setReplaySource(new WPILOGReader(logPath)); // Read replay log
-        Logger.getInstance().addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+      setUseTiming(false); // Run as fast as possible
+      String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+      Logger.getInstance().setReplaySource(new WPILOGReader(logPath)); // Read replay log
+      Logger.getInstance().addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save
+                                                                                                          // outputs to
+                                                                                                          // a new log
     }
-    
-    Logger.getInstance().start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+
+    Logger.getInstance().start(); // Start logging! No more data receivers, replay sources, or metadata values may
+                                  // be added.
 
     RobotContainer.superstructure.zeroSensors();
 
@@ -87,11 +95,16 @@ public class Robot extends LoggedRobot {
     threePieceC = PathPlanner.loadPath("Three Piece C", new PathConstraints(4.0, 2.5));
     threePieceD = PathPlanner.loadPath("Three Piece D", new PathConstraints(4.0, 2.0));
     threePieceE = PathPlanner.loadPath("Three Piece E", new PathConstraints(4.0, 2.0));
+    // threePieceA = PathPlanner.loadPath("Three Piece A", new PathConstraints(1.0, 0.5));
+    // threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(1.0, 0.5));
+    // threePieceC = PathPlanner.loadPath("Three Piece C", new PathConstraints(1.0, 0.5));
+    // threePieceD = PathPlanner.loadPath("Three Piece D", new PathConstraints(1.0, 0.5));
+    // threePieceE = PathPlanner.loadPath("Three Piece E", new PathConstraints(1.0, 0.5));
     twoPieceBalanceA = PathPlanner.loadPath("Two Piece Balance A", new PathConstraints(4.5, 3.5));
     twoPieceBalanceB = PathPlanner.loadPath("Two Piece Balance B", new PathConstraints(4.5, 3.5));
     twoPieceBalanceC = PathPlanner.loadPath("Two Piece Balance C", new PathConstraints(2.0, 2.0));
-    twoPieceBalanceBumpA = PathPlanner.loadPath("Two Piece Balance Bump A", new PathConstraints(4.0, 2.0));
-    twoPieceBalanceBumpB = PathPlanner.loadPath("Two Piece Balance Bump B", new PathConstraints(4.0, 2.0));
+    twoPieceBalanceBumpA = PathPlanner.loadPath("Two Piece Balance Bump A", new PathConstraints(3.0, 2.5));
+    twoPieceBalanceBumpB = PathPlanner.loadPath("Two Piece Balance Bump B", new PathConstraints(3.0, 2.5));
     twoPieceBalanceBumpC = PathPlanner.loadPath("Two Piece Balance Bump C", new PathConstraints(2.0, 2.0));
     test = PathPlanner.loadPath("Test", new PathConstraints(1.0, 0.5));
   }
@@ -109,22 +122,22 @@ public class Robot extends LoggedRobot {
 
     if (RobotContainer.keyboard.getRawButton(4)) {
       scoringSpot = 0;
-      scoringLevel = Level.HIGH; 
+      scoringLevel = Level.HIGH;
     } else if (RobotContainer.keyboard.getRawButton(5)) {
       scoringSpot = 1;
-      scoringLevel = Level.HIGH; 
+      scoringLevel = Level.HIGH;
     } else if (RobotContainer.keyboard.getRawButton(6)) {
       scoringSpot = 2;
-      scoringLevel = Level.HIGH; 
+      scoringLevel = Level.HIGH;
     } else if (RobotContainer.keyboard.getRawButton(7)) {
       scoringSpot = 0;
-      scoringLevel = Level.MID; 
+      scoringLevel = Level.MID;
     } else if (RobotContainer.keyboard.getRawButton(8)) {
       scoringSpot = 1;
-      scoringLevel = Level.MID; 
+      scoringLevel = Level.MID;
     } else if (RobotContainer.keyboard.getRawButton(9)) {
       scoringSpot = 2;
-      scoringLevel = Level.MID; 
+      scoringLevel = Level.MID;
     } else if (RobotContainer.keyboard.getRawButtonPressed(10)) {
       RobotContainer.superstructure.requestIdle();
     } else if (RobotContainer.keyboard.getRawButtonPressed(11)) {
@@ -136,13 +149,16 @@ public class Robot extends LoggedRobot {
     Logger.getInstance().recordOutput("Scoring Square", scoringSquare);
     Logger.getInstance().recordOutput("Scoring Spot", scoringSpot);
     Logger.getInstance().recordOutput("Scoring Level", scoringLevel.toString());
+    Logger.getInstance().recordOutput("Alliance Color", alliance.toString());
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+  }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+  }
 
   @Override
   public void autonomousInit() {
@@ -154,7 +170,8 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+  }
 
   @Override
   public void teleopInit() {
@@ -166,63 +183,71 @@ public class Robot extends LoggedRobot {
       RobotContainer.superstructure.requestHome();
       homed = true;
     }
+
+    alliance = DriverStation.getAlliance();
   }
 
   @Override
   public void teleopPeriodic() {
-    // if (RobotContainer.operator.getRightBumperPressed()) {
-    //   RobotContainer.superstructure.requestFloorIntakeCone();
-    // }
+    if (RobotContainer.driver.getLeftTriggerAxis() > 0.1 && !coneIntakeTriggered) {
+      RobotContainer.superstructure.requestFloorIntakeCone();
+      coneIntakeTriggered = true;
+    }
 
-    // if (RobotContainer.operator.getRightTriggerAxis() > 0.05 && !intakeTriggered) {
-    //   Supplier<Double> pressure = () -> {
-    //     if (RobotContainer.operator.getRightTriggerAxis() < 0.75) {
-    //        return 0.0;
-    //     } else {
-    //       return (RobotContainer.operator.getRightTriggerAxis() - 0.75) * (1.0/0.25);
-    //     }
-    //   };
-    //   RobotContainer.superstructure.requestFloorIntakeCube(pressure);
-    //   intakeTriggered = true;
-    // } 
+    if (RobotContainer.driver.getRightTriggerAxis() > 0.05 && !intakeTriggered) {
+      Supplier<Double> pressure = () -> {
+        if (RobotContainer.driver.getRightTriggerAxis() < 0.95) {
+          return 0.0;
+        } else {
+          return (RobotContainer.driver.getRightTriggerAxis() - 0.95) * (1.0 / 0.05);
+        }
+      };
+      RobotContainer.superstructure.requestFloorIntakeCube(pressure);
+      intakeTriggered = true;
+    }
 
-    // if (RobotContainer.operator.getRightTriggerAxis() <= 0.05 && intakeTriggered) {
-    //   intakeTriggered = false;
-    //   RobotContainer.superstructure.requestIdle();
-    // }
+    if (RobotContainer.driver.getRightTriggerAxis() <= 0.05 && intakeTriggered) {
+      intakeTriggered = false;
+      RobotContainer.superstructure.requestIdle();
+    }
 
-    // if (RobotContainer.operator.getAButtonPressed()) {
-    //   RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
-    // }
+    if (RobotContainer.operator.getRightBumperPressed()) {
+      RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
+    }
 
-    // if (RobotContainer.operator.getBButtonPressed()) {
-    //   RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
-    // }
-    
-    // if (RobotContainer.operator.getXButtonPressed()) {
-    //   RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
-    // }
+    if (RobotContainer.operator.getAButtonPressed()) {
+      RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
+    }
 
-    // if (RobotContainer.operator.getYButtonPressed()) {
-    //   RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
-    // }
+    if (RobotContainer.operator.getBButtonPressed()) {
+      RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
+    }
 
-    // if (RobotContainer.operator.getRightStickButtonPressed()) {
-    //   RobotContainer.superstructure.requestScore();
-    // }
+    if (RobotContainer.operator.getXButtonPressed()) {
+      RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
+    }
 
-    // if (RobotContainer.operator.getLeftStickButtonPressed()) {
-    //   RobotContainer.superstructure.requestIdle();
-    // }
+    if (RobotContainer.operator.getYButtonPressed()) {
+      RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
+    }
 
-    if (RobotContainer.driver.getRightTriggerAxis() > 0.1) {
+    if (RobotContainer.operator.getRightStickButtonPressed()) {
+      RobotContainer.superstructure.requestScore();
+    }
+
+    if (RobotContainer.operator.getLeftStickButtonPressed()) {
+      RobotContainer.superstructure.requestIdle();
+      coneIntakeTriggered = false;
+    }
+
+    if (RobotContainer.operator.getRightTriggerAxis() > 0.1) {
       RobotContainer.climberIO.setPercent(1.0);
-    } else if (RobotContainer.driver.getLeftTriggerAxis() > 0.1) {
+    } else if (RobotContainer.operator.getLeftTriggerAxis() > 0.1) {
       RobotContainer.climberIO.setPercent(-1.0);
     } else {
       RobotContainer.climberIO.setPercent(0.0);
     }
-   }
+  }
 
   @Override
   public void testInit() {
@@ -230,11 +255,14 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+  }
 
   @Override
-  public void simulationInit() {}
+  public void simulationInit() {
+  }
 
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+  }
 }

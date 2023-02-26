@@ -6,10 +6,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
+import frc.robot.FieldConstants;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
+import frc.robot.commons.AllianceFlipUtil;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
@@ -60,6 +63,9 @@ public class AutoPlaceCommand extends CommandBase {
                 Grids.lowTranslations[nodeNumber - 1].getY(),
                 new Rotation2d(Math.PI)
             );
+        }
+        if (Robot.alliance == DriverStation.Alliance.Red) {
+            AllianceFlipUtil.apply(goal);
         }
         requestedPreScore = false;
         requestedScore = false;

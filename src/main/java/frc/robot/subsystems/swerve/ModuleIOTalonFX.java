@@ -91,7 +91,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         inputs.driveAppliedVolts = drive.getMotorOutputVoltage();
         inputs.driveCurrentAmps = drive.getStatorCurrent();
         inputs.driveTempCelcius = drive.getTemperature();
-        inputs.driveDistance = (MODULE_GEARING * drive.getSelectedSensorPosition() * 2.0 * Math.PI * WHEEL_RADIUS)/2048.0;
+        inputs.driveDistanceMeters = (MODULE_GEARING * drive.getSelectedSensorPosition() * 2.0 * Math.PI * WHEEL_RADIUS)/2048.0;
         inputs.driveBusVoltage = drive.getBusVoltage();
         inputs.driveOutputPercent = drive.getMotorOutputPercent();
 
