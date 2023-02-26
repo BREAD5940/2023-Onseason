@@ -29,6 +29,7 @@ public class LimelightVision extends SubsystemBase {
     if (!hasTarget()) {
       return;
     } else {
+      System.out.println(getDistance());
       SmartDashboard.putNumber("LimelightX", tx.getDouble(0.0));
       SmartDashboard.putNumber("LimelightY", ty.getDouble(0.0));
       SmartDashboard.putNumber("LimelightArea", ta.getDouble(0.0));
