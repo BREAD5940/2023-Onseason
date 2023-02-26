@@ -13,8 +13,10 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -39,7 +41,11 @@ public class Swerve extends SubsystemBase {
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(FL_LOCATION, FR_LOCATION, BL_LOCATION,
             BR_LOCATION);
-    private double[] lastModulePositionsMeters = new double[] { 0.0, 0.0, 0.0, 0.0};
+
+    private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(kinematics, getRotation2d(),
+            getSwerveModulePositions());
+    private Pose2d poseRaw = new Pose2d();
+    private double[] lastModulePositionsMeters = new double[] { 0.0, 0.0, 0.0, 0.0 };
     private Rotation2d lastGyroYaw = new Rotation2d();
 
     // State Variables
@@ -71,7 +77,7 @@ public class Swerve extends SubsystemBase {
 
         for (int i = 0; i < 4; i++) {
             moduleIOs[i].setDriveBrakeMode(true);
-            moduleIOs[i].setTurnBrakeMode(true);
+            moduleIOs[i].setTurnBrakeMode(false);
         }
     }
 
@@ -84,23 +90,23 @@ public class Swerve extends SubsystemBase {
             moduleIOs[i].updateInputs(moduleInputs[i]);
             Logger.getInstance().processInputs("Swerve/Module" + Integer.toString(i), moduleInputs[i]);
         }
-        Logger.getInstance().recordOutput("Swerve/loopCycleTime", Logger.getInstance().getRealTimestamp()/1.0E6 - lastFPGATimestamp);
-        lastFPGATimestamp = Logger.getInstance().getRealTimestamp()/1.0E6;
+        Logger.getInstance().recordOutput("Swerve/loopCycleTime",
+                Logger.getInstance().getRealTimestamp() / 1.0E6 - lastFPGATimestamp);
+        lastFPGATimestamp = Logger.getInstance().getRealTimestamp() / 1.0E6;
 
         /** Generate module setpoints */
         Rotation2d[] turnPositions = new Rotation2d[4];
         for (int i = 0; i < 4; i++) {
-            turnPositions[i] = new Rotation2d(moduleInputs[i].turnAbsolutePositionRad);
+            turnPositions[i] = new Rotation2d(moduleInputs[i].moduleAngleRads);
         }
 
         SwerveModuleState[] setpointStates;
         if (fieldRelative) {
             setpointStates = kinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(
-                robotSetpoints.vxMetersPerSecond, 
-                robotSetpoints.vyMetersPerSecond, 
-                robotSetpoints.omegaRadiansPerSecond, 
-                RobotContainer.poseEstimator.getLatestPose().getRotation()
-            ));
+                    robotSetpoints.vxMetersPerSecond,
+                    robotSetpoints.vyMetersPerSecond,
+                    robotSetpoints.omegaRadiansPerSecond,
+                    RobotContainer.poseEstimator.getLatestPose().getRotation()));
         } else {
             setpointStates = kinematics.toSwerveModuleStates(new ChassisSpeeds(
                     robotSetpoints.vxMetersPerSecond,
@@ -124,9 +130,9 @@ public class Swerve extends SubsystemBase {
 
             for (int i = 0; i < 4; i++) {
                 double[] desiredState = getContinousOutput(setpointStatesOptimized[i],
-                        moduleInputs[i].turnAbsolutePositionRad);
+                        moduleInputs[i].moduleAngleRads);
                 moduleIOs[i].setDrivePercent(desiredState[0]);
-                moduleIOs[i].setTurnAngle(desiredState[1]);
+                moduleIOs[i].setTurnAngle(Units.radiansToDegrees(desiredState[1]));
                 desiredVelocities[i] = desiredState[0];
                 desiredAngles[i] = desiredState[1];
             }
@@ -139,9 +145,9 @@ public class Swerve extends SubsystemBase {
 
             for (int i = 0; i < 4; i++) {
                 double[] desiredState = getContinousOutput(setpointStatesOptimized[i],
-                        moduleInputs[i].turnAbsolutePositionRad);
+                        moduleInputs[i].moduleAngleRads);
                 moduleIOs[i].setDriveVelocity(desiredState[0]);
-                moduleIOs[i].setTurnAngle(desiredState[1]);
+                moduleIOs[i].setTurnAngle(Units.radiansToDegrees(desiredState[1]));
                 desiredVelocities[i] = desiredState[0];
                 desiredAngles[i] = desiredState[1];
             }
@@ -161,14 +167,20 @@ public class Swerve extends SubsystemBase {
         Logger.getInstance().recordOutput("Desired Angles", desiredAngles);
         Logger.getInstance().recordOutput("Desired Velocities", desiredVelocities);
         Logger.getInstance().recordOutput("Swerve Velocity (mag.)", getVelocity().getNorm());
-        Logger.getInstance().recordOutput("Swerve X Velocity", getVelocity().rotateBy(RobotContainer.poseEstimator.getLatestPose().getRotation()).getX());
-        Logger.getInstance().recordOutput("Swerve Y Velocity", getVelocity().rotateBy(RobotContainer.poseEstimator.getLatestPose().getRotation()).getY());
+        Logger.getInstance().recordOutput("Swerve X Velocity",
+                getVelocity().rotateBy(RobotContainer.poseEstimator.getLatestPose().getRotation()).getX());
+        Logger.getInstance().recordOutput("Swerve Y Velocity",
+                getVelocity().rotateBy(RobotContainer.poseEstimator.getLatestPose().getRotation()).getY());
         Logger.getInstance().recordOutput("Swerve Setpoints/Swerve Desired dX", robotSetpoints.vxMetersPerSecond);
         Logger.getInstance().recordOutput("Swerve Setpoints/Swerve Desired dY", robotSetpoints.vyMetersPerSecond);
-        Logger.getInstance().recordOutput("Swerve Setpoints/Swerve Desired Omega", robotSetpoints.omegaRadiansPerSecond);
+        Logger.getInstance().recordOutput("Swerve Setpoints/Swerve Desired Omega",
+                robotSetpoints.omegaRadiansPerSecond);
 
-        Logger.getInstance().recordOutput("Field-Relative Swerve Velocity (angle)", getVelocity().rotateBy(getRotation2d()).getAngle().getDegrees());
-        Logger.getInstance().recordOutput("Robot-Relative Swerve Velocity (angle)", getVelocity().getAngle().getDegrees());
+        Logger.getInstance().recordOutput("Field-Relative Swerve Velocity (angle)",
+                getVelocity().rotateBy(getRotation2d()).getAngle().getDegrees());
+        Logger.getInstance().recordOutput("Robot-Relative Swerve Velocity (angle)",
+                getVelocity().getAngle().getDegrees());
+        Logger.getInstance().recordOutput("Odometry/PoseRaw", poseRaw);
 
     }
 
@@ -206,6 +218,10 @@ public class Swerve extends SubsystemBase {
         RobotContainer.poseEstimator.addDriveData(
                 Timer.getFPGATimestamp(),
                 twist);
+
+        poseRaw = odometry.update(
+                getRotation2d(),
+                getSwerveModulePositions());
     }
 
     /** Sets the neutral modes for the swerve modules */
@@ -220,13 +236,24 @@ public class Swerve extends SubsystemBase {
         return new Rotation2d(gyroInputs.positionRad);
     }
 
+    /** Resets raw */
+    public void resetRaw() {
+        odometry.resetPosition(getRotation2d(), getSwerveModulePositions(), RobotContainer.poseEstimator.getLatestPose());
+        poseRaw = odometry.getPoseMeters();
+    }
+
+    /** Returns the raw pose of the robot */
+    public Pose2d getRawPose() {
+        return poseRaw;
+    }
+
     /** Returns the measured states of the swerve drive */
     public SwerveModuleState[] getMeasuredStates() {
         SwerveModuleState[] measuredStates = new SwerveModuleState[4];
         for (int i = 0; i < 4; i++) {
             measuredStates[i] = new SwerveModuleState(
                     moduleInputs[i].driveVelocityMetersPerSec,
-                    new Rotation2d(moduleInputs[i].turnAbsolutePositionRad));
+                    new Rotation2d(moduleInputs[i].moduleAngleRads));
         }
         return measuredStates;
     }
@@ -236,8 +263,8 @@ public class Swerve extends SubsystemBase {
         SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
         for (int i = 0; i < 4; i++) {
             modulePositions[i] = new SwerveModulePosition(
-                    moduleInputs[i].driveDistance,
-                    new Rotation2d(moduleInputs[i].turnAbsolutePositionRad));
+                    moduleInputs[i].driveDistanceMeters,
+                    new Rotation2d(moduleInputs[i].moduleAngleRads));
         }
         return modulePositions;
     }
@@ -256,10 +283,10 @@ public class Swerve extends SubsystemBase {
         SwerveModulePosition[] wheelDeltas = new SwerveModulePosition[4];
         for (int i = 0; i < 4; i++) {
             wheelDeltas[i] = new SwerveModulePosition(
-                    (moduleInputs[i].driveDistance - lastModulePositionsMeters[i]),
-                    new Rotation2d(moduleInputs[i].turnAbsolutePositionRad));
+                    (moduleInputs[i].driveDistanceMeters - lastModulePositionsMeters[i]),
+                    new Rotation2d(moduleInputs[i].moduleAngleRads));
 
-            lastModulePositionsMeters[i] = moduleInputs[i].driveDistance;
+            lastModulePositionsMeters[i] = moduleInputs[i].driveDistanceMeters;
         }
 
         return wheelDeltas;
@@ -311,6 +338,13 @@ public class Swerve extends SubsystemBase {
             dataArray.add(states[i].speedMetersPerSecond);
         }
         Logger.getInstance().recordOutput(key, dataArray.stream().mapToDouble(Double::doubleValue).toArray());
+    }
+
+    /** Resets the integrated sensor on the steer motors for all swerve modules */
+    public void resetAllToAbsolute() {
+        for (int i = 0; i < 4; i++) {
+            moduleIOs[i].resetToAbsolute();
+        }
     }
 
 }

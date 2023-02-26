@@ -9,11 +9,12 @@ public interface ModuleIO {
         public double driveAppliedVolts = 0.0;
         public double driveCurrentAmps = 0.0;
         public double driveTempCelcius = 0.0;
-        public double driveDistance = 0.0;
+        public double driveDistanceMeters = 0.0;
         public double driveBusVoltage = 0.0;
         public double driveOutputPercent = 0.0;
 
-        public double turnAbsolutePositionRad = 0.0;
+        public double moduleAngleRads = 0.0;
+        public double rawAbsolutePositionDegrees = 0.0;
         public double turnAppliedVolts = 0.0;
         public double turnCurrentAmps = 0.0; 
         public double turnTempCelcius = 0.0;
@@ -36,4 +37,7 @@ public interface ModuleIO {
 
     /** Enable or disable turn brake mode */
     public default void setTurnBrakeMode(boolean enable) {}
+
+    /** Resets the turn motor to its absolute position */
+    public default void resetToAbsolute() {}
 }

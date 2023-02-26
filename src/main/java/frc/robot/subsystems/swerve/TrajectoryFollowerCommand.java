@@ -11,11 +11,16 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
+import frc.robot.commons.AllianceFlipUtil;
 import frc.robot.commons.BreadHolonomicDriveController;
 
 public class TrajectoryFollowerCommand extends CommandBase {
@@ -47,12 +52,12 @@ public class TrajectoryFollowerCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        if (startHeading != null) {
-            RobotContainer.poseEstimator.resetPose(new Pose2d(
-                trajectory.sample(0.0).poseMeters.getTranslation(), 
-                startHeading.get()
-            ));
-        }
+        // if (startHeading != null) {
+        //     RobotContainer.poseEstimator.resetPose(new Pose2d(
+        //         trajectory.sample(0.0).poseMeters.getTranslation(), 
+        //         startHeading.get()
+        //     ));
+        // }
         timer.reset();
         timer.start();
         balanceTimer.reset();
@@ -63,13 +68,20 @@ public class TrajectoryFollowerCommand extends CommandBase {
     @Override
     public void execute() {
         PathPlannerState goal = (PathPlannerState) trajectory.sample(timer.get());
-        ChassisSpeeds adjustedSpeeds = autonomusController.calculate(RobotContainer.poseEstimator.getLatestPose(), goal, goal.holonomicRotation); 
+        Trajectory.State wpilibGoal = AllianceFlipUtil.apply(goal);
+        Rotation2d swerveRot;
+        if (Robot.alliance == DriverStation.Alliance.Red) {
+            swerveRot = new Rotation2d(
+                -goal.holonomicRotation.getCos(),
+                goal.holonomicRotation.getSin());
+        } else {
+            swerveRot = goal.holonomicRotation;
+        }
+        ChassisSpeeds adjustedSpeeds = autonomusController.calculate(RobotContainer.poseEstimator.getLatestPose(), wpilibGoal, swerveRot); 
         swerve.requestVelocity(
             adjustedSpeeds, false
         );
-        Logger.getInstance().recordOutput("Trajectory Goal X", goal.poseMeters.getX());
-        Logger.getInstance().recordOutput("Trajectory Goal Y", goal.poseMeters.getY());
-        Logger.getInstance().recordOutput("Trajectory Goal Heading", goal.poseMeters.getRotation().getDegrees());
+        Logger.getInstance().recordOutput("Trajectory Goal", new Pose2d(wpilibGoal.poseMeters.getTranslation(), swerveRot));
     }
 
     @Override

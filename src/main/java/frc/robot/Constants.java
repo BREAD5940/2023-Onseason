@@ -68,11 +68,18 @@ public final class Constants {
          * 6. Re-deploy code to the robot and power cycle.
          */
 
+        // public static final Rotation2d[] AZIMUTH_OFFSETS = {
+        //     Rotation2d.fromDegrees(-82.178), // FL
+        //     Rotation2d.fromDegrees(-114.697), // FR
+        //     Rotation2d.fromDegrees(47.021), // BL
+        //     Rotation2d.fromDegrees(-37.617) //BR
+        // };
+
         public static final Rotation2d[] AZIMUTH_OFFSETS = {
-            Rotation2d.fromDegrees(-82.178), // FL
-            Rotation2d.fromDegrees(-114.697), // FR
-            Rotation2d.fromDegrees(47.021), // BL
-            Rotation2d.fromDegrees(-37.617) //BR
+            Rotation2d.fromDegrees(80.859), // FL
+            Rotation2d.fromDegrees(115.488), // FR
+            Rotation2d.fromDegrees(312.890625), // BL
+            Rotation2d.fromDegrees(36.738) //BR
         };
 
         // Drive-by shooting constants
@@ -80,7 +87,8 @@ public final class Constants {
         public static final double RADIAL_SHOT_SCALAR = 0.9;
 
         // Measurements/Gearings
-        public static final double MODULE_GEARING = (14.0/50.0) * (28.0/16.0) * (15.0/45.0);
+        public static final double DRIVE_GEARING = (14.0/50.0) * (28.0/16.0) * (15.0/45.0);
+        public static final double STEER_GEARING = (150.0/7.0);
         public static final double ROBOT_WIDTH = Units.inchesToMeters(27.0 - 2.625 * 2.0);
         public static final double ROBOT_LENGTH = Units.inchesToMeters(28.0 - 2.625 * 2.0);
         // Madtown field callibration constant factor is 0.97
@@ -88,7 +96,7 @@ public final class Constants {
         public static final Translation2d FIELD_TO_TARGET = new Translation2d(Units.feetToMeters(27), Units.feetToMeters(13.5));
         public static final double CAMERA_TO_SHOOTER_DISTANCE = Units.inchesToMeters(15.0);
         public static final double UPPER_HUB_RADIUS = Units.inchesToMeters(53.38)/2;
-        public static final double ROBOT_MAX_SPEED = (6380.0 * MODULE_GEARING * 2.0 * Math.PI * WHEEL_RADIUS) / 60.0;
+        public static final double ROBOT_MAX_SPEED = (6380.0 * DRIVE_GEARING * 2.0 * Math.PI * WHEEL_RADIUS) / 60.0;
         public static final Translation2d FL_LOCATION = new Translation2d(ROBOT_LENGTH/2, ROBOT_WIDTH/2);
         public static final Translation2d FR_LOCATION = new Translation2d(ROBOT_LENGTH/2, -ROBOT_WIDTH/2);
         public static final Translation2d BL_LOCATION = new Translation2d(-ROBOT_LENGTH/2, ROBOT_WIDTH/2);

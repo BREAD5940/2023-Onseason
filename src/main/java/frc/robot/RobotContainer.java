@@ -8,6 +8,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commons.PoseEstimator;
 import frc.robot.autonomous.modes.ThreePieceMode;
+import frc.robot.autonomous.modes.TwoPieceBalanceBumpMode;
 import frc.robot.autonomous.modes.TwoPieceBalanceMode;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.GamePiece;
@@ -57,6 +59,7 @@ public class RobotContainer {
   private static final AprilTagVisionIO rightCamera = new AprilTagVisionIONorthstar("northstar-right");
   public static final AprilTagVision northstarVision = new AprilTagVision(leftCamera, rightCamera);
   public static final PoseEstimator poseEstimator = new PoseEstimator(VecBuilder.fill(0.005, 0.005, 0.0005));
+  
   public static final ClimberIOTalonFX climberIO = new ClimberIOTalonFX();
   public static final Climber climber = new Climber(climberIO);
 
@@ -73,14 +76,26 @@ public class RobotContainer {
 
       // Movement Outputs
       double scale = RobotContainer.driver.getLeftBumper() ? 0.25 : 1.0;
-      double dx = Math.abs(x) > 0.075 ? Math.pow(-x, 1) * scale : 0.0;
-      double dy = Math.abs(y) > 0.075 ? Math.pow(-y, 1) * scale : 0.0;
+      double dx;
+      double dy;
+      if (Robot.alliance == DriverStation.Alliance.Blue) {
+        dx = Math.abs(x) > 0.075 ? Math.pow(-x, 1) * scale : 0.0;
+        dy = Math.abs(y) > 0.075 ? Math.pow(-y, 1) * scale : 0.0;
+      } else {
+        dx = Math.abs(x) > 0.075 ? Math.pow(-x, 1) * scale * -1 : 0.0;
+        dy = Math.abs(y) > 0.075 ? Math.pow(-y, 1) * scale * -1 : 0.0;
+      }
       double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.75 * scale : 0.0;
       swerve.requestPercent(new ChassisSpeeds(dx, dy, rot), true);
 
       // Sets the 0 of the robot
       if (driver.getAButtonPressed()) {
         poseEstimator.resetPose(new Pose2d());
+      }
+
+      // Sets the raw pose of the swerve
+      if (driver.getXButtonPressed()) {
+        swerve.resetRaw();
       }
     }, swerve));
 

@@ -221,7 +221,7 @@ public class Superstructure extends SubsystemBase {
                 nextSystemState = SuperstructureState.PRE_HOME;
             } else if (!requestHPIntakeCone) {
                 nextSystemState = SuperstructureState.IDLE;
-            } else if (endEffector.getStatorCurrent() > 13.0) {
+            } else if (endEffector.getStatorCurrent() > 20.0) {
                 requestHPIntakeCone = false;
                 nextSystemState = SuperstructureState.IDLE;
             }
@@ -513,6 +513,11 @@ public class Superstructure extends SubsystemBase {
     /** Returns whether or not the elevator is at a certain height */
     public boolean atElevatorSetpoint(double height) {
         return elevatorArmLowLevel.atElevatorSetpoint(height);
+    }
+    
+    /** Returns the height of the elevator */
+    public double getElevatorHeight() {
+        return elevatorArmLowLevel.elevatorInputs.posMeters;
     }
 
 }
