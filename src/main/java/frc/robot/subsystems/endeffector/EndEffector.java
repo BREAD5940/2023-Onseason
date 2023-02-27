@@ -44,7 +44,7 @@ public class EndEffector {
     /* For holding a game piece */
     public void holdGamePiece() {
         endEffectorIO.setPercent(holdingPercent.get());
-        endEffectorIO.setCurrentLimit(2, 4.0);
+        endEffectorIO.setCurrentLimit(20, 30.0);
     }
 
     /* For spitting a cube */
@@ -56,7 +56,7 @@ public class EndEffector {
     /* For idling */
     public void idling() {
         endEffectorIO.setPercent(0.0);
-        endEffectorIO.setCurrentLimit(4, 7.0);
+        endEffectorIO.setCurrentLimit(20, 30.0);
     }
 
     /* Enables/disables brake mode */

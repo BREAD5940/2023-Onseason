@@ -21,7 +21,7 @@ public interface EndEffectorIO {
     public default void enableBrakeMode(boolean enable) {}
 
     /* Sets current limit of end-effector */
-    public default void setCurrentLimit(int smartCurrent, double secondaryCurrent) {}
+    public default void setCurrentLimit(double currentLimit, double triggerThreshhold) {}
 
     /* Updates filters */
     public default void updateFilter() {}

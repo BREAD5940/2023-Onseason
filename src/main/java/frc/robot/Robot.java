@@ -26,7 +26,10 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commons.LimelightHelpers;
 import frc.robot.commons.TunableNumber;
+import frc.robot.commons.LimelightHelpers.LimelightResults;
+import frc.robot.commons.LimelightHelpers.LimelightTarget_Retro;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
@@ -112,6 +115,18 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotPeriodic() {
+
+    // LL testing
+    LimelightResults results = LimelightHelpers.getLatestResults("limelight");
+    LimelightTarget_Retro[] targets = results.targetingResults.targets_Retro;
+
+    if (targets != null) {
+      for (int i = 0; i < targets.length; i++) {
+        Logger.getInstance().recordOutput("LimelightResults/" + i + "/tx", targets[i].tx);
+        Logger.getInstance().recordOutput("LimelightResults/" + i + "/ty", targets[i].ty);
+      }
+    }
+
     CommandScheduler.getInstance().run();
     if (RobotContainer.keyboard.getRawButton(1)) {
       scoringSquare = 0;

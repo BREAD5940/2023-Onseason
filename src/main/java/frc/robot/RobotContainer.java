@@ -30,7 +30,7 @@ import frc.robot.subsystems.elevatorarm.ArmIOTalonFX;
 import frc.robot.subsystems.elevatorarm.ElevatorIO;
 import frc.robot.subsystems.elevatorarm.ElevatorIOTalonFX;
 import frc.robot.subsystems.endeffector.EndEffectorIO;
-import frc.robot.subsystems.endeffector.EndEffectorIOSparkMax;
+import frc.robot.subsystems.endeffector.EndEffectorIOTalonFX;
 import frc.robot.subsystems.floorintake.FloorIntakeIO;
 import frc.robot.subsystems.floorintake.FloorIntakeIOTalonFX;
 import frc.robot.subsystems.swerve.AutoPickupRoutine;
@@ -51,7 +51,7 @@ public class RobotContainer {
   public static final Swerve swerve = new Swerve();
   public static final ElevatorIO elevatorIO = new ElevatorIOTalonFX();
   public static final ArmIO armIO = new ArmIOTalonFX();
-  public static final EndEffectorIO endEffectorIO = new EndEffectorIOSparkMax();
+  public static final EndEffectorIO endEffectorIO = new EndEffectorIOTalonFX();
   public static final FloorIntakeIO floorIntakeIO = new FloorIntakeIOTalonFX();
   public static final Superstructure superstructure = new Superstructure(elevatorIO, armIO, endEffectorIO,
       floorIntakeIO);
