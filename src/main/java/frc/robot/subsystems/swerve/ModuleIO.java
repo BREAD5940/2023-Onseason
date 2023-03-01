@@ -24,7 +24,7 @@ public interface ModuleIO {
     public default void updateInputs(ModuleIOInputs inputs) {}
 
     /** Run the drive motor at a specified velocity */
-    public default void setDriveVelocity(double velocityMetersPerSecond) {}
+    public default void setDriveVelocity(double velocityMetersPerSecond, boolean auto) {}
 
     /** Run the drive motor at a specified percent */
     public default void setDrivePercent(double percent) {}

@@ -19,6 +19,10 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
     TalonFX deploy = new TalonFX(DEPLOY_ID, CANIVORE_BUS_NAME);
     TalonFX roller = new TalonFX(ROLLER_ID, CANIVORE_BUS_NAME);
 
+    private double mCurrentLimit = 0.0;
+    private double mCurrentLimitTriggerThreshhold = 0.0;
+    private double mcurrentLimitThresholdTime = 0.0;
+
     public FloorIntakeIOTalonFX() {
         /* configurations for the leader motor */
         TalonFXConfiguration deployConfig = new TalonFXConfiguration();
@@ -89,7 +93,12 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
 
     @Override
     public void setCurrentLimit(double currentLimit, double currentLimitTriggerThreshold, double currentLimitThresholdTime) {
-        deploy.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, currentLimit, currentLimitTriggerThreshold, currentLimitThresholdTime));
+        if (currentLimit != mCurrentLimit || currentLimitTriggerThreshold != mCurrentLimitTriggerThreshhold || currentLimitThresholdTime != mcurrentLimitThresholdTime) {
+            mCurrentLimit = currentLimit;
+            mCurrentLimitTriggerThreshhold = currentLimitTriggerThreshold;
+            mcurrentLimitThresholdTime = currentLimitThresholdTime;
+            deploy.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, currentLimit, currentLimitTriggerThreshold, currentLimitThresholdTime));
+        }
     }
 
     @Override

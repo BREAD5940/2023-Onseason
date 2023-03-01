@@ -79,7 +79,7 @@ public class TrajectoryFollowerCommand extends CommandBase {
         }
         ChassisSpeeds adjustedSpeeds = autonomusController.calculate(RobotContainer.poseEstimator.getLatestPose(), wpilibGoal, swerveRot); 
         swerve.requestVelocity(
-            adjustedSpeeds, false
+            adjustedSpeeds, false, true
         );
         Logger.getInstance().recordOutput("Trajectory Goal", new Pose2d(wpilibGoal.poseMeters.getTranslation(), swerveRot));
     }

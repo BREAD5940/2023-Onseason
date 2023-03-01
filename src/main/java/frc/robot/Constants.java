@@ -5,8 +5,12 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
+
+import Jama.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -202,12 +206,19 @@ public final class Constants {
     }
 
     // Constants pertaining to the camera
-    public static class Camera {
-        public static final String CAMERA_NAME = "BreadCam";
-        public static final Transform3d ROBOT_TO_CAM =
+    public static class Limelight {
+        public static final Transform3d ROBOT_TO_LL =
                 new Transform3d(
                         new Translation3d(0.26, 0.25, 0.29),
-                        new Rotation3d(Units.degreesToRadians(0.7496413), Units.degreesToRadians(23.6230562), 0.0));//Units.degreesToRadians(1.6593493)));
+                        new Rotation3d(Units.degreesToRadians(0.7496413), Units.degreesToRadians(-38.0), 0.0)); //Units.degreesToRadians(1.6593493)));
+        public static final double HIGH_TAPE_OFF_GROUND = 1.12;
+        public static final double MID_TAPE_OFF_GROUND = 0.61;
+        public static final Transform2d HIGH_CUBE_TO_SCORING_POS= new Transform2d();
+        public static final Transform2d MID_CUBE_TO_SCORING_POS = new Transform2d();
+        public static final Transform2d HIGH_CONE_TO_SCORING_POS = new Transform2d();
+        public static final Transform2d MID_CONE_TO_SCORING_POS = new Transform2d();
+        public static final Transform2d LOW_TO_SCORING_POS = new Transform2d();
+
     }
   
 }

@@ -110,9 +110,17 @@ public class ModuleIOTalonFX implements ModuleIO {
     }
 
     @Override
-    public void setDriveVelocity(double velocityMetersPerSecond) {
-        double ff = 0.06;
-        drive.set(TalonFXControlMode.Velocity, wheelSpeedMetersPerSecondToIntegratedSensorUnits(velocityMetersPerSecond), DemandType.ArbitraryFeedForward, ff);
+    public void setDriveVelocity(double velocityMetersPerSecond, boolean auto) {
+        if (auto) {
+            double ff = 0.06;
+            if (velocityMetersPerSecond > 0.0) {
+                drive.set(TalonFXControlMode.Velocity, wheelSpeedMetersPerSecondToIntegratedSensorUnits(velocityMetersPerSecond), DemandType.ArbitraryFeedForward, ff);
+            } else {
+                drive.set(TalonFXControlMode.Velocity, wheelSpeedMetersPerSecondToIntegratedSensorUnits(velocityMetersPerSecond), DemandType.ArbitraryFeedForward, -ff);
+            }
+        } else {
+            drive.set(TalonFXControlMode.Velocity, wheelSpeedMetersPerSecondToIntegratedSensorUnits(velocityMetersPerSecond));
+        }
     }
 
     @Override

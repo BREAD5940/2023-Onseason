@@ -13,8 +13,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
-import frc.robot.OperatorControls.Column;
-import frc.robot.subsystems.Superstructure.Level;
 
 import java.util.Map;
 
@@ -31,14 +29,6 @@ public final class FieldConstants {
   public static final double fieldWidth = Units.inchesToMeters(315.5);
   public static final double tapeWidth = Units.inchesToMeters(2.0);
   public static final double aprilTagWidth = Units.inchesToMeters(6.0);
-
-  public static boolean canScoreCone(Level level, Column column) {
-    return (level == Level.LOW) || (column == Column.LEFT) || (column == Column.RIGHT);
-  }
-
-  public static boolean canScoreCube(Level level, Column column) {
-    return (level == Level.LOW) || (column == Column.MID);
-  }
 
   // Dimensions for community and charging station, including the tape.
   public static final class Community {

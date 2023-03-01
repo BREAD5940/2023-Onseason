@@ -54,6 +54,7 @@ public class Swerve extends SubsystemBase {
     private boolean requestVelocity = false;
     private boolean requestPercent = false;
     private boolean fieldRelative = true;
+    private boolean auto = false;
     private double lastFPGATimestamp = 0.0;
 
     /* Swerve States Enum */
@@ -146,7 +147,7 @@ public class Swerve extends SubsystemBase {
             for (int i = 0; i < 4; i++) {
                 double[] desiredState = getContinousOutput(setpointStatesOptimized[i],
                         moduleInputs[i].moduleAngleRads);
-                moduleIOs[i].setDriveVelocity(desiredState[0]);
+                moduleIOs[i].setDriveVelocity(desiredState[0], auto);
                 moduleIOs[i].setTurnAngle(Units.radiansToDegrees(desiredState[1]));
                 desiredVelocities[i] = desiredState[0];
                 desiredAngles[i] = desiredState[1];
@@ -198,11 +199,12 @@ public class Swerve extends SubsystemBase {
     }
 
     /** Requests a provided velocity to the swerve drive */
-    public void requestVelocity(ChassisSpeeds speeds, boolean fieldRelative) {
+    public void requestVelocity(ChassisSpeeds speeds, boolean fieldRelative, boolean auto) {
         robotSetpoints = speeds;
         this.fieldRelative = fieldRelative;
         this.requestPercent = false;
         this.requestVelocity = true;
+        this.auto = auto;
     }
 
     /** Updates the swerve drive odometry */
@@ -234,6 +236,11 @@ public class Swerve extends SubsystemBase {
     /** Returns rotation2d with angle of robot */
     public Rotation2d getRotation2d() {
         return new Rotation2d(gyroInputs.positionRad);
+    }
+
+    /** Returns the raw gyro angle */
+    public double getGyroDegrees() {
+        return gyroInputs.positionDegRaw;
     }
 
     /** Resets raw */

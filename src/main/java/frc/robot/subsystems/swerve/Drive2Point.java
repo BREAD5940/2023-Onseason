@@ -80,7 +80,7 @@ public class Drive2Point extends CommandBase {
         Logger.getInstance().recordOutput("TrajectoryYError", autonomousController.m_poseError.getY());
         Logger.getInstance().recordOutput("TrajectoryThetaError", autonomousController.m_poseError.getRotation().getDegrees());
         System.out.printf("%f.2 %f.2 %f.2\n", adjustedSpeeds.vxMetersPerSecond, adjustedSpeeds.vyMetersPerSecond, adjustedSpeeds.omegaRadiansPerSecond);
-        swerve.requestVelocity(adjustedSpeeds, false);
+        swerve.requestVelocity(adjustedSpeeds, false, true);
     }
 
     @Override
@@ -90,7 +90,8 @@ public class Drive2Point extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        swerve.requestVelocity(new ChassisSpeeds(0.0, 0.0, 0.0), false);
+        swerve.requestVelocity(new ChassisSpeeds(0.0, 0.0, 0.0), 
+        false, false);
     }
 
 }

@@ -96,7 +96,7 @@ public class AutoPickupRoutine extends CommandBase {
         Logger.getInstance().recordOutput("TrajectoryYError", autonomusController.m_poseError.getY());
         Logger.getInstance().recordOutput("TrajectoryThetaError", autonomusController.m_poseError.getRotation().getDegrees());
         System.out.printf("%f.2 %f.2 %f.2\n", adjustedSpeeds.vxMetersPerSecond, adjustedSpeeds.vyMetersPerSecond, adjustedSpeeds.omegaRadiansPerSecond);
-        swerve.requestVelocity(adjustedSpeeds, false);
+        swerve.requestVelocity(adjustedSpeeds, false, false);
     }
 
     @Override
@@ -106,7 +106,7 @@ public class AutoPickupRoutine extends CommandBase {
 
     @Override
     public void end(boolean interrupted) { 
-        swerve.requestVelocity(new ChassisSpeeds(0, 0, 0), false);
+        swerve.requestVelocity(new ChassisSpeeds(0, 0, 0), false, false);
     }
     
 }

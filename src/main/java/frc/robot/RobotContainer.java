@@ -12,18 +12,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commons.PoseEstimator;
-import frc.robot.autonomous.modes.ThreePieceMode;
-import frc.robot.autonomous.modes.TwoPieceBalanceBumpMode;
 import frc.robot.autonomous.modes.TwoPieceBalanceMode;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.GamePiece;
-import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.subsystems.climber.Climber;
-import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.elevatorarm.ArmIO;
 import frc.robot.subsystems.elevatorarm.ArmIOTalonFX;
@@ -36,6 +30,7 @@ import frc.robot.subsystems.floorintake.FloorIntakeIOTalonFX;
 import frc.robot.subsystems.swerve.AutoPickupRoutine;
 import frc.robot.subsystems.swerve.AutoPlaceCommand;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.vision.limelight.LimelightDetectionsClassifier;
 import frc.robot.subsystems.vision.northstar.AprilTagVision;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIO;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIONorthstar;
@@ -47,6 +42,7 @@ public class RobotContainer {
   public static final XboxController driver = new XboxController(0);
   public static final XboxController operator = new XboxController(1);
   public static final GenericHID keyboard = new GenericHID(2);
+  public static final OperatorControls operatorControls = new OperatorControls(keyboard);
 
   public static final Swerve swerve = new Swerve();
   public static final ElevatorIO elevatorIO = new ElevatorIOTalonFX();
@@ -55,6 +51,7 @@ public class RobotContainer {
   public static final FloorIntakeIO floorIntakeIO = new FloorIntakeIOTalonFX();
   public static final Superstructure superstructure = new Superstructure(elevatorIO, armIO, endEffectorIO,
       floorIntakeIO);
+  public static final LimelightDetectionsClassifier limelightVision = new LimelightDetectionsClassifier("limelight");
   private static final AprilTagVisionIO leftCamera = new AprilTagVisionIONorthstar("northstar-left");
   private static final AprilTagVisionIO rightCamera = new AprilTagVisionIONorthstar("northstar-right");
   public static final AprilTagVision northstarVision = new AprilTagVision(leftCamera, rightCamera);
