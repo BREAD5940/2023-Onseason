@@ -38,7 +38,8 @@ public class EndEffectorIOTalonFX implements EndEffectorIO {
     @Override
     public void updateInputs(EndEffectorIOInputs inputs) {
         inputs.appliedVoltage = motor.getMotorOutputPercent() * RobotController.getBatteryVoltage(); 
-        inputs.statorCurrentAmps = motor.getStatorCurrent();
+        inputs.statorCurrentAmps = Math.abs(motor.getStatorCurrent());
+        inputs.supplyCurrentAmps = motor.getSupplyCurrent();
         inputs.avgStatorCurrentAmps = filter.getAverage();
         inputs.tempCelcius = motor.getTemperature();
     }
@@ -63,7 +64,7 @@ public class EndEffectorIOTalonFX implements EndEffectorIO {
 
     @Override
     public void updateFilter() {
-        filter.addSample(motor.getStatorCurrent());
+        filter.addSample(Math.abs(motor.getStatorCurrent()));
     }
 }
 

@@ -8,6 +8,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -54,7 +55,8 @@ public class RobotContainer {
   public static final LimelightDetectionsClassifier limelightVision = new LimelightDetectionsClassifier("limelight");
   private static final AprilTagVisionIO leftCamera = new AprilTagVisionIONorthstar("northstar-left");
   private static final AprilTagVisionIO rightCamera = new AprilTagVisionIONorthstar("northstar-right");
-  public static final AprilTagVision northstarVision = new AprilTagVision(leftCamera, rightCamera);
+  private static final AprilTagVisionIO centerCamera = new AprilTagVisionIONorthstar("northstar-center");
+  public static final AprilTagVision northstarVision = new AprilTagVision(leftCamera, rightCamera, centerCamera);
   public static final PoseEstimator poseEstimator = new PoseEstimator(VecBuilder.fill(0.005, 0.005, 0.0005));
   
   public static final ClimberIOTalonFX climberIO = new ClimberIOTalonFX();
@@ -136,7 +138,7 @@ public class RobotContainer {
     // );
 
     new JoystickButton(driver, XboxController.Button.kRightBumper.value).whileTrue(new AutoPickupRoutine(
-        () -> new Pose2d(fieldLength - 1.312749431033244, aprilTags.get(4).getY(), new Rotation2d(0.0)),
+        () -> new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(43.4), aprilTags.get(4).getY(), new Rotation2d(0.0)),
         (pose, time) -> new Rotation2d(0.0),
         swerve,
         superstructure));

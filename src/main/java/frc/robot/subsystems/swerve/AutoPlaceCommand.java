@@ -9,13 +9,18 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.commons.AllianceFlipUtil;
 import frc.robot.commons.TunableNumber;
+import frc.robot.commons.LimelightHelpers.LimelightTarget_Retro;
 import frc.robot.commons.PoseEstimator.TimestampedVisionUpdate;
 import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.subsystems.vision.limelight.LimelightDetectionsClassifier;
 
@@ -26,7 +31,8 @@ import java.util.List;
 
 import org.littletonrobotics.junction.Logger;
 
-import static frc.robot.Constants.Limelight.*;
+import static frc.robot.Constants.Vision.*;
+import static frc.robot.Constants.Elevator.*;
 
 public class AutoPlaceCommand extends CommandBase {
 
@@ -34,10 +40,14 @@ public class AutoPlaceCommand extends CommandBase {
     private Pose2d targetRobotPose;
     private Pose2d preTargetRobotPose;
     private boolean shouldUseLimelight = false;
+    private boolean isUsingLimelight = false;
+    private boolean isCubeNode = false;
+    private boolean linedUp = false;
+    private boolean scored = false;
     private Level level;
 
-    private final PIDController xController = new PIDController(4.0, 0.0, 0.0);
-    private final PIDController yController = new PIDController(4.0, 0.0, 0.0);
+    private final PIDController xController = new PIDController(4.0, 0.0, 0.004);
+    private final PIDController yController = new PIDController(4.0, 0.0, 0.004);
     private final PIDController thetaController = new PIDController(5.0, 0.0, 0.0);
 
     private final Swerve swerve;
@@ -50,10 +60,16 @@ public class AutoPlaceCommand extends CommandBase {
         addRequirements(swerve, superstructure);
     }
 
-    @Override
+    @Override   
     public void initialize() {
         // Read selection from the operator controls
+        isUsingLimelight = false;
+        linedUp = false;
+        scored = false;
         int scoringLocation = RobotContainer.operatorControls.getLastSelectedScoringLocation();
+        if (DriverStation.getAlliance() == Alliance.Blue) {
+            scoringLocation = 10 - scoringLocation;
+        }
         this.level = RobotContainer.operatorControls.getLastSelectedLevel();
         if (level == Level.HIGH) {
             Translation2d xyNodeTranslation = AllianceFlipUtil.apply(Grids.highTranslations[scoringLocation - 1]);
@@ -77,61 +93,91 @@ public class AutoPlaceCommand extends CommandBase {
                     0.0,
                     new Rotation3d());
         }
-        if (level == Level.HIGH && !(scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8)) {
-            targetRobotPose = nodeLocation.toPose2d().transformBy(HIGH_CONE_TO_SCORING_POS);
-        } else if (level == Level.MID && !(scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8)) {
-            targetRobotPose = nodeLocation.toPose2d().transformBy(MID_CONE_TO_SCORING_POS);
-        } else if (level == Level.HIGH && (scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8)) {
-            targetRobotPose = nodeLocation.toPose2d().transformBy(HIGH_CUBE_TO_SCORING_POS);
-        } else if (level == Level.MID && (scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8)) {
-            targetRobotPose = nodeLocation.toPose2d().transformBy(MID_CUBE_TO_SCORING_POS);
-        } else {
-            targetRobotPose = nodeLocation.toPose2d().transformBy(LOW_TO_SCORING_POS);
-        }
-        preTargetRobotPose = nodeLocation.toPose2d()
-                .plus(new Transform2d(new Translation2d(0.5, 0.0), new Rotation2d()));
-        shouldUseLimelight = !(scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8
-                || level == Level.LOW);
+        targetRobotPose = new Pose2d(X_SCORING_POSITION, nodeLocation.getY(), new Rotation2d(Math.PI));
+        preTargetRobotPose = new Pose2d(targetRobotPose.getX() + 0.5, targetRobotPose.getY(), targetRobotPose.getRotation());
+        shouldUseLimelight = !(scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8 || level == Level.LOW);
+        isCubeNode = (scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8);
     }
 
     @Override
-    public void execute() {
+    public void execute() { 
         Pose2d realGoal = AllianceFlipUtil.apply(targetRobotPose);
         Pose2d poseError = realGoal.relativeTo(RobotContainer.poseEstimator.getLatestPose());
-        if (Math.abs(poseError.getY()) > Units.inchesToMeters(3.0)) {
+        if (Math.abs(poseError.getY()) > Units.inchesToMeters(6.0)) {
             realGoal = AllianceFlipUtil.apply(preTargetRobotPose);
         }
 
+        Pose2d measurement = RobotContainer.poseEstimator.getLatestPose();
         if (shouldUseLimelight) {
-            if (poseError.getTranslation().getNorm() < Units.inchesToMeters(12.0)) { // Start using limelight
+            if (poseError.getTranslation().getNorm() < Units.inchesToMeters(12.0) || isUsingLimelight) { // Start using limelight
                 List<TimestampedVisionUpdate> limelightUpdate = new ArrayList<>();
                 
                 ArrayList<Pose3d> poses = RobotContainer.limelightVision.getTargets(level == Level.HIGH ? true : false);
-                int indexOfPoseClosestToTarget = getIndexOfPoseClosestToTarget(poses);
-                Pose3d robotPose = LimelightDetectionsClassifier.targetPoseToRobotPose(nodeLocation, RobotContainer.limelightVision.getRawDetections()[indexOfPoseClosestToTarget]);
 
-                limelightUpdate.add(new TimestampedVisionUpdate(
-                    RobotContainer.limelightVision.getAssociatedTimestamp(), 
-                    robotPose.toPose2d(), 
-                    VecBuilder.fill(0.005, 0.005, 0.0005)
-                ));
-                
-                RobotContainer.poseEstimator.addVisionData(limelightUpdate);
+                int indexOfPoseClosestToTarget = getIndexOfPoseClosestToTarget(poses);
+
+                // isUsingLimelight = true;
+
+                Logger.getInstance().recordOutput("AutoPlace/IndexOfPoseClosestToTarget", indexOfPoseClosestToTarget);
+                if (indexOfPoseClosestToTarget != -1) {
+                    LimelightTarget_Retro detection = RobotContainer.limelightVision.getRawDetections()[indexOfPoseClosestToTarget];
+                    Pose3d llRobotPose = LimelightDetectionsClassifier.targetPoseToRobotPose(nodeLocation.getTranslation(), new Pose3d(RobotContainer.poseEstimator.getLatestPose()), RobotContainer.limelightVision.getRawDetections()[indexOfPoseClosestToTarget]);
+                    // measurement = llRobotPose.toPose2d();
+
+                    limelightUpdate.add(new TimestampedVisionUpdate(
+                        RobotContainer.limelightVision.getAssociatedTimestamp(), 
+                        llRobotPose.toPose2d(), 
+                        VecBuilder.fill(0.00005, 0.00005, 1.0E6)
+                    ));
+
+                    Logger.getInstance().recordOutput("LimelightEstimatedRobotPose", llRobotPose);
+
+                    
+                    RobotContainer.poseEstimator.addVisionData(limelightUpdate);
+                }
             }
         }
 
         
-        double xFeedback = xController.calculate(RobotContainer.poseEstimator.getLatestPose().getX(), realGoal.getX());
-        double yFeedback = yController.calculate(RobotContainer.poseEstimator.getLatestPose().getY(), realGoal.getY());
+        double xFeedback = xController.calculate(measurement.getX(), realGoal.getX());
+        double yFeedback = yController.calculate(measurement.getY(), realGoal.getY());
         double thetaFeedback = thetaController.calculate(
-            RobotContainer.poseEstimator.getLatestPose().getRotation().getRadians(),
+            measurement.getRotation().getRadians(),
             realGoal.getRotation().getRadians());
 
         xFeedback = MathUtil.clamp(xFeedback, -1, 1);
         yFeedback = MathUtil.clamp(yFeedback, -1, 1);
         thetaFeedback = MathUtil.clamp(thetaFeedback, -1.0, 1.0);
 
-        Logger.getInstance().recordOutput("AutoPlaceGoal", realGoal);
+        if (poseError.getTranslation().getNorm() < Units.inchesToMeters(1.0) && Math.abs(poseError.getRotation().getDegrees()) < 1.0 && !linedUp) {
+            linedUp = true;
+            superstructure.requestPreScore(level, isCubeNode ? GamePiece.CUBE : GamePiece.CONE);
+        } 
+
+        if (!scored) {
+            if (level == Level.LOW) {
+                if (superstructure.atElevatorSetpoint(ELEVATOR_PRE_LOW)) {
+                    superstructure.requestScore();
+                    scored = true;
+                }
+            } else if (isCubeNode) {
+                if (superstructure.atElevatorSetpoint(level == Level.HIGH ? ELEVATOR_PRE_CUBE_HIGH : ELEVATOR_PRE_CUBE_HIGH - ELEVATOR_CUBE_OFFSET)) {
+                    superstructure.requestScore();
+                    scored = true;
+                }
+            } else if (!isCubeNode) {
+                if (superstructure.atElevatorSetpoint(level == Level.HIGH ? ELEVATOR_PRE_CONE_HIGH : ELEVATOR_PRE_CONE_HIGH - ELEVATOR_CONE_OFFSET)) {
+                    superstructure.requestScore();
+                    scored = true;
+                }
+            }
+        }
+
+        swerve.requestVelocity(new ChassisSpeeds(xFeedback, yFeedback, thetaFeedback), true, false);
+
+        Logger.getInstance().recordOutput("AutoPlace/RealGoal", realGoal);
+        Logger.getInstance().recordOutput("AutoPlace/TargetRobotPose", targetRobotPose);
+        Logger.getInstance().recordOutput("AutoPlace/PreTargetRobotPose", preTargetRobotPose);
         
     }
 
@@ -146,7 +192,7 @@ public class AutoPlaceCommand extends CommandBase {
                 }
             }
             double lowestError = poses.get(index).relativeTo(nodeLocation).getTranslation().getNorm();
-            if (lowestError < 1.0) {
+            if (lowestError < Units.inchesToMeters(8.0)) {
                 return index;
             }
         }

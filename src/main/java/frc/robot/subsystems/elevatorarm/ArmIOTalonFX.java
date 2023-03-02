@@ -11,6 +11,8 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
+import frc.robot.commons.TunableNumber;
+
 import static frc.robot.Constants.Arm.*;
 import static frc.robot.Constants.Electrical.*;
 
@@ -18,6 +20,13 @@ public class ArmIOTalonFX implements ArmIO {
 
     TalonFX arm = new TalonFX(ARM_ID);
     CANCoder armAzimuth = new CANCoder(ARM_AZIMUTH_ID);
+
+    TunableNumber kP = new TunableNumber("Arm/kP", ARM_KP);
+    TunableNumber kI = new TunableNumber("Arm/kI", ARM_KI);
+    TunableNumber kD = new TunableNumber("Arm/kD", ARM_KD);
+    TunableNumber kF = new TunableNumber("Arm/kF", ARM_KF);
+    TunableNumber kG = new TunableNumber("Arm/kG", ARM_KG);
+
 
     public ArmIOTalonFX() {
         /* configurations for the arm encoder */

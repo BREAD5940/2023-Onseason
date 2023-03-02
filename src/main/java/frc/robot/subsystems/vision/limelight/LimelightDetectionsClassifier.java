@@ -2,6 +2,7 @@ package frc.robot.subsystems.vision.limelight;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -17,7 +18,7 @@ import frc.robot.commons.TunableNumber;
 import frc.robot.commons.LimelightHelpers.LimelightResults;
 import frc.robot.commons.LimelightHelpers.LimelightTarget_Retro;
 
-import static frc.robot.Constants.Limelight.*;
+import static frc.robot.Constants.Vision.*;
 
 import java.util.ArrayList;
 
@@ -69,12 +70,14 @@ public class LimelightDetectionsClassifier extends SubsystemBase {
         LimelightResults results = LimelightHelpers.getLatestResults(cameraName);
         rawDetections = results.targetingResults.targets_Retro;
 
-        timestamp = Logger.getInstance().getRealTimestamp()/1.0E6 - Units.millisecondsToSeconds(LimelightHelpers.getLatency_Pipeline(cameraName) - latency.get());
+        timestamp = BreadUtil.getFPGATimeSeconds() - Units.millisecondsToSeconds(LimelightHelpers.getLatency_Pipeline(cameraName) + latency.get());
 
         ArrayList<Pose3d> poses = getTargets(true);
         for (int i = 0; i < poses.size(); i++) {
             Logger.getInstance().recordOutput("LimelightPoses/" + i, poses.get(i));
         }
+
+        Logger.getInstance().recordOutput("VisionAdjustedTimestamp", timestamp);
     }
 
     private static double getXYDistanceToTarget(LimelightTarget_Retro detection, double targetHeightOffGround) {
@@ -101,18 +104,22 @@ public class LimelightDetectionsClassifier extends SubsystemBase {
         return distance;
     }
 
-    public static Pose3d targetPoseToRobotPose(Pose3d target, LimelightTarget_Retro detection) {
+    public static Pose3d targetPoseToRobotPose(Translation3d target, Pose3d robotPose, LimelightTarget_Retro detection) {
         double targetHeightOffGround = target.getZ();
         double xyDistanceToTarget = getXYDistanceToTarget(detection, targetHeightOffGround);
         double distanceToTarget = Math.hypot(xyDistanceToTarget, targetHeightOffGround - ROBOT_TO_LL.getZ());
 
+        Pose3d estimatedCameraPose = robotPose.transformBy(ROBOT_TO_LL);        
+
         Translation3d cameraToTargetTranslation = new Translation3d(distanceToTarget, new Rotation3d(0.0, Units.degreesToRadians(-detection.ty), Units.degreesToRadians(-detection.tx)));
-        Transform3d cameraToTargetTransform = new Transform3d(cameraToTargetTranslation, ROBOT_TO_LL.getRotation());
+        cameraToTargetTranslation = cameraToTargetTranslation.rotateBy(estimatedCameraPose.getRotation());
 
-        Pose3d cameraToTarget = target.transformBy(cameraToTargetTransform.inverse());
-        Pose3d robotToTarget = cameraToTarget.transformBy(ROBOT_TO_LL.inverse());
+        Translation3d cameraTranslation = target.minus(cameraToTargetTranslation);
+        Pose3d cameraPose = new Pose3d(cameraTranslation, estimatedCameraPose.getRotation());
 
-        return robotToTarget;
+        Pose3d estimatedRobotPose = cameraPose.transformBy(ROBOT_TO_LL.inverse());
+
+        return estimatedRobotPose;
     }
     
 }

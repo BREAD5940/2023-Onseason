@@ -25,6 +25,7 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 import static frc.robot.Constants.Arm.*;
+import static frc.robot.Constants.EndEffector.*;
 
 public class Superstructure extends SubsystemBase {
 
@@ -121,7 +122,7 @@ public class Superstructure extends SubsystemBase {
         // lastFPGATimestamp = Logger.getInstance().getRealTimestamp()/1.0E6;
 
         // /* On loops */
-        // elevatorArmLowLevel.onLoop();
+        elevatorArmLowLevel.onLoop();
         endEffector.onLoop();
         floorIntake.onLoop();
 
@@ -189,13 +190,13 @@ public class Superstructure extends SubsystemBase {
             endEffector.intakeCube();
             floorIntake.requestClosedLoop(0.7, 148.0 + floorIntakePressure.get() * 20.0);
 
-            if (endEffector.getStatorCurrent() > 14.0 && !currentTriggerTimerStarted) {
+            if (endEffector.getStatorCurrent() > INTAKE_CUBE_CURR_LIMIT && !currentTriggerTimerStarted) {
                 currentTriggerTimerStarted = true;
                 currentTriggerTimer.reset();
                 currentTriggerTimer.start();
             } 
 
-            if (endEffector.getStatorCurrent() < 14.0) {
+            if (endEffector.getStatorCurrent() < INTAKE_CUBE_CURR_LIMIT) {
                 currentTriggerTimer.reset();
                 currentTriggerTimer.stop();
                 currentTriggerTimerStarted = false;
@@ -221,7 +222,7 @@ public class Superstructure extends SubsystemBase {
                 nextSystemState = SuperstructureState.PRE_HOME;
             } else if (!requestHPIntakeCone) {
                 nextSystemState = SuperstructureState.IDLE;
-            } else if (endEffector.getStatorCurrent() > 20.0) {
+            } else if (endEffector.getStatorCurrent() > INTAKE_CONE_CURR_LIMIT) {
                 requestHPIntakeCone = false;
                 nextSystemState = SuperstructureState.IDLE;
             }
@@ -404,13 +405,13 @@ public class Superstructure extends SubsystemBase {
             }
             endEffector.intakeCone();
 
-            if (endEffector.getStatorCurrent() > 28.0 && !currentTriggerTimerStarted) {
+            if (endEffector.getStatorCurrent() > INTAKE_CONE_CURR_LIMIT && !currentTriggerTimerStarted) {
                 currentTriggerTimerStarted = true;
                 currentTriggerTimer.reset();
                 currentTriggerTimer.start();
             } 
 
-            if (endEffector.getStatorCurrent() < 28.0) {
+            if (endEffector.getStatorCurrent() < INTAKE_CONE_CURR_LIMIT) {
                 currentTriggerTimer.reset();
                 currentTriggerTimer.stop();
                 currentTriggerTimerStarted = false;
@@ -419,7 +420,7 @@ public class Superstructure extends SubsystemBase {
             // Transitions
             if (!requestFloorIntakeCone) {
                 nextSystemState = SuperstructureState.IDLE;
-            } else if (currentTriggerTimer.get() > 0.5) {
+            } else if (currentTriggerTimer.get() > 0.25) {
                 nextSystemState = SuperstructureState.IDLE;
                 requestFloorIntakeCone = false;
             }
