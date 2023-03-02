@@ -6,113 +6,54 @@ import edu.wpi.first.wpilibj.GenericHID;
 import frc.robot.subsystems.Superstructure.Level;
 
 public class OperatorControls {
-    public enum Grid {
-        LEFT,
-        COOP,
-        RIGHT
+
+  private Level lastSelectedLevel = Level.HIGH;
+  private int lastSelectedScoringLocation = 1;
+  private GenericHID controller;
+
+  public OperatorControls(GenericHID controller) {
+    this.controller = controller;
+  }
+
+  public void updateSelection() {
+    if (controller.getRawButton(1)) {
+      lastSelectedLevel = Level.HIGH;
+    } else if (controller.getRawButton(2)) {
+      lastSelectedLevel = Level.MID;
+    } else if (controller.getRawButton(3)) {
+      lastSelectedLevel = Level.LOW;
     }
 
-    public enum Column {
-        LEFT,
-        MID,
-        RIGHT
+    if (controller.getRawButton(4)) {
+      lastSelectedScoringLocation = 1;
+    } else if (controller.getRawButton(5)) {
+      lastSelectedScoringLocation = 2;
+    } else if (controller.getRawButton(6)) {
+      lastSelectedScoringLocation = 3;
+    } else if (controller.getRawButton(7)) {
+      lastSelectedScoringLocation = 4;
+    } else if (controller.getRawButton(8)) {
+      lastSelectedScoringLocation = 5;
+    } else if (controller.getRawButton(9)) {
+      lastSelectedScoringLocation = 6;
+    } else if (controller.getRawButtonPressed(10)) {
+      lastSelectedScoringLocation = 7;
+    } else if (controller.getRawButtonPressed(11)) {
+      lastSelectedScoringLocation = 8;
+    } else if (controller.getRawButtonPressed(12)) {
+      lastSelectedScoringLocation = 9;
     }
 
-    public enum Substation {
-        LEFT_DOUBLE,
-        RIGHT_DOUBLE,
-        SINGLE
-    }
+    Logger.getInstance().recordOutput("OperatorControls/lastSelectedScoringLocation", lastSelectedScoringLocation);
+    Logger.getInstance().recordOutput("OperatorControls/lastSelectedLevel", lastSelectedLevel.name());
 
-    private Column lastSelectedColumn = Column.LEFT;
-    private Grid lastSelectedGrid = Grid.LEFT;
-    private Level lastSelectedLevel = Level.HIGH;
-    private Substation lastSelectedSubstation = Substation.LEFT_DOUBLE;
-    private GenericHID controller;
+  }
 
-    public OperatorControls(GenericHID controller) {
-        this.controller = controller;
-    }
+  public int getLastSelectedScoringLocation() {
+    return lastSelectedScoringLocation;
+  }
 
-    public void updateSelection() {
-        if (controller.getRawButtonPressed(1) ) {
-            lastSelectedColumn = Column.LEFT;
-            lastSelectedLevel = Level.HIGH;
-          }
-    
-          if (controller.getRawButtonPressed(2) ) {
-            lastSelectedColumn = Column.MID;
-            lastSelectedLevel = Level.HIGH;
-          }
-    
-          if (controller.getRawButtonPressed(3) ) {
-            lastSelectedColumn = Column.RIGHT;
-            lastSelectedLevel = Level.HIGH;
-          }
-    
-          if (controller.getRawButtonPressed(4) ) {
-            lastSelectedColumn = Column.LEFT;
-            lastSelectedLevel = Level.MID;
-          }
-
-          if (controller.getRawButtonPressed(5) ) {
-            lastSelectedColumn = Column.MID;
-            lastSelectedLevel = Level.MID;
-          }
-    
-          if (controller.getRawButtonPressed(6) ) {
-            lastSelectedColumn = Column.RIGHT;
-            lastSelectedLevel = Level.MID;
-          }
-    
-          if (controller.getRawButtonPressed(7) ) {
-            lastSelectedColumn = Column.LEFT;
-            lastSelectedLevel = Level.LOW;
-          }
-    
-          if (controller.getRawButtonPressed(8) ) {
-            lastSelectedColumn = Column.MID;
-            lastSelectedLevel = Level.LOW;
-          }
-          
-          if (controller.getRawButtonPressed(9) ) {
-            lastSelectedColumn = Column.RIGHT;
-            lastSelectedLevel = Level.LOW;
-          }
-    
-          if (controller.getRawButtonPressed(10) ) {
-            lastSelectedGrid = Grid.LEFT;
-          }
-          
-          if (controller.getRawButtonPressed(11) ) {
-            lastSelectedGrid = Grid.COOP;
-          }
-
-          if (controller.getRawButtonPressed(12) ) {
-            lastSelectedGrid = Grid.RIGHT;
-          }
-          
-
-          Logger.getInstance().recordOutput("OperatorControls/lastSelectedGrid", lastSelectedGrid.name());
-          Logger.getInstance().recordOutput("OperatorControls/lastSelectedColumn", lastSelectedColumn.name());
-          Logger.getInstance().recordOutput("OperatorControls/lastSelectedLevel", lastSelectedLevel.name());
-          Logger.getInstance().recordOutput("OperatorControls/lastSelectedSubstation", lastSelectedSubstation.name());
-
-    }
-
-    public Column getLastSelectedColumn() {
-        return lastSelectedColumn;
-    }
-
-    public Grid getLastSelecteGrid() {
-        return lastSelectedGrid;
-    }
-
-    public Level getLastSelectedLevel() {
-        return lastSelectedLevel;
-    }
-
-    public Substation getLastSeleSubstation() {
-        return lastSelectedSubstation;
-    }
+  public Level getLastSelectedLevel() {
+    return lastSelectedLevel;
+  }
 }

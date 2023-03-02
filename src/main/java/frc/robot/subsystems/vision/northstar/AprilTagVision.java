@@ -32,7 +32,7 @@ import org.littletonrobotics.junction.Logger;
 public class AprilTagVision extends SubsystemBase {
         private static final double ambiguityThreshold = 0.15;
         private static final double targetLogTimeSecs = 0.1;
-        private static final double stdDevConst = 2.0;
+        public static  double mStdDevScalar = 2.0;
         private static final Pose3d[] cameraPoses;
         private static final PolynomialRegression xyStdDevModel;
         private static final PolynomialRegression thetaStdDevModel;
@@ -50,7 +50,11 @@ public class AprilTagVision extends SubsystemBase {
                                 new Pose3d(-0.245, 0.33, 0.345,
                                                 new Rotation3d(3.031, 0.049, 0.593)),
                                 new Pose3d(-0.245, -0.33, 0.345,
-                                                new Rotation3d(-0.055, -0.03, -0.541))
+                                                new Rotation3d(-0.055, -0.03, -0.541)),
+                                new Pose3d(
+                                        Units.inchesToMeters(8.640), Units.inchesToMeters(-5.163), Units.inchesToMeters(12.209),
+                                                new Rotation3d(Units.degreesToRadians(0.0), Units.degreesToRadians(-25.0), Units.degreesToRadians(0.0))
+                                )
 
                 };
                 xyStdDevModel = new PolynomialRegression(
@@ -216,8 +220,8 @@ public class AprilTagVision extends SubsystemBase {
 
                                         // Add to vision updates
                                         double tagDistance = tagPose.getTranslation().getNorm();
-                                        double xyStdDev = xyStdDevModel.predict(tagDistance) * stdDevConst;
-                                        double thetaStdDev = thetaStdDevModel.predict(tagDistance) * stdDevConst;
+                                        double xyStdDev = xyStdDevModel.predict(tagDistance) * mStdDevScalar;
+                                        double thetaStdDev = thetaStdDevModel.predict(tagDistance) * mStdDevScalar;
                                         visionUpdates.add(
                                                         new TimestampedVisionUpdate(
                                                                         timestamp, robotPose, VecBuilder.fill(xyStdDev,

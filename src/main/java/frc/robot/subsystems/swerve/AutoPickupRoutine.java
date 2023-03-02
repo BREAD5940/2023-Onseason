@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.FieldConstants.LoadingZone;
 import frc.robot.autonomous.Trajectories;
+import frc.robot.commons.AllianceFlipUtil;
 import frc.robot.commons.BreadHolonomicDriveController;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.endeffector.EndEffector;
@@ -33,6 +34,7 @@ public class AutoPickupRoutine extends CommandBase {
 
     private Trajectory trajectory;
     private final BiFunction<Pose2d, Double, Rotation2d> refHeading;
+    private boolean deployedElevator = false;
     private final Supplier<Pose2d> endPosition;
     private final Swerve swerve;
     private final Superstructure superstructure;
@@ -55,34 +57,25 @@ public class AutoPickupRoutine extends CommandBase {
 
     @Override
     public void initialize() {
+        RobotContainer.northstarVision.mStdDevScalar = 0.5;
         failedToCreateTrajectory = false;
         deployed = false;
+        deployedElevator = false;
         try {
             timer.reset();
             timer.start();
-            // Rotation2d currentHeading;
-            // if (swerve.getVelocity().getNorm() < 0.2) {
-            //     if (swerve.getPose().getTranslation().getX() < endPosition.get().getX() - Units.feetToMeters(10.0)) {
-            //         currentHeading = new Translation2d(endPosition.get().getX() - Units.feetToMeters(5.0), endPosition.get().getY()).minus(swerve.getPose().getTranslation()).getAngle();
-            //     } else {
-            //         currentHeading = Rotation2d.fromDegrees(0.0);
-            //     }
-            // } else {
-            //     System.out.println("Adjusting path by swerve velocity!\n\n\n\n");
-            //     currentHeading = swerve.getVelocity().rotateBy(swerve.getRotation2d().rotateBy(Rotation2d.fromDegrees(180.0))).getAngle();
-            // }                
-            Rotation2d currentHeading = new Rotation2d();
+            Pose2d start = AllianceFlipUtil.apply(new Pose2d(RobotContainer.poseEstimator.getLatestPose().getTranslation(), new Rotation2d()));        
+            Pose2d end = AllianceFlipUtil.apply(new Pose2d(endPosition.get().getX(), endPosition.get().getY(), endPosition.get().getRotation()));            
+    
             trajectory = Trajectories.generateTrajectory(false, List.of(
-                new Pose2d(RobotContainer.poseEstimator.getLatestPose().getTranslation(), currentHeading),
-                // new Pose2d(endPosition.get().getX() - Units.feetToMeters(4-.0), endPosition.get().getY(), endPosition.get().getRotation()),
-                new Pose2d(endPosition.get().getX(), endPosition.get().getY(), endPosition.get().getRotation())
+                start, 
+                end
             ), 1.5, 1.0, swerve.getVelocity().getNorm(), 0.0);
             Logger.getInstance().recordOutput("OnTheFlyTrajectoryGeneration", trajectory);
         } catch (Exception e) {
             System.out.println("Failed to create on-the-fly trajectory!");
             failedToCreateTrajectory = true;
         }
-        superstructure.requestIntakeConeDoubleSubstation();
     }
 
     @Override
@@ -96,7 +89,12 @@ public class AutoPickupRoutine extends CommandBase {
         Logger.getInstance().recordOutput("TrajectoryYError", autonomusController.m_poseError.getY());
         Logger.getInstance().recordOutput("TrajectoryThetaError", autonomusController.m_poseError.getRotation().getDegrees());
         System.out.printf("%f.2 %f.2 %f.2\n", adjustedSpeeds.vxMetersPerSecond, adjustedSpeeds.vyMetersPerSecond, adjustedSpeeds.omegaRadiansPerSecond);
-        swerve.requestVelocity(adjustedSpeeds, false);
+        swerve.requestVelocity(adjustedSpeeds, false, false);
+
+        if (trajectory.getTotalTimeSeconds() - timer.get() <= 2.5 && !deployedElevator) {
+            deployedElevator = true;
+            superstructure.requestIntakeConeDoubleSubstation();
+        }
     }
 
     @Override
@@ -106,7 +104,8 @@ public class AutoPickupRoutine extends CommandBase {
 
     @Override
     public void end(boolean interrupted) { 
-        swerve.requestVelocity(new ChassisSpeeds(0, 0, 0), false);
+        RobotContainer.northstarVision.mStdDevScalar = 2.0;
+        swerve.requestVelocity(new ChassisSpeeds(0, 0, 0), false, false);
     }
     
 }

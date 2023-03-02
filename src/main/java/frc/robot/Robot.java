@@ -12,24 +12,17 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.PathPoint;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commons.TunableNumber;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
-import frc.robot.subsystems.Superstructure.SuperstructureState;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -113,44 +106,8 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
-    if (RobotContainer.keyboard.getRawButton(1)) {
-      scoringSquare = 0;
-    } else if (RobotContainer.keyboard.getRawButton(2)) {
-      scoringSquare = 1;
-    } else if (RobotContainer.keyboard.getRawButton(3)) {
-      scoringSquare = 2;
-    }
-
-    if (RobotContainer.keyboard.getRawButton(4)) {
-      scoringSpot = 0;
-      scoringLevel = Level.HIGH;
-    } else if (RobotContainer.keyboard.getRawButton(5)) {
-      scoringSpot = 1;
-      scoringLevel = Level.HIGH;
-    } else if (RobotContainer.keyboard.getRawButton(6)) {
-      scoringSpot = 2;
-      scoringLevel = Level.HIGH;
-    } else if (RobotContainer.keyboard.getRawButton(7)) {
-      scoringSpot = 0;
-      scoringLevel = Level.MID;
-    } else if (RobotContainer.keyboard.getRawButton(8)) {
-      scoringSpot = 1;
-      scoringLevel = Level.MID;
-    } else if (RobotContainer.keyboard.getRawButton(9)) {
-      scoringSpot = 2;
-      scoringLevel = Level.MID;
-    } else if (RobotContainer.keyboard.getRawButtonPressed(10)) {
-      RobotContainer.superstructure.requestIdle();
-    } else if (RobotContainer.keyboard.getRawButtonPressed(11)) {
-      RobotContainer.superstructure.requestFloorIntakeCube(() -> 0.0);
-    } else if (RobotContainer.keyboard.getRawButtonPressed(12)) {
-      RobotContainer.superstructure.requestFloorIntakeCone();
-    }
-
-    Logger.getInstance().recordOutput("Scoring Square", scoringSquare);
-    Logger.getInstance().recordOutput("Scoring Spot", scoringSpot);
-    Logger.getInstance().recordOutput("Scoring Level", scoringLevel.toString());
     Logger.getInstance().recordOutput("Alliance Color", alliance.toString());
+    RobotContainer.operatorControls.updateSelection();
   }
 
   @Override
@@ -212,7 +169,7 @@ public class Robot extends LoggedRobot {
       RobotContainer.superstructure.requestIdle();
     }
 
-    if (RobotContainer.operator.getRightBumperPressed()) {
+    if (RobotContainer.driver.getRightBumperPressed()) {
       RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
     }
 

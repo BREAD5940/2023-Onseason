@@ -29,7 +29,7 @@ public class PoseEstimator {
     private Pose2d basePose = new Pose2d();
     private Pose2d latestPose = new Pose2d();
     private final NavigableMap<Double, PoseUpdate> updates = new TreeMap<>();
-    private final Matrix<N3, N1> q = new Matrix<>(Nat.N3(), Nat.N1());
+    private Matrix<N3, N1> q = new Matrix<>(Nat.N3(), Nat.N1());
 
     public PoseEstimator(Matrix<N3, N1> stateStdDevs) {
         for (int i = 0; i < 3; ++i) {
@@ -47,6 +47,11 @@ public class PoseEstimator {
         basePose = pose;
         updates.clear();
         update();
+    }
+
+    /** Sets the standard deviations of the model */
+    public void setModelStateStdDevs(Matrix<N3, N1> modelStateStdDevs) {
+        q = modelStateStdDevs;
     }
 
     /** Records a new drive movement. */
