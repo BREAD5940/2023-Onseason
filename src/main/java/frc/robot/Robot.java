@@ -157,10 +157,10 @@ public class Robot extends LoggedRobot {
 
     if (RobotContainer.driver.getRightTriggerAxis() > 0.05 && !intakeTriggered) {
       Supplier<Double> pressure = () -> {
-        if (RobotContainer.driver.getRightTriggerAxis() < 0.95) {
-          return 0.0;
-        } else {
+        if (RobotContainer.driver.getRightStickButton() && RobotContainer.driver.getRightTriggerAxis() > 0.95 ) {
           return (RobotContainer.driver.getRightTriggerAxis() - 0.95) * (1.0 / 0.05);
+        } else {
+          return 0.0;
         }
       };
       RobotContainer.superstructure.requestFloorIntakeCube(pressure);
@@ -196,10 +196,10 @@ public class Robot extends LoggedRobot {
       RobotContainer.superstructure.requestScore();
     }
 
-    if (RobotContainer.operator.getLeftStickButtonPressed()) {
-      RobotContainer.superstructure.requestIdle();
-      coneIntakeTriggered = false;
-    }
+    // if (RobotContainer.driver.getRightStickButtonPressed()) {
+    //   RobotContainer.superstructure.requestIdle();
+    //   coneIntakeTriggered = false;
+    // }
 
     if (RobotContainer.operator.getRightTriggerAxis() > 0.1) {
       RobotContainer.climberIO.setPercent(1.0);

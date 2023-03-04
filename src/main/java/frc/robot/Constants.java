@@ -169,7 +169,7 @@ public final class Constants {
         public static final double ARM_SETPOINT_TOLERANCE = 3.0;
         public static final double ARM_NULL_RANGE = 310.0; // To 360 degrees
 
-        public static final double ARM_PRE_SCORE_CUBE = 182.88867;
+        public static final double ARM_PRE_SCORE_CUBE = 172.88867;
         public static final double ARM_PRE_SCORE_CONE = 118.076;
         public static final double ARM_SLAM_CONE = 187.3828;
         public static final double ARM_PRE_SCORE_LOW = 230.0;
