@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
+import frc.robot.commons.LoggedTunableNumber;
 
 import static frc.robot.Constants.FloorIntake.*;
 import static frc.robot.Constants.Electrical.*;
@@ -22,6 +23,12 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
     private double mCurrentLimit = 0.0;
     private double mCurrentLimitTriggerThreshhold = 0.0;
     private double mcurrentLimitThresholdTime = 0.0;
+    
+    LoggedTunableNumber kP = new LoggedTunableNumber("Elevator/kP", FLOOR_INTAKE_KP);
+    LoggedTunableNumber kD = new LoggedTunableNumber("Elevator/kD", FLOOR_INTAKE_KD);
+    LoggedTunableNumber kF = new LoggedTunableNumber("Elevator/kF", FLOOR_INTAKE_KF);
+    LoggedTunableNumber kMaxVelocity = new LoggedTunableNumber("Elevator/kMaxVelocity", 2.1); 
+    LoggedTunableNumber kMaxAccel = new LoggedTunableNumber("Elevator/kMaxAccel", 6.0); 
 
     public FloorIntakeIOTalonFX() {
         /* configurations for the leader motor */
@@ -34,8 +41,8 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
         deployConfig.slot1.kI = degreesPerSecondToIntegratedSensorUnits(0.0);
         deployConfig.slot1.kD = degreesPerSecondToIntegratedSensorUnits(0.0);
         deployConfig.slot1.kF = 1023.0/degreesPerSecondToIntegratedSensorUnits(DEPLOY_MAX_SPEED) * 1.36 * 50.0/55.8;
-        deployConfig.motionCruiseVelocity = degreesPerSecondToIntegratedSensorUnits(200.0);
-        deployConfig.motionAcceleration = degreesPerSecondToIntegratedSensorUnits(400.0);
+        deployConfig.motionCruiseVelocity = degreesPerSecondToIntegratedSensorUnits(360.0);
+        deployConfig.motionAcceleration = degreesPerSecondToIntegratedSensorUnits(1000.0);
         deployConfig.voltageCompSaturation = 10.5;
         deployConfig.statorCurrLimit = new StatorCurrentLimitConfiguration(true, 30.0, 40.0, 1.5);
         deployConfig.neutralDeadband = 0.001;
@@ -108,7 +115,7 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
 
     @Override
     public void resetDeployAngle(double newAngle) {
-        deploy.setSelectedSensorPosition(degreesPerSecondToIntegratedSensorUnits(newAngle));
+        deploy.setSelectedSensorPosition(degreesToIntegratedSensorUnits(newAngle));
     }
 
     @Override

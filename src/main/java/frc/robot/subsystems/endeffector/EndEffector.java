@@ -2,7 +2,7 @@ package frc.robot.subsystems.endeffector;
 
 import org.littletonrobotics.junction.Logger;
 
-import frc.robot.commons.TunableNumber;
+import frc.robot.commons.LoggedTunableNumber;
 
 public class EndEffector {
 
@@ -11,10 +11,10 @@ public class EndEffector {
     private EndEffectorIOInputsAutoLogged endEffectorInputs = new EndEffectorIOInputsAutoLogged();
     
     /* Tunable numbers */
-    TunableNumber intakeConePercent = new TunableNumber("EndEffector/IntakeConePercent", 1.0);
-    TunableNumber intakeCubePercent = new TunableNumber("EndEffector/IntakeCubePercent", 0.9);
-    TunableNumber holdingPercent = new TunableNumber("EndEffector/HoldingPercent", 0.1);
-    TunableNumber spitCubePercent = new TunableNumber("EndEffector/SpitCubePercent", -1.0);
+    LoggedTunableNumber intakeConePercent = new LoggedTunableNumber("EndEffector/IntakeConePercent", 1.0);
+    LoggedTunableNumber intakeCubePercent = new LoggedTunableNumber("EndEffector/IntakeCubePercent", 0.9);
+    LoggedTunableNumber holdingPercent = new LoggedTunableNumber("EndEffector/HoldingPercent", 0.1);
+    LoggedTunableNumber spitCubePercent = new LoggedTunableNumber("EndEffector/SpitCubePercent", -1.0);
 
 
     /* Instantiate the IO instance in the constructor */
@@ -32,7 +32,7 @@ public class EndEffector {
     /* For intaking cones */
     public void intakeCone() {
         endEffectorIO.setPercent(intakeConePercent.get());
-        endEffectorIO.setCurrentLimit( 100, 120.0);
+        endEffectorIO.setCurrentLimit( 120, 150.0);
     }
 
     /* For intaking cubes */

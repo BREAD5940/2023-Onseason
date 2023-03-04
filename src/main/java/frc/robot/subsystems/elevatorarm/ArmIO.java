@@ -11,6 +11,7 @@ public interface ArmIO {
         public double velDegreesPerSecondCC = 0.0;
         public double currentAmps = 0.0;
         public double appliedVoltage = 0.0;
+        public double appliedPercent = 0.0;
         public double tempCelcius = 0.0;
         public double armTargetPosition = 0.0;
         public double armTargetVelocity = 0.0;
@@ -30,5 +31,8 @@ public interface ArmIO {
 
     /** Enables or disables the wrist in brake mode  */
     public default void enableBrakeMode(boolean enable) {}
+
+    /** Updates tunable numbers */
+    public default void updateTunableNumbers() {}
     
 }

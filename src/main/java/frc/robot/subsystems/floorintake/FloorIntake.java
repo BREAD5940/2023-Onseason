@@ -3,7 +3,9 @@ package frc.robot.subsystems.floorintake;
 import org.littletonrobotics.junction.Logger;
 
 import frc.robot.commons.BreadUtil;
-import frc.robot.commons.TunableNumber;
+import frc.robot.commons.LoggedTunableNumber;
+
+import static frc.robot.Constants.FloorIntake.*;
 
 public class FloorIntake {
 
@@ -58,7 +60,7 @@ public class FloorIntake {
 
             // Transitions
             if (BreadUtil.getFPGATimeSeconds() - mStateStartTime > 0.25 && Math.abs(floorIntakeInputs.deployVelDegreesPerSecond) < 10.0) {
-                floorIntakeIO.resetDeployAngle(0.0);
+                floorIntakeIO.resetDeployAngle(FLOOR_INTAKE_ZERO);
                 nextSystemState = FloorIntakeStates.IDLE;
                 requestHome = false;
             }
@@ -78,7 +80,7 @@ public class FloorIntake {
             // Outputs
             floorIntakeIO.setRollerPercent(closedLoopSetpoint[0]);
             floorIntakeIO.setDeployAngle(closedLoopSetpoint[1]);
-            floorIntakeIO.setCurrentLimit(30.0, 40.0, 0.0);
+            floorIntakeIO.setCurrentLimit(50.0, 60.0, 1.5);
 
             // Transitions
             if (requestHome) {

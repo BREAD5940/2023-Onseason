@@ -1,5 +1,6 @@
 package frc.robot.subsystems.elevatorarm;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
@@ -11,7 +12,8 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
-import frc.robot.commons.TunableNumber;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import frc.robot.commons.LoggedTunableNumber;
 
 import static frc.robot.Constants.Arm.*;
 import static frc.robot.Constants.Electrical.*;
@@ -21,17 +23,16 @@ public class ArmIOTalonFX implements ArmIO {
     TalonFX arm = new TalonFX(ARM_ID);
     CANCoder armAzimuth = new CANCoder(ARM_AZIMUTH_ID);
 
-    TunableNumber kP = new TunableNumber("Arm/kP", ARM_KP);
-    TunableNumber kI = new TunableNumber("Arm/kI", ARM_KI);
-    TunableNumber kD = new TunableNumber("Arm/kD", ARM_KD);
-    TunableNumber kF = new TunableNumber("Arm/kF", ARM_KF);
-    TunableNumber kG = new TunableNumber("Arm/kG", ARM_KG);
+    double lastVelocityTarget = 0.0;
 
+    public static void main(String[] args) {        
+        
+    }
 
     public ArmIOTalonFX() {
         /* configurations for the arm encoder */
         armAzimuth = new CANCoder(ARM_AZIMUTH_ID);
-        armAzimuth.configSensorDirection(false);
+        armAzimuth.configSensorDirection(ARM_AZIMUTH_INVERTED);
         armAzimuth.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
         armAzimuth.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
 
@@ -55,6 +56,7 @@ public class ArmIOTalonFX implements ArmIO {
         arm.enableVoltageCompensation(true);
         arm.setStatusFramePeriod(StatusFrame.Status_1_General, 10);
         arm.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 10);
+        arm.setStatusFramePeriod(StatusFrame.Status_10_MotionMagic, 10);
         arm.set(ControlMode.PercentOutput, 0.0);
         arm.configAllSettings(armConfig);
         arm.setSelectedSensorPosition(0.0);
@@ -62,19 +64,29 @@ public class ArmIOTalonFX implements ArmIO {
 
     @Override
     public void updateInputs(ArmIOInputs inputs) {
-        inputs.angleDegrees = CANCoderSensorUnitsToDegrees(arm.getSelectedSensorPosition());
+        inputs.angleDegrees = getAngle();
         inputs.velDegreesPerSecond = CANCoderSensorUnitsToDegreesPerSecond(arm.getSelectedSensorVelocity());
         inputs.angleDegreesCC = armAzimuth.getPosition();
         inputs.velDegreesPerSecondCC = armAzimuth.getVelocity();
         inputs.currentAmps = arm.getStatorCurrent();
         inputs.appliedVoltage = arm.getMotorOutputVoltage();
+        inputs.appliedPercent = arm.getMotorOutputPercent();
         inputs.tempCelcius = arm.getTemperature();
         inputs.armTargetPosition = CANCoderSensorUnitsToDegrees(arm.getActiveTrajectoryPosition());
-        inputs.armTargetPosition = CANCoderSensorUnitsToDegreesPerSecond(arm.getActiveTrajectoryVelocity());
+        inputs.armTargetVelocity = CANCoderSensorUnitsToDegreesPerSecond(arm.getActiveTrajectoryVelocity());
     }
 
     @Override
     public void setAngle(double angleDegrees) {
+        // double currentVelocityTarget = CANCoderSensorUnitsToDegreesPerSecond(arm.getActiveTrajectoryVelocity());
+        // double armKA = 0.0;
+        // if (currentVelocityTarget > lastVelocityTarget) {
+        //     armKA = kMotionAcceleration.get() * kA.get();
+        // } else if (currentVelocityTarget < lastVelocityTarget) {
+        //     armKA = kMotionAcceleration.get() * -kA.get();
+        // } 
+        // lastVelocityTarget = currentVelocityTarget;
+        // double armKG = Math.cos(getAngle()) * kG.get();
         arm.set(ControlMode.MotionMagic, degreesToCANCoderSensorUnits(angleDegrees));
     }
 
@@ -103,20 +115,27 @@ public class ArmIOTalonFX implements ArmIO {
         arm.setNeutralMode(enable ? NeutralMode.Brake : NeutralMode.Coast);
     }
 
-    private double CANCoderSensorUnitsToDegrees(double sensorUnits) {
+    @Override
+    public void updateTunableNumbers() { }
+
+    private static double CANCoderSensorUnitsToDegrees(double sensorUnits) {
         return sensorUnits * (360.0) / 4096.0;
     }
 
-    private double degreesToCANCoderSensorUnits(double degrees) {
+    private static double degreesToCANCoderSensorUnits(double degrees) {
         return degrees * 4096.0 / (360.0);
     }
 
-    private double CANCoderSensorUnitsToDegreesPerSecond(double sensorUnits) {
+    private static double CANCoderSensorUnitsToDegreesPerSecond(double sensorUnits) {
         return sensorUnits * ((360.0 * 10.0)/4096.0);
     }
 
-    private double degreesPerSecondToCANCoderSensorUnits(double degrees) {
+    private static double degreesPerSecondToCANCoderSensorUnits(double degrees) {
         return degrees * (4096.0/(360.0 * 10.0));
+    }
+
+    private double getAngle() {
+        return CANCoderSensorUnitsToDegrees(arm.getSelectedSensorPosition());
     }
 
 }

@@ -8,13 +8,13 @@ import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
-import frc.robot.commons.TunableNumber;
+import frc.robot.commons.LoggedTunableNumber;
 
 import static frc.robot.Constants.Climber.*;
 
 public class ClimberIOTalonFX implements ClimberIO {
 
-    TunableNumber climbingFF = new TunableNumber("ClimbingFF", CLIMBING_FF);
+    LoggedTunableNumber climbingFF = new LoggedTunableNumber("ClimbingFF", CLIMBING_FF);
     
     /** Instantiate the hardware */
     private TalonFX climber = new TalonFX(CLIMBER_ID, "dabus");

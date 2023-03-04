@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.commons.AllianceFlipUtil;
-import frc.robot.commons.TunableNumber;
+import frc.robot.commons.LoggedTunableNumber;
 import frc.robot.commons.LimelightHelpers.LimelightTarget_Retro;
 import frc.robot.commons.PoseEstimator.TimestampedVisionUpdate;
 import frc.robot.subsystems.Superstructure;

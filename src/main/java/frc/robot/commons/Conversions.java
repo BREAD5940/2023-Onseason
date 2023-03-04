@@ -35,4 +35,28 @@ public class Conversions {
         return wheelVelocity;
     }
 
+    public static double CANCoderSensorUnitsToDegrees(double sensorUnits, double gearRatio) {
+        return sensorUnits * (360.0) / 4096.0;
+    }
+
+    public static double degreesToCANCoderSensorUnits(double degrees, double gearRatio) {
+        return degrees * 4096.0 / (360.0);
+    }
+
+    public static double CANCoderSensorUnitsToDegreesPerSecond(double sensorUnits, double gearRatio) {
+        return sensorUnits * ((360.0 * 10.0)/4096.0);
+    }
+
+    public static double degreesPerSecondToCANCoderSensorUnits(double degrees, double gearRatio) {
+        return degrees * (4096.0/(360.0 * 10.0));
+    }
+
+    public static double percentOutputPerDegreeToCANCoderKP(double percentOutputPerDegree, double gearRatio) {
+        return percentOutputPerDegree * 360.0/4096.0 * 1023.0;
+    }
+
+    // public static double percentOutputPerDegreePerSecondToCANCoderKD(double percentOutputPerDegreePerSecond, double gearRatio) {
+    //     return percentOutputPerDegreePerSecond *
+    // }
+
 }

@@ -6,6 +6,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch ArmIOTalonFX",
+      "request": "launch",
+      "mainClass": "frc.robot.subsystems.elevatorarm.ArmIOTalonFX",
+      "projectName": "2023-Beta"
+    },
+    {
+      "type": "java",
       "name": "Launch ThreePieceMode",
       "request": "launch",
       "mainClass": "frc.robot.autonomous.modes.ThreePieceMode",

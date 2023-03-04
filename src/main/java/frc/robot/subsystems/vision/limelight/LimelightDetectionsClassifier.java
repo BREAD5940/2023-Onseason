@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.commons.BreadUtil;
 import frc.robot.commons.LimelightHelpers;
-import frc.robot.commons.TunableNumber;
+import frc.robot.commons.LoggedTunableNumber;
 import frc.robot.commons.LimelightHelpers.LimelightResults;
 import frc.robot.commons.LimelightHelpers.LimelightTarget_Retro;
 
@@ -28,7 +28,7 @@ public class LimelightDetectionsClassifier extends SubsystemBase {
     private LimelightTarget_Retro[] rawDetections;
     private double timestamp;
 
-    TunableNumber latency = new TunableNumber("Latency", 11);
+    LoggedTunableNumber latency = new LoggedTunableNumber("Latency", 11);
 
     public LimelightDetectionsClassifier(String cameraName) {
         this.cameraName = cameraName;
@@ -67,17 +67,17 @@ public class LimelightDetectionsClassifier extends SubsystemBase {
 
     @Override
     public void periodic() {
-        LimelightResults results = LimelightHelpers.getLatestResults(cameraName);
-        rawDetections = results.targetingResults.targets_Retro;
+        // LimelightResults results = LimelightHelpers.getLatestResults(cameraName);
+        // rawDetections = results.targetingResults.targets_Retro;
 
-        timestamp = BreadUtil.getFPGATimeSeconds() - Units.millisecondsToSeconds(LimelightHelpers.getLatency_Pipeline(cameraName) + latency.get());
+        // timestamp = BreadUtil.getFPGATimeSeconds() - Units.millisecondsToSeconds(LimelightHelpers.getLatency_Pipeline(cameraName) + latency.get());
 
-        ArrayList<Pose3d> poses = getTargets(true);
-        for (int i = 0; i < poses.size(); i++) {
-            Logger.getInstance().recordOutput("LimelightPoses/" + i, poses.get(i));
-        }
+        // ArrayList<Pose3d> poses = getTargets(true);
+        // for (int i = 0; i < poses.size(); i++) {
+        //     Logger.getInstance().recordOutput("LimelightPoses/" + i, poses.get(i));
+        // }
 
-        Logger.getInstance().recordOutput("VisionAdjustedTimestamp", timestamp);
+        // Logger.getInstance().recordOutput("VisionAdjustedTimestamp", timestamp);
     }
 
     private static double getXYDistanceToTarget(LimelightTarget_Retro detection, double targetHeightOffGround) {

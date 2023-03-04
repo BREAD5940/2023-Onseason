@@ -8,6 +8,7 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.MathUtil;
 import frc.robot.RobotContainer;
 import frc.robot.commons.BreadUtil;
+import frc.robot.commons.LoggedTunableNumber;
 
 public class ElevatorArmLowLevel {
 
@@ -27,6 +28,9 @@ public class ElevatorArmLowLevel {
 
     public ArmIOInputsAutoLogged armInputs = new ArmIOInputsAutoLogged();
     public ElevatorIOInputsAutoLogged elevatorInputs = new ElevatorIOInputsAutoLogged();
+
+    LoggedTunableNumber armOutput = new LoggedTunableNumber("Arm/ArmOutput", 0.0);
+    LoggedTunableNumber elevatorOutput = new LoggedTunableNumber("Elevator/ElevatorOutput", 0.0);
     
 
     /** Define variables in constructor */
@@ -52,6 +56,7 @@ public class ElevatorArmLowLevel {
 
         elevatorIO.updateInputs(elevatorInputs);
         elevatorIO.updateTunableNumbers();
+        armIO.updateTunableNumbers();
         armIO.updateInputs(armInputs);
 
         Logger.getInstance().processInputs("Elevator", elevatorInputs);
@@ -82,7 +87,7 @@ public class ElevatorArmLowLevel {
             armIO.setAngle(ARM_NEUTRAL_ANGLE);
 
             if (BreadUtil.getFPGATimeSeconds() - mStateStartTime > 0.25 && Math.abs(elevatorInputs.velMetersPerSecond) < 0.1) {
-                elevatorIO.resetHeight(0.0);
+                elevatorIO.resetHeight(ELEVATOR_HOMING_POSITION);
                 nextSystemState = ElevatorArmSystemStates.IDLE;
                 requestHome = false;
             }

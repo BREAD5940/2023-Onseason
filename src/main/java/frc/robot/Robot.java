@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
+import frc.robot.subsystems.Superstructure.SuperstructureState;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -150,6 +151,8 @@ public class Robot extends LoggedRobot {
     if (RobotContainer.driver.getLeftTriggerAxis() > 0.1 && !coneIntakeTriggered) {
       RobotContainer.superstructure.requestFloorIntakeCone();
       coneIntakeTriggered = true;
+    } else {
+      coneIntakeTriggered = false;
     }
 
     if (RobotContainer.driver.getRightTriggerAxis() > 0.05 && !intakeTriggered) {

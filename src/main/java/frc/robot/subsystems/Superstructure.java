@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.endeffector.EndEffector;
 import frc.robot.commons.BreadUtil;
-import frc.robot.commons.TunableNumber;
+import frc.robot.commons.LoggedTunableNumber;
 import frc.robot.subsystems.elevatorarm.ArmIO;
 import frc.robot.subsystems.elevatorarm.ElevatorArmLowLevel;
 import frc.robot.subsystems.elevatorarm.ElevatorIO;
@@ -54,24 +54,24 @@ public class Superstructure extends SubsystemBase {
     private GamePiece piece = GamePiece.CUBE;
 
     /* Presets */
-    TunableNumber preCubeHighHeight = new TunableNumber("Elevator/PreCubeHighHeight", ELEVATOR_PRE_CUBE_HIGH);
-    TunableNumber preConeHighHeight = new TunableNumber("Elevator/PreConeHighHeight", ELEVATOR_PRE_CONE_HIGH);
-    TunableNumber coneSlamHeight = new TunableNumber("Elevator/ConeSlamHighHeight", ELEVATOR_CONE_SLAM_HIGH);
-    TunableNumber conePulloutHeight = new TunableNumber("Elevator/ConePulloutHighHeight", ELEVATOR_CONE_PULL_OUT_HIGH);
-    TunableNumber cubeOffset = new TunableNumber("Elevator/CubeOffsetHeight", ELEVATOR_CUBE_OFFSET);
-    TunableNumber coneOffset = new TunableNumber("Elevator/ConeOffsetHeight", ELEVATOR_CONE_OFFSET);
-    TunableNumber preLowHeight = new TunableNumber("Elevator/PreLowHeight", ELEVATOR_PRE_LOW);
-    TunableNumber floorIntakeCubeHeight = new TunableNumber("Elevator/FloorIntakeCubeHeight", ELEVATOR_FLOOR_INTAKE_CUBE);
-    TunableNumber doubleSubstationConeHeight = new TunableNumber("Elevator/DoubleSubstationConeHeight", ELEVATOR_DOUBLE_SUBSTATION_CONE);
-    TunableNumber doubleSubstationCubeHeight = new TunableNumber("Elevator/DoubleSubstationCubeHeight", ELEVATOR_DOUBLE_SUBSTATION_CUBE);
+    LoggedTunableNumber preCubeHighHeight = new LoggedTunableNumber("Elevator/PreCubeHighHeight", ELEVATOR_PRE_CUBE_HIGH);
+    LoggedTunableNumber preConeHighHeight = new LoggedTunableNumber("Elevator/PreConeHighHeight", ELEVATOR_PRE_CONE_HIGH);
+    LoggedTunableNumber coneSlamHeight = new LoggedTunableNumber("Elevator/ConeSlamHighHeight", ELEVATOR_CONE_SLAM_HIGH);
+    LoggedTunableNumber conePulloutHeight = new LoggedTunableNumber("Elevator/ConePulloutHighHeight", ELEVATOR_CONE_PULL_OUT_HIGH);
+    LoggedTunableNumber cubeOffset = new LoggedTunableNumber("Elevator/CubeOffsetHeight", ELEVATOR_CUBE_OFFSET);
+    LoggedTunableNumber coneOffset = new LoggedTunableNumber("Elevator/ConeOffsetHeight", ELEVATOR_CONE_OFFSET);
+    LoggedTunableNumber preLowHeight = new LoggedTunableNumber("Elevator/PreLowHeight", ELEVATOR_PRE_LOW);
+    LoggedTunableNumber floorIntakeCubeHeight = new LoggedTunableNumber("Elevator/FloorIntakeCubeHeight", ELEVATOR_FLOOR_INTAKE_CUBE);
+    LoggedTunableNumber doubleSubstationConeHeight = new LoggedTunableNumber("Elevator/DoubleSubstationConeHeight", ELEVATOR_DOUBLE_SUBSTATION_CONE);
+    LoggedTunableNumber doubleSubstationCubeHeight = new LoggedTunableNumber("Elevator/DoubleSubstationCubeHeight", ELEVATOR_DOUBLE_SUBSTATION_CUBE);
 
-    TunableNumber cubeAngle = new TunableNumber("Arm/ArmCubeAngle", ARM_PRE_SCORE_CUBE);
-    TunableNumber coneAngle = new TunableNumber("Arm/ArmConeAngle", ARM_PRE_SCORE_CONE);
-    TunableNumber slamConeAngle = new TunableNumber("Arm/ArmSlamConeAngle", ARM_SLAM_CONE);
-    TunableNumber lowAngle = new TunableNumber("Arm/ArmLowAngle", ARM_PRE_SCORE_LOW);
-    TunableNumber floorIntakeCubeAngle = new TunableNumber("Arm/ArmFloorIntakeCube", ARM_FLOOR_INTAKE_CUBE);
-    TunableNumber doubleSubstationConeAngle = new TunableNumber("Arm/ArmDoubleSubstationConeAngle", ARM_DOUBLE_SUBSTATION_CONE);
-    TunableNumber doubleSubstationCubeAngle = new TunableNumber("Arm/ArmDoubleSubstationCubeAngle", ARM_DOUBLE_SUBSTATION_CUBE);
+    LoggedTunableNumber cubeAngle = new LoggedTunableNumber("Arm/ArmCubeAngle", ARM_PRE_SCORE_CUBE);
+    LoggedTunableNumber coneAngle = new LoggedTunableNumber("Arm/ArmConeAngle", ARM_PRE_SCORE_CONE);
+    LoggedTunableNumber slamConeAngle = new LoggedTunableNumber("Arm/ArmSlamConeAngle", ARM_SLAM_CONE);
+    LoggedTunableNumber lowAngle = new LoggedTunableNumber("Arm/ArmLowAngle", ARM_PRE_SCORE_LOW);
+    LoggedTunableNumber floorIntakeCubeAngle = new LoggedTunableNumber("Arm/ArmFloorIntakeCube", ARM_FLOOR_INTAKE_CUBE);
+    LoggedTunableNumber doubleSubstationConeAngle = new LoggedTunableNumber("Arm/ArmDoubleSubstationConeAngle", ARM_DOUBLE_SUBSTATION_CONE);
+    LoggedTunableNumber doubleSubstationCubeAngle = new LoggedTunableNumber("Arm/ArmDoubleSubstationCubeAngle", ARM_DOUBLE_SUBSTATION_CUBE);
     // TunableNumber floorIntakeOutput = new TunableNumber("FloorIntake/Output", 0.0);
 
     double lastFPGATimestamp = 0.0;
@@ -116,12 +116,12 @@ public class Superstructure extends SubsystemBase {
     @Override
     public void periodic() {
 
-        // /* Logs */
-        // Logger.getInstance().recordOutput("SuperstructureState", systemState.toString());
-        // Logger.getInstance().recordOutput("Superstructure/loopCycleTime", Logger.getInstance().getRealTimestamp()/1.0E6 - lastFPGATimestamp);
-        // lastFPGATimestamp = Logger.getInstance().getRealTimestamp()/1.0E6;
+        /* Logs */
+        Logger.getInstance().recordOutput("SuperstructureState", systemState.toString());
+        Logger.getInstance().recordOutput("Superstructure/loopCycleTime", Logger.getInstance().getRealTimestamp()/1.0E6 - lastFPGATimestamp);
+        lastFPGATimestamp = Logger.getInstance().getRealTimestamp()/1.0E6;
 
-        // /* On loops */
+        /* On loops */
         elevatorArmLowLevel.onLoop();
         endEffector.onLoop();
         floorIntake.onLoop();
@@ -149,7 +149,7 @@ public class Superstructure extends SubsystemBase {
         } else if (systemState == SuperstructureState.HOMING_INTAKE) {
             // Outputs
             endEffector.idling();
-            elevatorArmLowLevel.requestDesiredState(0.1, 90.0);
+            elevatorArmLowLevel.requestDesiredState(0.18, 90.0);
 
 
             // Transitions 
@@ -159,7 +159,7 @@ public class Superstructure extends SubsystemBase {
             }
         } else if (systemState == SuperstructureState.IDLE) {
             // Outputs
-            elevatorArmLowLevel.requestDesiredState(0.223, 90.0);
+            elevatorArmLowLevel.requestDesiredState(0.18, 90.0);
             endEffector.holdGamePiece();
             floorIntake.requestClosedLoop(0.0, INTAKE_IDLE_POSITION);
             currentTriggerTimerStarted = false;
@@ -366,9 +366,9 @@ public class Superstructure extends SubsystemBase {
             // Outputs
             endEffector.idling();
             if (floorIntake.getRollerCurrent() > 49.0) {
-                floorIntake.requestClosedLoop(-0.75, 9.0);
+                floorIntake.requestClosedLoop(-0.75, 14.0);
             } else {
-                floorIntake.requestClosedLoop(-0.75, 155.0);
+                floorIntake.requestClosedLoop(-0.75, 159.0);
             }
             elevatorArmLowLevel.requestDesiredState(0.1, 90.0);
 
@@ -386,22 +386,22 @@ public class Superstructure extends SubsystemBase {
             } else {
                 elevatorArmLowLevel.requestDesiredState(0.5, 90.0);
             }
-            floorIntake.requestClosedLoop(-0.75, 9.0);
-            endEffector.idling();
+            floorIntake.requestClosedLoop(-0.75, 14.0);
+            endEffector.intakeCone();
 
             // Transitions
-            if (elevatorArmLowLevel.atArmSetpoint(2.0) && elevatorArmLowLevel.atElevatorSetpoint(0.5)) {
+            if (elevatorArmLowLevel.atArmSetpoint(9.0) && elevatorArmLowLevel.atElevatorSetpoint(0.5)) {
                 nextSystemState = SuperstructureState.FLOOR_INTAKE_CONE_C;
             } else if (!requestFloorIntakeCone) {
                 nextSystemState = SuperstructureState.IDLE;
             }
         } else if (systemState == SuperstructureState.FLOOR_INTAKE_CONE_C) {
             // Outputs
-            elevatorArmLowLevel.requestDesiredState(0.25, 4.0);
+            elevatorArmLowLevel.requestDesiredState(0.25, 9.0);
             if (elevatorArmLowLevel.atElevatorSetpoint(0.25)) {
-                floorIntake.requestClosedLoop(0.25, 9.0);
+                floorIntake.requestClosedLoop(0.25, 14.0);
             } else {
-                floorIntake.requestClosedLoop(-0.75, 9.0);
+                floorIntake.requestClosedLoop(-0.75, 14.0);
             }
             endEffector.intakeCone();
 

@@ -10,6 +10,7 @@ public interface EndEffectorIO {
         public double avgStatorCurrentAmps = 0.0;
         public double appliedVoltage = 0.0;
         public double tempCelcius = 0.0;
+        public double motorSpeed = 0.0;
     }
 
     /** Updates the set of loggable inputs */
