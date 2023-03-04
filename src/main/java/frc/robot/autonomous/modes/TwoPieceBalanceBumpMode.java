@@ -25,9 +25,10 @@ public class TwoPieceBalanceBumpMode extends SequentialCommandGroup {
         addRequirements(superstructure, swerve);
         addCommands(
             new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CONE)),
-            new WaitUntilCommand(() -> superstructure.getElevatorHeight() > ELEVATOR_PRE_CONE_HIGH - 0.1),
+            new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_PRE_CONE_HIGH)),
             new InstantCommand(() -> superstructure.requestScore()),
             new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_CONE_PULL_OUT_HIGH)),
+            new WaitCommand(0.3),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0)),
             new TrajectoryFollowerCommand(Robot.twoPieceBalanceBumpA, () -> Robot.twoPieceBalanceBumpA.getInitialHolonomicPose().getRotation(), swerve, true),
             new WaitCommand(0.2),

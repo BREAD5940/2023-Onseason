@@ -96,8 +96,8 @@ public class Robot extends LoggedRobot {
     twoPieceBalanceA = PathPlanner.loadPath("Two Piece Balance A", new PathConstraints(4.5, 2.5));
     twoPieceBalanceB = PathPlanner.loadPath("Two Piece Balance B", new PathConstraints(4.5, 2.5));
     twoPieceBalanceC = PathPlanner.loadPath("Two Piece Balance C", new PathConstraints(2.0, 2.0));
-    twoPieceBalanceBumpA = PathPlanner.loadPath("Two Piece Balance Bump A", new PathConstraints(3.0, 2.5));
-    twoPieceBalanceBumpB = PathPlanner.loadPath("Two Piece Balance Bump B", new PathConstraints(3.0, 2.5));
+    twoPieceBalanceBumpA = PathPlanner.loadPath("Two Piece Balance Bump A", new PathConstraints(2.0, 1.0));
+    twoPieceBalanceBumpB = PathPlanner.loadPath("Two Piece Balance Bump B", new PathConstraints(2.0, 1.0));
     twoPieceBalanceBumpC = PathPlanner.loadPath("Two Piece Balance Bump C", new PathConstraints(2.0, 2.0));
     test = PathPlanner.loadPath("Test", new PathConstraints(1.0, 0.5));
     RobotContainer.swerve.resetAllToAbsolute();
@@ -150,6 +150,8 @@ public class Robot extends LoggedRobot {
     if (RobotContainer.driver.getLeftTriggerAxis() > 0.1 && !coneIntakeTriggered) {
       RobotContainer.superstructure.requestFloorIntakeCone();
       coneIntakeTriggered = true;
+    } else {
+      coneIntakeTriggered = false;
     }
 
     if (RobotContainer.driver.getRightTriggerAxis() > 0.05 && !intakeTriggered) {

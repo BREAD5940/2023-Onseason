@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commons.PoseEstimator;
+import frc.robot.autonomous.modes.TwoPieceBalanceBumpMode;
 import frc.robot.autonomous.modes.TwoPieceBalanceMode;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.climber.Climber;
@@ -152,6 +153,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new TwoPieceBalanceMode(superstructure, swerve);
+    return new TwoPieceBalanceBumpMode(superstructure, swerve);
   }
 }

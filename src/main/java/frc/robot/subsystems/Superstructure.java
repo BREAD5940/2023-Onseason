@@ -117,7 +117,7 @@ public class Superstructure extends SubsystemBase {
     public void periodic() {
 
         // /* Logs */
-        // Logger.getInstance().recordOutput("SuperstructureState", systemState.toString());
+        Logger.getInstance().recordOutput("SuperstructureState", systemState.toString());
         // Logger.getInstance().recordOutput("Superstructure/loopCycleTime", Logger.getInstance().getRealTimestamp()/1.0E6 - lastFPGATimestamp);
         // lastFPGATimestamp = Logger.getInstance().getRealTimestamp()/1.0E6;
 
