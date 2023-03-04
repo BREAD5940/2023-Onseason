@@ -139,7 +139,7 @@ public class RobotContainer {
     // );
 
     new JoystickButton(driver, XboxController.Button.kRightBumper.value).whileTrue(new AutoPickupRoutine(
-        () -> new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(43.4), aprilTags.get(4).getY(), new Rotation2d(0.0)),
+        () -> new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(43.4), aprilTags.get(4).getY() - Units.inchesToMeters(20.5), new Rotation2d(0.0)),
         (pose, time) -> new Rotation2d(0.0),
         swerve,
         superstructure));

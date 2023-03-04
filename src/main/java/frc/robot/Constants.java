@@ -134,7 +134,7 @@ public final class Constants {
         public static final double ELEVATOR_PRE_CONE_HIGH = 1.115;
         public static final double ELEVATOR_CONE_SLAM_HIGH = 1.115;
         public static final double ELEVATOR_CONE_PULL_OUT_HIGH = 1.0;
-        public static final double ELEVATOR_CUBE_OFFSET = 0.509856;
+        public static final double ELEVATOR_CUBE_OFFSET = 0.659856;
         public static final double ELEVATOR_CONE_OFFSET = 0.4702;
         public static final double ELEVATOR_PRE_LOW = 0.34;
         public static final double ELEVATOR_FLOOR_INTAKE_CUBE = 0.15;
@@ -161,7 +161,7 @@ public final class Constants {
         public static final double ARM_SETPOINT_TOLERANCE = 3.0;
         public static final double ARM_NULL_RANGE = 300.0; // To 360 degrees
 
-        public static final double ARM_PRE_SCORE_CUBE = 182.88867;
+        public static final double ARM_PRE_SCORE_CUBE = 172.88867;
         public static final double ARM_PRE_SCORE_CONE = 118.076;
         public static final double ARM_SLAM_CONE = 187.3828;
         public static final double ARM_PRE_SCORE_LOW = 230.0;
