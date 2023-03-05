@@ -47,13 +47,13 @@ public class AprilTagVision extends SubsystemBase {
 
         static {
                 cameraPoses = new Pose3d[] {
-                                new Pose3d(-0.245, 0.33, 0.345,
+                                new Pose3d(-0.245 - Units.inchesToMeters(0.5), 0.33, 0.345,
                                                 new Rotation3d(3.031, 0.049, 0.593)),
-                                new Pose3d(-0.245, -0.33, 0.345,
-                                                new Rotation3d(-0.055, -0.03, -0.541)),
+                                new Pose3d(-0.245 - Units.inchesToMeters(0.5), -0.33, 0.345,
+                                                new Rotation3d(-0.055 + Units.degreesToRadians(180), -0.03, -0.541)),
                                 new Pose3d(
-                                        Units.inchesToMeters(8.640), Units.inchesToMeters(-5.163), Units.inchesToMeters(12.209),
-                                                new Rotation3d(Units.degreesToRadians(0.0), Units.degreesToRadians(-25.0), Units.degreesToRadians(0.0))
+                                        Units.inchesToMeters(12.79), Units.inchesToMeters(3.303), Units.inchesToMeters(13.43),
+                                                new Rotation3d(Units.degreesToRadians(180.0), Units.degreesToRadians(-9.5), Units.degreesToRadians(0.0))
                                 )
 
                 };
