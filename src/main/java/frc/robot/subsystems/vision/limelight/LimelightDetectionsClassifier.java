@@ -67,17 +67,17 @@ public class LimelightDetectionsClassifier extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // LimelightResults results = LimelightHelpers.getLatestResults(cameraName);
-        // rawDetections = results.targetingResults.targets_Retro;
+        LimelightResults results = LimelightHelpers.getLatestResults(cameraName);
+        rawDetections = results.targetingResults.targets_Retro;
 
-        // timestamp = BreadUtil.getFPGATimeSeconds() - Units.millisecondsToSeconds(LimelightHelpers.getLatency_Pipeline(cameraName) + latency.get());
+        timestamp = BreadUtil.getFPGATimeSeconds() - Units.millisecondsToSeconds(LimelightHelpers.getLatency_Pipeline(cameraName) + latency.get());
 
-        // ArrayList<Pose3d> poses = getTargets(true);
-        // for (int i = 0; i < poses.size(); i++) {
-        //     Logger.getInstance().recordOutput("LimelightPoses/" + i, poses.get(i));
-        // }
+        ArrayList<Pose3d> poses = getTargets(true);
+        for (int i = 0; i < poses.size(); i++) {
+            Logger.getInstance().recordOutput("LimelightPoses/" + i, poses.get(i));
+        }
 
-        // Logger.getInstance().recordOutput("VisionAdjustedTimestamp", timestamp);
+        Logger.getInstance().recordOutput("VisionAdjustedTimestamp", timestamp);
     }
 
     private static double getXYDistanceToTarget(LimelightTarget_Retro detection, double targetHeightOffGround) {

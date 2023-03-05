@@ -71,14 +71,15 @@ public class AutoPlaceCommand extends CommandBase {
             scoringLocation = 10 - scoringLocation;
         }
         this.level = RobotContainer.operatorControls.getLastSelectedLevel();
-        if (level == Level.HIGH) {
-            Translation2d xyNodeTranslation = AllianceFlipUtil.apply(Grids.highTranslations[scoringLocation - 1]);
-            nodeLocation = new Pose3d(
-                    xyNodeTranslation.getX(),
-                    xyNodeTranslation.getY(),
-                    HIGH_TAPE_OFF_GROUND,
-                    new Rotation3d());
-        } else if (level == Level.MID) {
+        // if (level == Level.HIGH) {
+        //     Translation2d xyNodeTranslation = AllianceFlipUtil.apply(Grids.highTranslations[scoringLocation - 1]);
+        //     nodeLocation = new Pose3d(
+        //             xyNodeTranslation.getX(),
+        //             xyNodeTranslation.getY(),
+        //             HIGH_TAPE_OFF_GROUND,
+        //             new Rotation3d());
+        // } else 
+        if (level == Level.HIGH || level == Level.MID) {
             Translation2d xyNodeTranslation = AllianceFlipUtil.apply(Grids.midTranslations[scoringLocation - 1]);
             nodeLocation = new Pose3d(
                     xyNodeTranslation.getX(),
@@ -112,7 +113,7 @@ public class AutoPlaceCommand extends CommandBase {
             if (poseError.getTranslation().getNorm() < Units.inchesToMeters(12.0) || isUsingLimelight) { // Start using limelight
                 List<TimestampedVisionUpdate> limelightUpdate = new ArrayList<>();
                 
-                ArrayList<Pose3d> poses = RobotContainer.limelightVision.getTargets(level == Level.HIGH ? true : false);
+                ArrayList<Pose3d> poses = RobotContainer.limelightVision.getTargets(false);
 
                 int indexOfPoseClosestToTarget = getIndexOfPoseClosestToTarget(poses);
 

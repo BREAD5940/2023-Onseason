@@ -93,7 +93,7 @@ public final class Constants {
         public static final double RADIAL_SHOT_SCALAR = 0.9;
 
         // Measurements/Gearings
-        public static final double DRIVE_GEARING = (14.0/50.0) * (28.0/16.0) * (15.0/45.0);
+        public static final double DRIVE_GEARING = 1/6.75;
         public static final double STEER_GEARING = (24.0/8) * (72.0/14);
         public static final double ROBOT_WIDTH = Units.inchesToMeters(27.0 - 2.625 * 2.0);
         public static final double ROBOT_LENGTH = Units.inchesToMeters(28.0 - 2.625 * 2.0);
@@ -129,7 +129,7 @@ public final class Constants {
         public static final double ELEVATOR_HOMING_POSITION = Units.inchesToMeters(1.0);
 
         public static final double ELEVATOR_MIN_LIMITED_ARM_ROM = 0.18;
-        public static final double ELEVATOR_MIN = Units.inchesToMeters(1.0);
+        public static final double ELEVATOR_MIN = Units.inchesToMeters(1.4);
         public static final double ELEVATOR_MAX = 1.248288847926422;
         public static final double ELEVATOR_SETPOINT_TOLERANCE = Units.inchesToMeters(3.0);
         public static final double ELEVATOR_MAX_VELOCITY = (6380.0 * (10.5/12.0) * ELEVATOR_GEARING * ELEVATOR_PULLEY_PITCH_DIAMETER * Math.PI)/60.0;
@@ -241,8 +241,8 @@ public final class Constants {
     public static class Vision {
         public static final Transform3d ROBOT_TO_LL =
                 new Transform3d(
-                        new Translation3d(0.26, 0.25, 0.29),
-                        new Rotation3d(Units.degreesToRadians(0.7496413), Units.degreesToRadians(-38.0), 0.0)); //Units.degreesToRadians(1.6593493)));
+                        new Translation3d(Units.inchesToMeters(12.25), Units.inchesToMeters(-0.5), Units.inchesToMeters(14.89)),
+                        new Rotation3d(Units.degreesToRadians(0.7496413), Units.degreesToRadians(-9.5), 0.0)); //Units.degreesToRadians(1.6593493)));
         public static final double HIGH_TAPE_OFF_GROUND = 1.12;
         public static final double MID_TAPE_OFF_GROUND = 0.61;
         public static final double X_SCORING_POSITION = 1.85;
