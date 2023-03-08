@@ -64,8 +64,8 @@ public class AutoPickupRoutine extends CommandBase {
         failedToCreateTrajectory = false;
         deployedElevator = false;
 
-        Pose2d closeEndPose = AllianceFlipUtil.apply(CLOSE_PICKUP_LOCATION);
-        Pose2d farEndPose = AllianceFlipUtil.apply(FAR_PICKUP_LOCATION);
+        Pose2d fieldSidePose = AllianceFlipUtil.apply(FIELD_SIDE_PICKUP_LOCATION);
+        Pose2d wallSidePose = AllianceFlipUtil.apply(WALL_SIDE_PICKUP_LOCATION);
         if (DriverStation.getAlliance() == Alliance.Blue) {
 
         } else {
@@ -75,8 +75,8 @@ public class AutoPickupRoutine extends CommandBase {
         try {
             timer.reset();
             timer.start();
-            Pose2d start = AllianceFlipUtil.apply(new Pose2d(RobotContainer.poseEstimator.getLatestPose().getTranslation(), new Rotation2d()));        
-            end = AllianceFlipUtil.apply(new Pose2d(closeEndPose.getX(), closeEndPose.getY(), closeEndPose.getRotation()));            
+            Pose2d start = new Pose2d(RobotContainer.poseEstimator.getLatestPose().getTranslation(), fieldSidePose.getRotation());        
+            end = new Pose2d(fieldSidePose.getX(), fieldSidePose.getY(), fieldSidePose.getRotation());            
     
             trajectory = Trajectories.generateTrajectory(false, List.of(
                 start, 
@@ -92,7 +92,7 @@ public class AutoPickupRoutine extends CommandBase {
     @Override
     public void execute() {
         Trajectory.State goal = trajectory.sample(timer.get());
-        ChassisSpeeds adjustedSpeeds = autonomusController.calculate(RobotContainer.poseEstimator.getLatestPose(), goal, new Rotation2d()); 
+        ChassisSpeeds adjustedSpeeds = autonomusController.calculate(RobotContainer.poseEstimator.getLatestPose(), goal, new Rotation2d(Math.PI)); // TODO Make alliance color based
         Logger.getInstance().recordOutput("AdjustedTrajectoryVXMetersPerSecond", adjustedSpeeds.vxMetersPerSecond);
         Logger.getInstance().recordOutput("AdjustedTrajectoryVYMetersPerSecond", adjustedSpeeds.vyMetersPerSecond);
         Logger.getInstance().recordOutput("TrajectoryGoalMetersPerSecond", goal.velocityMetersPerSecond);

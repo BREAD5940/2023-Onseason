@@ -262,8 +262,8 @@ public final class Constants {
 
     // Constants pertaining to robot locations on the field
     public static class RobotLocations {
-        public static final Pose2d CLOSE_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(43.4), aprilTags.get(4).getY() - Units.inchesToMeters(20.5), new Rotation2d(Math.PI));
-        public static final Pose2d FAR_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(43.4), aprilTags.get(4).getY() + Units.inchesToMeters(20.5), new Rotation2d(Math.PI));
+        public static final Pose2d FIELD_SIDE_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(53.4), aprilTags.get(4).getY() - Units.inchesToMeters(29), new Rotation2d());
+        public static final Pose2d WALL_SIDE_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(53.4), aprilTags.get(4).getY() + Units.inchesToMeters(29), new Rotation2d());
 
     }
   

@@ -146,6 +146,9 @@ public class RobotContainer {
 
     new JoystickButton(driver, XboxController.Button.kLeftStick.value)
         .whileTrue(new AutoPlaceCommand(swerve, superstructure, () -> operatorControls.getLastSelectedScoringLocation(), () -> operatorControls.getLastSelectedLevel()));
+
+    new JoystickButton(driver, XboxController.Button.kLeftBumper.value)
+        .whileTrue(new AutoPickupRoutine(driver::getLeftBumper, driver::getRightBumper, swerve, superstructure));
   }
 
   private void configureNorthstarVision() {
