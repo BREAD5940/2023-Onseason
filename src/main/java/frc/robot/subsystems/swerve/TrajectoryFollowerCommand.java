@@ -52,12 +52,12 @@ public class TrajectoryFollowerCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        // if (startHeading != null) {
-        //     RobotContainer.poseEstimator.resetPose(new Pose2d(
-        //         trajectory.sample(0.0).poseMeters.getTranslation(), 
-        //         startHeading.get()
-        //     ));
-        // }
+        if (startHeading != null) {
+            Pose2d startPose = AllianceFlipUtil.apply(new Pose2d(
+                trajectory.sample(0.0).poseMeters.getTranslation(), 
+                startHeading.get()));
+            RobotContainer.poseEstimator.resetPose(startPose);
+        }
         timer.reset();
         timer.start();
         balanceTimer.reset();

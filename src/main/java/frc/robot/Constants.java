@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 
 import Jama.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -17,6 +18,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+
+import static frc.robot.FieldConstants.*;
 
 // All Constants
 public final class Constants {
@@ -134,12 +137,13 @@ public final class Constants {
         public static final double ELEVATOR_SETPOINT_TOLERANCE = Units.inchesToMeters(3.0);
         public static final double ELEVATOR_MAX_VELOCITY = (6380.0 * (10.5/12.0) * ELEVATOR_GEARING * ELEVATOR_PULLEY_PITCH_DIAMETER * Math.PI)/60.0;
 
-        public static final double ELEVATOR_PRE_CUBE_HIGH = 1.021;
-        public static final double ELEVATOR_PRE_CONE_HIGH = 1.20;
-        public static final double ELEVATOR_CONE_SLAM_HIGH = 1.20;
-        public static final double ELEVATOR_CONE_PULL_OUT_HIGH = 1.15;
+        public static final double ELEVATOR_IDLE_POSE = 0.18;
+        public static final double ELEVATOR_PRE_CUBE_HIGH = 0.85;
+        public static final double ELEVATOR_PRE_CONE_HIGH = 1.21;
+        public static final double ELEVATOR_CONE_SLAM_HIGH = 1.21;
+        public static final double ELEVATOR_CONE_PULL_OUT_HIGH = 1.2;
         public static final double ELEVATOR_CUBE_OFFSET = 0.509856;
-        public static final double ELEVATOR_CONE_OFFSET = 0.4702;
+        public static final double ELEVATOR_CONE_OFFSET = 0.54;
         public static final double ELEVATOR_PRE_LOW = 0.34;
         public static final double ELEVATOR_FLOOR_INTAKE_CUBE = 0.15;
         public static final double ELEVATOR_DOUBLE_SUBSTATION_CONE = 1.1;
@@ -163,13 +167,14 @@ public final class Constants {
         public static final double ARM_MAX_VELOCITY = ((1.0/78.7) * 6380.0 * 360.0)/60.0;
 
         public static final double ARM_MAX_LIMITED_ELEVATOR_ROM = 117.24609375; 
-        public static final double ARM_NEUTRAL_ANGLE = 90.0;
+        public static final double ARM_NEUTRAL_ANGLE = 110.0;
         public static final double ARM_MIN = 8.61328125;
         public static final double ARM_MAX = 236.77734375;
         public static final double ARM_SETPOINT_TOLERANCE = 3.0;
         public static final double ARM_NULL_RANGE = 310.0; // To 360 degrees
 
-        public static final double ARM_PRE_SCORE_CUBE = 172.88867;
+        public static final double ARM_IDLE_POSE = 90.0;
+        public static final double ARM_PRE_SCORE_CUBE = 169.0;
         public static final double ARM_PRE_SCORE_CONE = 118.076;
         public static final double ARM_SLAM_CONE = 187.3828;
         public static final double ARM_PRE_SCORE_LOW = 230.0;
@@ -217,7 +222,7 @@ public final class Constants {
         public static final double FLOOR_INTAKE_KF = 0.0;
         public static final double FLOOR_INTAKE_KG = 0.0;
 
-        public static final double FLOOR_INTAKE_ZERO = -2.0;
+        public static final double FLOOR_INTAKE_ZERO = -10.0;
     }
 
     // Constants pertaining to the climber subsystem
@@ -226,9 +231,9 @@ public final class Constants {
         public static final double CLIMBING_FF = 0.0;
         public static final double CLIMBER_GEARING = 1.0;
         public static final double CLIMBER_PULLEY_DIAMETER = 1.0;
-        public static final double CLIMBER_DEPLOY_HEIGHT = 0.1;
-        public static final double CLIMBER_SETPOINT_TOLERANCE = 0.05;
-        public static final TalonFXInvertType CLIMBER_INVERT_TYPE = TalonFXInvertType.CounterClockwise;
+        public static final double CLIMBER_DEPLOY_HEIGHT = 117.59343321852536;
+        public static final double CLIMBER_SETPOINT_TOLERANCE = 3.0;
+        public static final TalonFXInvertType CLIMBER_INVERT_TYPE = TalonFXInvertType.Clockwise;
     }
 
     // Constants pertaining to electrical
@@ -241,11 +246,24 @@ public final class Constants {
     public static class Vision {
         public static final Transform3d ROBOT_TO_LL =
                 new Transform3d(
-                        new Translation3d(Units.inchesToMeters(12.25), Units.inchesToMeters(-0.5), Units.inchesToMeters(14.89)),
-                        new Rotation3d(Units.degreesToRadians(0.7496413), Units.degreesToRadians(-9.5), 0.0)); //Units.degreesToRadians(1.6593493)));
+                        new Translation3d(Units.inchesToMeters(12), Units.inchesToMeters(-9), Units.inchesToMeters(10)),
+                        new Rotation3d(Units.degreesToRadians(0.0), Units.degreesToRadians(-23.5), 0.0)); //Units.degreesToRadians(1.6593493)));
         public static final double HIGH_TAPE_OFF_GROUND = 1.12;
         public static final double MID_TAPE_OFF_GROUND = 0.61;
         public static final double X_SCORING_POSITION = 1.85;
+
+    }
+
+    // Constants pertaining to the LEDs 
+    public static class LEDs {
+        public static final int[] PURPLE = {255, 0, 0};
+        public static final int[] YELLOW = {0, 255, 0};
+    }
+
+    // Constants pertaining to robot locations on the field
+    public static class RobotLocations {
+        public static final Pose2d CLOSE_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(43.4), aprilTags.get(4).getY() - Units.inchesToMeters(20.5), new Rotation2d(Math.PI));
+        public static final Pose2d FAR_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(43.4), aprilTags.get(4).getY() + Units.inchesToMeters(20.5), new Rotation2d(Math.PI));
 
     }
   

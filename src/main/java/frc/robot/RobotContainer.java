@@ -16,6 +16,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commons.PoseEstimator;
+import frc.robot.Constants.LEDs;
+import frc.robot.autonomous.AutonomousSelector;
+import frc.robot.autonomous.modes.ThreePieceMode;
+import frc.robot.autonomous.modes.TwoPieceBalanceBumpMode;
 import frc.robot.autonomous.modes.TwoPieceBalanceMode;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.climber.Climber;
@@ -61,6 +65,9 @@ public class RobotContainer {
   
   public static final ClimberIOTalonFX climberIO = new ClimberIOTalonFX();
   public static final Climber climber = new Climber(climberIO);
+  // public static final LEDs leds = new LEDs(74);
+
+  private static final AutonomousSelector autonomousSelector = new AutonomousSelector(swerve, superstructure);
 
   public RobotContainer() {
     configureControls();
@@ -137,14 +144,8 @@ public class RobotContainer {
     // new InstantCommand(() -> superstructure.requestFloorIntakeCone())
     // );
 
-    new JoystickButton(driver, XboxController.Button.kRightBumper.value).whileTrue(new AutoPickupRoutine(
-        () -> new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(43.4), aprilTags.get(4).getY() - Units.inchesToMeters(20.5), new Rotation2d(0.0)),
-        (pose, time) -> new Rotation2d(0.0),
-        swerve,
-        superstructure));
-
     new JoystickButton(driver, XboxController.Button.kLeftStick.value)
-        .whileTrue(new AutoPlaceCommand(swerve, superstructure));
+        .whileTrue(new AutoPlaceCommand(swerve, superstructure, () -> operatorControls.getLastSelectedScoringLocation(), () -> operatorControls.getLastSelectedLevel()));
   }
 
   private void configureNorthstarVision() {
@@ -152,6 +153,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new TwoPieceBalanceMode(superstructure, swerve);
+    return autonomousSelector.get();
   }
 }

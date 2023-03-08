@@ -28,6 +28,8 @@ import static frc.robot.FieldConstants.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -46,6 +48,9 @@ public class AutoPlaceCommand extends CommandBase {
     private boolean scored = false;
     private Level level;
 
+    private Supplier<Integer> scoringLocationSup; 
+    private Supplier<Level> levelSup;
+
     private final PIDController xController = new PIDController(4.0, 0.0, 0.004);
     private final PIDController yController = new PIDController(4.0, 0.0, 0.004);
     private final PIDController thetaController = new PIDController(5.0, 0.0, 0.0);
@@ -53,10 +58,12 @@ public class AutoPlaceCommand extends CommandBase {
     private final Swerve swerve;
     private final Superstructure superstructure;
 
-    public AutoPlaceCommand(Swerve swerve, Superstructure superstructure) {
+    public AutoPlaceCommand(Swerve swerve, Superstructure superstructure, Supplier<Integer> scoringLocationSup, Supplier<Level> levelSup) {
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
         this.swerve = swerve;
         this.superstructure = superstructure;
+        this.scoringLocationSup = scoringLocationSup;
+        this.levelSup = levelSup;
         addRequirements(swerve, superstructure);
     }
 
@@ -66,20 +73,20 @@ public class AutoPlaceCommand extends CommandBase {
         isUsingLimelight = false;
         linedUp = false;
         scored = false;
-        int scoringLocation = RobotContainer.operatorControls.getLastSelectedScoringLocation();
+        int scoringLocation = scoringLocationSup.get();
         if (DriverStation.getAlliance() == Alliance.Blue) {
             scoringLocation = 10 - scoringLocation;
         }
-        this.level = RobotContainer.operatorControls.getLastSelectedLevel();
-        // if (level == Level.HIGH) {
-        //     Translation2d xyNodeTranslation = AllianceFlipUtil.apply(Grids.highTranslations[scoringLocation - 1]);
-        //     nodeLocation = new Pose3d(
-        //             xyNodeTranslation.getX(),
-        //             xyNodeTranslation.getY(),
-        //             HIGH_TAPE_OFF_GROUND,
-        //             new Rotation3d());
-        // } else 
-        if (level == Level.HIGH || level == Level.MID) {
+        this.level = levelSup.get();
+        if (level == Level.HIGH) {
+            Translation2d xyNodeTranslation = AllianceFlipUtil.apply(Grids.highTranslations[scoringLocation - 1]);
+            nodeLocation = new Pose3d(
+                    xyNodeTranslation.getX(),
+                    xyNodeTranslation.getY(),
+                    HIGH_TAPE_OFF_GROUND,
+                    new Rotation3d());
+        } else 
+        if (level == Level.MID) {
             Translation2d xyNodeTranslation = AllianceFlipUtil.apply(Grids.midTranslations[scoringLocation - 1]);
             nodeLocation = new Pose3d(
                     xyNodeTranslation.getX(),
@@ -113,7 +120,7 @@ public class AutoPlaceCommand extends CommandBase {
             if (poseError.getTranslation().getNorm() < Units.inchesToMeters(12.0) || isUsingLimelight) { // Start using limelight
                 List<TimestampedVisionUpdate> limelightUpdate = new ArrayList<>();
                 
-                ArrayList<Pose3d> poses = RobotContainer.limelightVision.getTargets(false);
+                ArrayList<Pose3d> poses = RobotContainer.limelightVision.getTargets(level == Level.HIGH ? true : false);
 
                 int indexOfPoseClosestToTarget = getIndexOfPoseClosestToTarget(poses);
 
@@ -157,24 +164,28 @@ public class AutoPlaceCommand extends CommandBase {
 
         if (!scored) {
             if (level == Level.LOW) {
-                if (superstructure.atElevatorSetpoint(ELEVATOR_PRE_LOW)) {
+                if (superstructure.atElevatorSetpoint(Superstructure.preLowHeight.get())) {
                     superstructure.requestScore();
                     scored = true;
                 }
             } else if (isCubeNode) {
-                if (superstructure.atElevatorSetpoint(level == Level.HIGH ? ELEVATOR_PRE_CUBE_HIGH : ELEVATOR_PRE_CUBE_HIGH - ELEVATOR_CUBE_OFFSET)) {
+                if (superstructure.atElevatorSetpoint(level == Level.HIGH ? Superstructure.preCubeHighHeight.get() : Superstructure.preCubeHighHeight.get() - Superstructure.cubeOffset.get())) {
                     superstructure.requestScore();
                     scored = true;
                 }
             } else if (!isCubeNode) {
-                if (superstructure.atElevatorSetpoint(level == Level.HIGH ? ELEVATOR_PRE_CONE_HIGH : ELEVATOR_PRE_CONE_HIGH - ELEVATOR_CONE_OFFSET)) {
+                if (superstructure.atElevatorSetpoint(level == Level.HIGH ? Superstructure.preConeHighHeight.get() : Superstructure.preConeHighHeight.get() - Superstructure.coneOffset.get())) {
                     superstructure.requestScore();
                     scored = true;
                 }
             }
         }
-
-        swerve.requestVelocity(new ChassisSpeeds(xFeedback, yFeedback, thetaFeedback), true, false);
+        
+        if (!linedUp) {
+            swerve.requestVelocity(new ChassisSpeeds(xFeedback, yFeedback, thetaFeedback), true, false);
+        } else {
+            swerve.requestVelocity(new ChassisSpeeds(0, 0, 0), true, false);
+        }
 
         Logger.getInstance().recordOutput("AutoPlace/RealGoal", realGoal);
         Logger.getInstance().recordOutput("AutoPlace/TargetRobotPose", targetRobotPose);

@@ -22,6 +22,9 @@ public interface ClimberIO {
     /* Sets the climber to a certain height */
     public default void setHeight(double height) { }
 
+    /* Sets the currents for the climber */
+    public default void setCurrentLimits(double currentLimit, double currentLimitTriggerThreshold, double currentLimitThresholdTime) { }
+
     /* Enables brake mode on the climber motors */
     public default void enableBrakeMode(boolean enable) { }    
     

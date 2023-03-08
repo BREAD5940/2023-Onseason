@@ -83,7 +83,7 @@ public class ElevatorArmLowLevel {
                 nextSystemState = ElevatorArmSystemStates.HOMING;
             }
         } else if (systemState == ElevatorArmSystemStates.HOMING) {
-            elevatorIO.setPercent(-0.2);
+            elevatorIO.setPercent(-0.3);
             armIO.setAngle(ARM_NEUTRAL_ANGLE);
 
             if (BreadUtil.getFPGATimeSeconds() - mStateStartTime > 0.25 && Math.abs(elevatorInputs.velMetersPerSecond) < 0.1) {
@@ -169,6 +169,8 @@ public class ElevatorArmLowLevel {
     public double[] getState() {
         return new double[] {elevatorInputs.posMeters, armInputs.angleDegrees};
     }
+
+    /** Returns the height of the elevator */
 
     /** Returns the system state of the elevator and arm */
     public ElevatorArmSystemStates getSystemState() {

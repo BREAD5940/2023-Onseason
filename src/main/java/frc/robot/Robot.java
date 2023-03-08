@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
+import frc.robot.subsystems.climber.Climber.ClimberStates;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -51,12 +52,6 @@ public class Robot extends LoggedRobot {
   public static PathPlannerTrajectory twoPieceBalanceBumpA;
   public static PathPlannerTrajectory twoPieceBalanceBumpB;
   public static PathPlannerTrajectory twoPieceBalanceBumpC;
-
-  public static PathPlannerTrajectory test;
-
-  public static int scoringSquare = 0; // Number 0-2
-  public static int scoringSpot = 0; // Number 0-2
-  public static Level scoringLevel = Level.HIGH;
 
   public static Alliance alliance = DriverStation.Alliance.Red;
 
@@ -88,19 +83,17 @@ public class Robot extends LoggedRobot {
     threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(3.0, 2.0));
     threePieceC = PathPlanner.loadPath("Three Piece C", new PathConstraints(4.0, 2.5));
     threePieceD = PathPlanner.loadPath("Three Piece D", new PathConstraints(4.0, 2.0));
-    threePieceE = PathPlanner.loadPath("Three Piece E", new PathConstraints(4.0, 2.0));
     // threePieceA = PathPlanner.loadPath("Three Piece A", new PathConstraints(1.0, 0.5));
     // threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(1.0, 0.5));
     // threePieceC = PathPlanner.loadPath("Three Piece C", new PathConstraints(1.0, 0.5));
     // threePieceD = PathPlanner.loadPath("Three Piece D", new PathConstraints(1.0, 0.5));
     // threePieceE = PathPlanner.loadPath("Three Piece E", new PathConstraints(1.0, 0.5));
-    twoPieceBalanceA = PathPlanner.loadPath("Two Piece Balance A", new PathConstraints(4.5, 2.5));
-    twoPieceBalanceB = PathPlanner.loadPath("Two Piece Balance B", new PathConstraints(4.5, 2.5));
+    twoPieceBalanceA = PathPlanner.loadPath("Two Piece Balance A", new PathConstraints(2.0, 2.0));
+    twoPieceBalanceB = PathPlanner.loadPath("Two Piece Balance B", new PathConstraints(2.0, 2.0));
     twoPieceBalanceC = PathPlanner.loadPath("Two Piece Balance C", new PathConstraints(2.0, 2.0));
-    twoPieceBalanceBumpA = PathPlanner.loadPath("Two Piece Balance Bump A", new PathConstraints(3.0, 2.5));
-    twoPieceBalanceBumpB = PathPlanner.loadPath("Two Piece Balance Bump B", new PathConstraints(3.0, 2.5));
+    twoPieceBalanceBumpA = PathPlanner.loadPath("Two Piece Balance Bump A", new PathConstraints(2.0, 2.0));
+    twoPieceBalanceBumpB = PathPlanner.loadPath("Two Piece Balance Bump B", new PathConstraints(2.0, 2.0));
     twoPieceBalanceBumpC = PathPlanner.loadPath("Two Piece Balance Bump C", new PathConstraints(2.0, 2.0));
-    test = PathPlanner.loadPath("Test", new PathConstraints(1.0, 0.5));
     RobotContainer.swerve.resetAllToAbsolute();
   }
 
@@ -201,12 +194,18 @@ public class Robot extends LoggedRobot {
     //   coneIntakeTriggered = false;
     // }
 
-    if (RobotContainer.operator.getRightTriggerAxis() > 0.1) {
-      RobotContainer.climberIO.setPercent(1.0);
-    } else if (RobotContainer.operator.getLeftTriggerAxis() > 0.1) {
-      RobotContainer.climberIO.setPercent(-1.0);
-    } else {
-      RobotContainer.climberIO.setPercent(0.0);
+    if (RobotContainer.operator.getRightBumper() && RobotContainer.operator.getLeftBumper()) {
+      RobotContainer.climber.requestDeploy();
+    }
+
+    if (RobotContainer.climber.getSystemState() != ClimberStates.RETRACTED && RobotContainer.climber.getSystemState() != ClimberStates.DEPLOYING) {
+      if (RobotContainer.operator.getRightTriggerAxis() > 0.1) {
+        RobotContainer.climber.requestRun(RobotContainer.operator.getRightTriggerAxis());
+      } else if (RobotContainer.operator.getLeftTriggerAxis() > 0.1) {
+        RobotContainer.climber.requestRun(-RobotContainer.operator.getLeftTriggerAxis());
+      } else {
+        RobotContainer.climber.requestRun(0.0);
+      }
     }
   }
 

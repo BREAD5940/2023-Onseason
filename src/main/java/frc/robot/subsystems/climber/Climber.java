@@ -38,11 +38,13 @@ public class Climber extends SubsystemBase {
     public void periodic() {
         climberIO.updateInputs(climberInputs);
         Logger.getInstance().processInputs("Climber", climberInputs);
+        Logger.getInstance().recordOutput("ClimberState", systemState.toString());
 
         ClimberStates nextSystemState = systemState;
 
         if (systemState == ClimberStates.RETRACTED) {
             climberIO.enableBrakeMode(true);
+            climberIO.setCurrentLimits(60, 70, 1.5);
             // climberIO.setPercent(0.0);
 
             if (requestDeploy) {
@@ -51,6 +53,7 @@ public class Climber extends SubsystemBase {
         } else if (systemState == ClimberStates.DEPLOYING) {
             climberIO.enableBrakeMode(true);
             climberIO.setHeight(CLIMBER_DEPLOY_HEIGHT);
+            climberIO.setCurrentLimits(60, 70, 1.5);
 
             if (atSetpoint(CLIMBER_DEPLOY_HEIGHT)) {
                 nextSystemState = ClimberStates.IDLE;
@@ -58,6 +61,7 @@ public class Climber extends SubsystemBase {
         } else if (systemState == ClimberStates.IDLE) {
             climberIO.enableBrakeMode(true);
             climberIO.setPercent(0.0);
+            climberIO.setCurrentLimits(120, 130, 1.5);
 
             if (requestRun) {
                 nextSystemState = ClimberStates.RUNNING;
@@ -65,6 +69,7 @@ public class Climber extends SubsystemBase {
         } else if (systemState == ClimberStates.RUNNING) {
             climberIO.enableBrakeMode(true);
             climberIO.setPercent(openLoopRunPercent);
+            climberIO.setCurrentLimits(120, 130, 1.5);
 
             if (requestIdle) {
                 nextSystemState = ClimberStates.IDLE;
@@ -76,6 +81,33 @@ public class Climber extends SubsystemBase {
             systemState = nextSystemState;
         }
     }    
+
+    /** Requests the climber to deploy */
+    public void requestDeploy() {
+        requestDeploy = true;
+        requestRun = false;
+        requestIdle = false;
+    }
+
+    /** Requests the climber to idle */
+    public void requestIdle() {
+        requestDeploy = false;
+        requestRun = false;
+        requestIdle = true;
+    }
+
+    /** Requests the climber to run */
+    public void requestRun(double openLoopRunPercent) {
+        requestDeploy = false;
+        requestRun = true;
+        requestIdle = false;
+        this.openLoopRunPercent = openLoopRunPercent;
+    }
+
+    /** Returns the system state of the climber */
+    public ClimberStates getSystemState() {
+        return systemState;
+    }
 
     public boolean atSetpoint(double setpoint) {
         return BreadUtil.atReference(climberInputs.heightMeters, setpoint, CLIMBER_SETPOINT_TOLERANCE, true);
