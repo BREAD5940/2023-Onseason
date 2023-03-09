@@ -55,8 +55,8 @@ public class FloorIntake {
         } else if (systemState == FloorIntakeStates.HOMING) {
             // Outputs
             floorIntakeIO.setRollerPercent(0.0);
-            floorIntakeIO.setDeployVelocity(-200.0);
-            floorIntakeIO.setCurrentLimit(30.0, 40.0, 0.0);
+            floorIntakeIO.setDeployVelocity(-50.0);
+            floorIntakeIO.setCurrentLimit(20.0, 25.0, 0.0);
 
             // Transitions
             if (BreadUtil.getFPGATimeSeconds() - mStateStartTime > 0.25 && Math.abs(floorIntakeInputs.deployVelDegreesPerSecond) < 10.0) {
@@ -99,6 +99,8 @@ public class FloorIntake {
     /* Requests the intake to home */
     public void requestHome() {
         requestHome = true;
+        requestIdle = false;
+        requestClosedLoop = false;
     }
 
     /* Requests the intake to go into its idling mode */

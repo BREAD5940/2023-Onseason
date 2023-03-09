@@ -1,37 +1,22 @@
 package frc.robot.subsystems.swerve;
 
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
-
 import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.constraint.MaxVelocityConstraint;
-import edu.wpi.first.math.trajectory.constraint.RectangularRegionConstraint;
-import edu.wpi.first.math.trajectory.constraint.TrajectoryConstraint;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
-import frc.robot.FieldConstants.LoadingZone;
 import frc.robot.autonomous.Trajectories;
 import frc.robot.commons.AllianceFlipUtil;
 import frc.robot.commons.BreadHolonomicDriveController;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.endeffector.EndEffector;
-
-import static frc.robot.Constants.Elevator.*;
 import static frc.robot.Constants.RobotLocations.*;
 
 public class AutoPickupRoutine extends CommandBase {
@@ -42,8 +27,8 @@ public class AutoPickupRoutine extends CommandBase {
     private final Superstructure superstructure;
     private final Timer timer = new Timer();
     private boolean failedToCreateTrajectory = false;
-    private BooleanSupplier closeDoubleSup;
-    private BooleanSupplier farDoubleSup;
+    private BooleanSupplier leftDoubleSup;
+    private BooleanSupplier rightDoubleSup;
     private Pose2d end;
     public final BreadHolonomicDriveController autonomusController = new BreadHolonomicDriveController(
         new PIDController(4.0, 0, 0), 
@@ -51,11 +36,11 @@ public class AutoPickupRoutine extends CommandBase {
         new PIDController(2.0, 0, 0)
     );
 
-    public AutoPickupRoutine(BooleanSupplier closeDoubleSup, BooleanSupplier farDoubleSup, Swerve swerve, Superstructure superstructure) {
+    public AutoPickupRoutine(BooleanSupplier leftDoubleSup, BooleanSupplier rightDoubleSup, Swerve swerve, Superstructure superstructure) {
         this.swerve = swerve;
         this.superstructure = superstructure;
-        this.closeDoubleSup = closeDoubleSup; 
-        this.farDoubleSup = farDoubleSup;
+        this.leftDoubleSup = leftDoubleSup; 
+        this.rightDoubleSup = rightDoubleSup;
         addRequirements(swerve, superstructure);
     }
 
@@ -66,17 +51,26 @@ public class AutoPickupRoutine extends CommandBase {
 
         Pose2d fieldSidePose = AllianceFlipUtil.apply(FIELD_SIDE_PICKUP_LOCATION);
         Pose2d wallSidePose = AllianceFlipUtil.apply(WALL_SIDE_PICKUP_LOCATION);
+        Pose2d endPose;
         if (DriverStation.getAlliance() == Alliance.Blue) {
-
+            if (leftDoubleSup.getAsBoolean()) {
+                endPose = wallSidePose;
+            } else {
+                endPose = fieldSidePose;
+            }
         } else {
-            
+            if (leftDoubleSup.getAsBoolean()) {
+                endPose = fieldSidePose;
+            } else {
+                endPose = wallSidePose;
+            }
         }
 
         try {
             timer.reset();
             timer.start();
             Pose2d start = new Pose2d(RobotContainer.poseEstimator.getLatestPose().getTranslation(), fieldSidePose.getRotation());        
-            end = new Pose2d(fieldSidePose.getX(), fieldSidePose.getY(), fieldSidePose.getRotation());            
+            end = new Pose2d(endPose.getX(), endPose.getY(), endPose.getRotation());            
     
             trajectory = Trajectories.generateTrajectory(false, List.of(
                 start, 
@@ -92,7 +86,7 @@ public class AutoPickupRoutine extends CommandBase {
     @Override
     public void execute() {
         Trajectory.State goal = trajectory.sample(timer.get());
-        ChassisSpeeds adjustedSpeeds = autonomusController.calculate(RobotContainer.poseEstimator.getLatestPose(), goal, new Rotation2d(Math.PI)); // TODO Make alliance color based
+        ChassisSpeeds adjustedSpeeds = autonomusController.calculate(RobotContainer.poseEstimator.getLatestPose(), goal, DriverStation.getAlliance() == Alliance.Blue ? new Rotation2d() : new Rotation2d(Math.PI)); 
         Logger.getInstance().recordOutput("AdjustedTrajectoryVXMetersPerSecond", adjustedSpeeds.vxMetersPerSecond);
         Logger.getInstance().recordOutput("AdjustedTrajectoryVYMetersPerSecond", adjustedSpeeds.vyMetersPerSecond);
         Logger.getInstance().recordOutput("TrajectoryGoalMetersPerSecond", goal.velocityMetersPerSecond);

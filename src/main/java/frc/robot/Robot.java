@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
-import frc.robot.subsystems.Superstructure.SuperstructureState;
 import frc.robot.subsystems.climber.Climber.ClimberStates;
 
 public class Robot extends LoggedRobot {
@@ -52,6 +51,9 @@ public class Robot extends LoggedRobot {
   public static PathPlannerTrajectory twoPieceBalanceBumpA;
   public static PathPlannerTrajectory twoPieceBalanceBumpB;
   public static PathPlannerTrajectory twoPieceBalanceBumpC;
+
+  public static PathPlannerTrajectory onePieceBalanceA;
+  public static PathPlannerTrajectory onePieceBalanceB;
 
   public static Alliance alliance = DriverStation.Alliance.Red;
 
@@ -94,7 +96,10 @@ public class Robot extends LoggedRobot {
     twoPieceBalanceBumpA = PathPlanner.loadPath("Two Piece Balance Bump A", new PathConstraints(2.0, 2.0));
     twoPieceBalanceBumpB = PathPlanner.loadPath("Two Piece Balance Bump B", new PathConstraints(2.0, 2.0));
     twoPieceBalanceBumpC = PathPlanner.loadPath("Two Piece Balance Bump C", new PathConstraints(2.0, 2.0));
+    onePieceBalanceA = PathPlanner.loadPath("One Piece Balance A", new PathConstraints(2.0, 2.0));
+    onePieceBalanceB = PathPlanner.loadPath("One Piece Balance B", new PathConstraints(2.0, 2.0));
     RobotContainer.swerve.resetAllToAbsolute();
+    m_robotContainer.configureAutonomousSelector(); // Needed down here so auto paths exist when the selector is created
   }
 
   @Override
@@ -115,6 +120,11 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    
+    if (!homed) {
+      RobotContainer.superstructure.requestHome();
+      homed = true;
+    }
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -150,7 +160,7 @@ public class Robot extends LoggedRobot {
 
     if (RobotContainer.driver.getRightTriggerAxis() > 0.05 && !intakeTriggered) {
       Supplier<Double> pressure = () -> {
-        if (RobotContainer.driver.getRightStickButton() && RobotContainer.driver.getRightTriggerAxis() > 0.95 ) {
+        if (RobotContainer.driver.getYButton() && RobotContainer.driver.getRightTriggerAxis() > 0.95 ) {
           return (RobotContainer.driver.getRightTriggerAxis() - 0.95) * (1.0 / 0.05);
         } else {
           return 0.0;

@@ -101,10 +101,14 @@ public class AutoPlaceCommand extends CommandBase {
                     0.0,
                     new Rotation3d());
         }
-        targetRobotPose = new Pose2d(X_SCORING_POSITION, nodeLocation.getY(), new Rotation2d(Math.PI));
+        isCubeNode = (scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8);
+        if (isCubeNode) {
+            targetRobotPose = new Pose2d(X_SCORING_POSITION + 0.1, nodeLocation.getY(), new Rotation2d(Math.PI));
+        } else {
+            targetRobotPose = new Pose2d(X_SCORING_POSITION, nodeLocation.getY(), new Rotation2d(Math.PI));
+        }
         preTargetRobotPose = new Pose2d(targetRobotPose.getX() + 0.5, targetRobotPose.getY(), targetRobotPose.getRotation());
         shouldUseLimelight = !(scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8 || level == Level.LOW);
-        isCubeNode = (scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8);
     }
 
     @Override

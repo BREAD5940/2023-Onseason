@@ -100,7 +100,7 @@ public class TrajectoryFollowerCommand extends CommandBase {
                 balanceTimer.reset();
             }
 
-            return timer.get() >= trajectory.getTotalTimeSeconds() && balanceTimer.get() > 0.5;
+            return timer.get() >= trajectory.getTotalTimeSeconds() && balanceTimer.get() > 2.0;
         }
     }
 

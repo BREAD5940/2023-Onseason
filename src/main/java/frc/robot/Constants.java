@@ -24,7 +24,7 @@ import static frc.robot.FieldConstants.*;
 // All Constants
 public final class Constants {
 
-    public static boolean tuningMode = true;
+    public static boolean tuningMode = false;
     
     // Constants pertaining to the drive subsystem go here
     public static class Drive {
@@ -132,7 +132,7 @@ public final class Constants {
         public static final double ELEVATOR_HOMING_POSITION = Units.inchesToMeters(1.0);
 
         public static final double ELEVATOR_MIN_LIMITED_ARM_ROM = 0.18;
-        public static final double ELEVATOR_MIN = Units.inchesToMeters(1.4);
+        public static final double ELEVATOR_MIN = Units.inchesToMeters(1.0);
         public static final double ELEVATOR_MAX = 1.248288847926422;
         public static final double ELEVATOR_SETPOINT_TOLERANCE = Units.inchesToMeters(3.0);
         public static final double ELEVATOR_MAX_VELOCITY = (6380.0 * (10.5/12.0) * ELEVATOR_GEARING * ELEVATOR_PULLEY_PITCH_DIAMETER * Math.PI)/60.0;
@@ -146,7 +146,7 @@ public final class Constants {
         public static final double ELEVATOR_CONE_OFFSET = 0.54;
         public static final double ELEVATOR_PRE_LOW = 0.34;
         public static final double ELEVATOR_FLOOR_INTAKE_CUBE = 0.15;
-        public static final double ELEVATOR_DOUBLE_SUBSTATION_CONE = 1.1;
+        public static final double ELEVATOR_DOUBLE_SUBSTATION_CONE = 1.2;
         // public static final double ELEVATOR_DOUBLE_SUBSTATION_CUBE = 1.115;
         public static final double ELEVATOR_DOUBLE_SUBSTATION_CUBE = 0.19550697818942656;
 
@@ -215,14 +215,14 @@ public final class Constants {
         public static final double DEPLOY_MAX_SPEED = (6380.0 * DEPLOY_GEAR_RATIO * 360.0)/60.0;
         public static final double INTAKE_MIN_POSITION = 0.0;
         public static final double INTAKE_MAX_POSITION = 190.75;
-        public static final double INTAKE_IDLE_POSITION = 33.04046224348974;
+        public static final double INTAKE_IDLE_POSITION = 28.04046224348974;
 
         public static final double FLOOR_INTAKE_KP = 0.0;
         public static final double FLOOR_INTAKE_KD = 0.0;
         public static final double FLOOR_INTAKE_KF = 0.0;
         public static final double FLOOR_INTAKE_KG = 0.0;
 
-        public static final double FLOOR_INTAKE_ZERO = -10.0;
+        public static final double FLOOR_INTAKE_ZERO = -5.0;
     }
 
     // Constants pertaining to the climber subsystem

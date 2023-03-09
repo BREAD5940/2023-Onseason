@@ -44,7 +44,7 @@ public class EndEffector {
     /* For holding a game piece */
     public void holdGamePiece() {
         endEffectorIO.setPercent(holdingPercent.get());
-        endEffectorIO.setCurrentLimit(20, 30.0);
+        endEffectorIO.setCurrentLimit(7, 10.0);
     }
 
     /* For spitting a cube */

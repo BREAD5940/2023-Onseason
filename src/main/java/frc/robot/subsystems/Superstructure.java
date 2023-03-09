@@ -359,9 +359,9 @@ public class Superstructure extends SubsystemBase {
             // Outputs
             endEffector.idling();
             if (floorIntake.getRollerCurrent() > 49.0) {
-                floorIntake.requestClosedLoop(-0.75, 14.0);
+                floorIntake.requestClosedLoop(-0.75, 0.0);
             } else {
-                floorIntake.requestClosedLoop(-0.75, 159.0);
+                floorIntake.requestClosedLoop(-0.75, 155.0);
             }
             elevatorArmLowLevel.requestDesiredState(ELEVATOR_IDLE_POSE, ARM_IDLE_POSE);
 
@@ -379,7 +379,7 @@ public class Superstructure extends SubsystemBase {
             } else {
                 elevatorArmLowLevel.requestDesiredState(0.5, 90.0);
             }
-            floorIntake.requestClosedLoop(-0.75, 14.0);
+            floorIntake.requestClosedLoop(-0.75, 0.0);
             endEffector.intakeCone();
 
             // Transitions
@@ -392,9 +392,9 @@ public class Superstructure extends SubsystemBase {
             // Outputs
             elevatorArmLowLevel.requestDesiredState(0.25, 9.0);
             if (elevatorArmLowLevel.atElevatorSetpoint(0.25)) {
-                floorIntake.requestClosedLoop(0.25, 14.0);
+                floorIntake.requestClosedLoop(0.25, 0.0);
             } else {
-                floorIntake.requestClosedLoop(-0.75, 14.0);
+                floorIntake.requestClosedLoop(-0.75, 0.0);
             }
             endEffector.intakeCone();
 
@@ -429,6 +429,7 @@ public class Superstructure extends SubsystemBase {
 
     /* Requests the entire system to home */
     public void requestHome() {
+        System.out.println("Requested the superstructure to home!");
         requestHome = true;
         unsetAllRequests();
     } 

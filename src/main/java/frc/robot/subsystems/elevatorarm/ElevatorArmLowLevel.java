@@ -129,7 +129,6 @@ public class ElevatorArmLowLevel {
     public void requestDesiredState(double elevatorHeight, double armAngle) {
         requestSetpointFollower = true;
         requestIdle = false;
-        requestSetpointFollower = true;
         heightSetpoint = elevatorHeight;
         angleSetpoint = armAngle;
     }
@@ -143,6 +142,8 @@ public class ElevatorArmLowLevel {
     /** Requests the elevator + arm to home */
     public void requestHome() {
         requestHome = true;
+        requestSetpointFollower = false;
+        requestIdle = false;
     }
 
     /** Zeros sensors */

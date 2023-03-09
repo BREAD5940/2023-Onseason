@@ -3,10 +3,12 @@ package frc.robot.autonomous.modes;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -21,6 +23,8 @@ import static frc.robot.Constants.Elevator.*;
 
 import java.util.List;
 
+import javax.xml.stream.events.EndDocument;
+
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -32,6 +36,7 @@ public class TwoPieceBalanceMode extends SequentialCommandGroup {
     public TwoPieceBalanceMode(Superstructure superstructure, Swerve swerve) {
         addRequirements(superstructure, swerve);
         addCommands(
+            new InstantCommand(() -> swerve.requestPercent(new ChassisSpeeds(0, 0, 0), false)),
             new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CONE)),
             new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_PRE_CONE_HIGH)),
             new InstantCommand(() -> superstructure.requestScore()),
@@ -47,10 +52,11 @@ public class TwoPieceBalanceMode extends SequentialCommandGroup {
             )),
             new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_PRE_CUBE_HIGH)),
             new InstantCommand(() -> superstructure.requestScore()),
-            new WaitCommand(0.35),
+            new WaitCommand(0.5),
             new InstantCommand(() -> superstructure.requestIdle()), 
             new WaitCommand(0.25),
-            new TrajectoryFollowerCommand(Robot.twoPieceBalanceC, swerve, false)
+            new TrajectoryFollowerCommand(Robot.twoPieceBalanceC, swerve, false),
+            new RunCommand(() -> swerve.requestPercent(new ChassisSpeeds(0, 0, 0), false))
         );
     }
     

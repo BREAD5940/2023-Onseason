@@ -6,21 +6,17 @@ package frc.robot;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commons.PoseEstimator;
-import frc.robot.Constants.LEDs;
+import frc.robot.drivers.LEDs;
 import frc.robot.autonomous.AutonomousSelector;
-import frc.robot.autonomous.modes.ThreePieceMode;
-import frc.robot.autonomous.modes.TwoPieceBalanceBumpMode;
-import frc.robot.autonomous.modes.TwoPieceBalanceMode;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIOTalonFX;
@@ -39,8 +35,6 @@ import frc.robot.subsystems.vision.limelight.LimelightDetectionsClassifier;
 import frc.robot.subsystems.vision.northstar.AprilTagVision;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIO;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIONorthstar;
-
-import static frc.robot.FieldConstants.*;
 
 public class RobotContainer {
 
@@ -65,9 +59,9 @@ public class RobotContainer {
   
   public static final ClimberIOTalonFX climberIO = new ClimberIOTalonFX();
   public static final Climber climber = new Climber(climberIO);
-  // public static final LEDs leds = new LEDs(74);
+  public static final LEDs leds = new LEDs(0, 74);
 
-  private static final AutonomousSelector autonomousSelector = new AutonomousSelector(swerve, superstructure);
+  private static AutonomousSelector autonomousSelector;
 
   public RobotContainer() {
     configureControls();
@@ -85,25 +79,22 @@ public class RobotContainer {
       double dx;
       double dy;
       if (Robot.alliance == DriverStation.Alliance.Blue) {
-        dx = Math.abs(x) > 0.075 ? Math.pow(-x, 1) * scale : 0.0;
-        dy = Math.abs(y) > 0.075 ? Math.pow(-y, 1) * scale : 0.0;
+        dx = Math.abs(x) > 0.05 ? Math.pow(-x, 1) * scale : 0.0;
+        dy = Math.abs(y) > 0.05 ? Math.pow(-y, 1) * scale : 0.0;
       } else {
-        dx = Math.abs(x) > 0.075 ? Math.pow(-x, 1) * scale * -1 : 0.0;
-        dy = Math.abs(y) > 0.075 ? Math.pow(-y, 1) * scale * -1 : 0.0;
+        dx = Math.abs(x) > 0.05 ? Math.pow(-x, 1) * scale * -1 : 0.0;
+        dy = Math.abs(y) > 0.05 ? Math.pow(-y, 1) * scale * -1 : 0.0;
       }
       double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.75 * scale : 0.0;
       swerve.requestPercent(new ChassisSpeeds(dx, dy, rot), true);
 
       // Sets the 0 of the robot
-      if (driver.getAButtonPressed()) {
+      if (driver.getRawButtonPressed(XboxController.Button.kStart.value)) {
         poseEstimator.resetPose(new Pose2d());
       }
-
-      // Sets the raw pose of the swerve
-      if (driver.getXButtonPressed()) {
-        swerve.resetRaw();
-      }
     }, swerve));
+
+    // new JoystickButton(operator, XboxController.Button.kStart.value).onTrue(new InstantCommand(() -> superstructure.requestHome()));
 
     // superstructure.setDefaultCommand(new RunCommand(() -> {
     // if (RobotContainer.operator.getRightBumperPressed()) {
@@ -144,11 +135,14 @@ public class RobotContainer {
     // new InstantCommand(() -> superstructure.requestFloorIntakeCone())
     // );
 
-    new JoystickButton(driver, XboxController.Button.kLeftStick.value)
+    new JoystickButton(driver, XboxController.Button.kX.value)
         .whileTrue(new AutoPlaceCommand(swerve, superstructure, () -> operatorControls.getLastSelectedScoringLocation(), () -> operatorControls.getLastSelectedLevel()));
 
-    new JoystickButton(driver, XboxController.Button.kLeftBumper.value)
-        .whileTrue(new AutoPickupRoutine(driver::getLeftBumper, driver::getRightBumper, swerve, superstructure));
+    new JoystickButton(driver, XboxController.Button.kA.value)
+        .whileTrue(new AutoPickupRoutine(driver::getAButton, driver::getBButton, swerve, superstructure));
+
+    new JoystickButton(driver, XboxController.Button.kB.value)
+        .whileTrue(new AutoPickupRoutine(driver::getAButton, driver::getBButton, swerve, superstructure));
   }
 
   private void configureNorthstarVision() {
@@ -157,5 +151,9 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     return autonomousSelector.get();
+  }
+
+  public void configureAutonomousSelector() {
+    autonomousSelector = new AutonomousSelector(swerve, superstructure);
   }
 }
