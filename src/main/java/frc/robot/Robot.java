@@ -17,6 +17,7 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -24,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.subsystems.climber.Climber.ClimberStates;
+import frc.robot.subsystems.vision.northstar.AprilTagVision;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -34,7 +36,7 @@ public class Robot extends LoggedRobot {
 
   PowerDistribution pdp;
 
-  private boolean homed = false;
+  private boolean requestedHome = false;
   private boolean intakeTriggered = false;
   private boolean coneIntakeTriggered = false;
 
@@ -121,14 +123,16 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     
-    if (!homed) {
+    if (!requestedHome) {
       RobotContainer.superstructure.requestHome();
-      homed = true;
+      requestedHome = true;
     }
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+
+    alliance = DriverStation.getAlliance();
   }
 
   @Override
@@ -141,9 +145,9 @@ public class Robot extends LoggedRobot {
       m_autonomousCommand.cancel();
     }
 
-    if (!homed) {
+    if (!requestedHome) {
       RobotContainer.superstructure.requestHome();
-      homed = true;
+      requestedHome = true;
     }
 
     alliance = DriverStation.getAlliance();
@@ -179,6 +183,10 @@ public class Robot extends LoggedRobot {
       RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
     }
 
+    if (RobotContainer.driver.getRightBumperPressed()) {
+      RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
+    }
+
     if (RobotContainer.operator.getAButtonPressed()) {
       RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
     }
@@ -199,14 +207,23 @@ public class Robot extends LoggedRobot {
       RobotContainer.superstructure.requestScore();
     }
 
-    // if (RobotContainer.driver.getRightStickButtonPressed()) {
-    //   RobotContainer.superstructure.requestIdle();
-    //   coneIntakeTriggered = false;
-    // }
+    if (RobotContainer.operator.getLeftStickButtonPressed()) {
+      RobotContainer.superstructure.requestIdle();
+    }
+
+    if (RobotContainer.operator.getPOV() == 0 || RobotContainer.operator.getPOV() == 45 || RobotContainer.operator.getPOV() == 315) {
+      RobotContainer.superstructure.requestSpit();
+    }
+
+    
+    if (RobotContainer.operator.getRawButtonPressed(XboxController.Button.kStart.value)) {
+      RobotContainer.superstructure.requestPreScore(Level.LOW, GamePiece.CUBE);
+    }
 
     if (RobotContainer.operator.getRightBumper() && RobotContainer.operator.getLeftBumper()) {
       RobotContainer.climber.requestDeploy();
     }
+
 
     if (RobotContainer.climber.getSystemState() != ClimberStates.RETRACTED && RobotContainer.climber.getSystemState() != ClimberStates.DEPLOYING) {
       if (RobotContainer.operator.getRightTriggerAxis() > 0.1) {
@@ -217,6 +234,8 @@ public class Robot extends LoggedRobot {
         RobotContainer.climber.requestRun(0.0);
       }
     }
+
+    AprilTagVision.setTrustLevel(RobotContainer.operator.getPOV() == 135 || RobotContainer.operator.getPOV() == 180 || RobotContainer.operator.getPOV() == 225);
   }
 
   @Override
@@ -235,4 +254,5 @@ public class Robot extends LoggedRobot {
   @Override
   public void simulationPeriodic() {
   }
+
 }

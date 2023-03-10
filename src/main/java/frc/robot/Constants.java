@@ -146,7 +146,7 @@ public final class Constants {
         public static final double ELEVATOR_CONE_OFFSET = 0.54;
         public static final double ELEVATOR_PRE_LOW = 0.34;
         public static final double ELEVATOR_FLOOR_INTAKE_CUBE = 0.15;
-        public static final double ELEVATOR_DOUBLE_SUBSTATION_CONE = 1.2;
+        public static final double ELEVATOR_DOUBLE_SUBSTATION_CONE = 1.15;
         // public static final double ELEVATOR_DOUBLE_SUBSTATION_CUBE = 1.115;
         public static final double ELEVATOR_DOUBLE_SUBSTATION_CUBE = 0.19550697818942656;
 
@@ -256,14 +256,14 @@ public final class Constants {
 
     // Constants pertaining to the LEDs 
     public static class LEDs {
-        public static final int[] PURPLE = {255, 0, 0};
-        public static final int[] YELLOW = {0, 255, 0};
+        public static final int[] PURPLE = {255, 0, 255};
+        public static final int[] YELLOW = {255, 255, 0};
     }
 
     // Constants pertaining to robot locations on the field
     public static class RobotLocations {
-        public static final Pose2d FIELD_SIDE_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(53.4), aprilTags.get(4).getY() - Units.inchesToMeters(29), new Rotation2d());
-        public static final Pose2d WALL_SIDE_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(53.4), aprilTags.get(4).getY() + Units.inchesToMeters(29), new Rotation2d());
+        public static final Pose2d FIELD_SIDE_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(51.4), aprilTags.get(4).getY() - Units.inchesToMeters(29), new Rotation2d());
+        public static final Pose2d WALL_SIDE_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(51.4), aprilTags.get(4).getY() + Units.inchesToMeters(29), new Rotation2d());
 
     }
   

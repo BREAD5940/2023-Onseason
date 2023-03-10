@@ -6,11 +6,15 @@ package frc.robot;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -90,11 +94,15 @@ public class RobotContainer {
 
       // Sets the 0 of the robot
       if (driver.getRawButtonPressed(XboxController.Button.kStart.value)) {
-        poseEstimator.resetPose(new Pose2d());
+        if (DriverStation.getAlliance() == Alliance.Blue) {
+          poseEstimator.resetPose(new Pose2d());
+        } else {
+          poseEstimator.resetPose(new Pose2d(new Translation2d(), new Rotation2d(Math.PI)));
+        }
       }
     }, swerve));
 
-    // new JoystickButton(operator, XboxController.Button.kStart.value).onTrue(new InstantCommand(() -> superstructure.requestHome()));
+    new JoystickButton(operator, XboxController.Button.kBack.value).onTrue(new InstantCommand(() -> superstructure.requestHome()));
 
     // superstructure.setDefaultCommand(new RunCommand(() -> {
     // if (RobotContainer.operator.getRightBumperPressed()) {
@@ -150,7 +158,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return autonomousSelector.get();
+    return Commands.waitUntil(superstructure::homedOnce).andThen(autonomousSelector.get());
   }
 
   public void configureAutonomousSelector() {

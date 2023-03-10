@@ -32,10 +32,11 @@ import org.littletonrobotics.junction.Logger;
 public class AprilTagVision extends SubsystemBase {
         private static final double ambiguityThreshold = 0.15;
         private static final double targetLogTimeSecs = 0.1;
-        public static  double mStdDevScalar = 2.0;
+        public static  double mStdDevScalar;
         private static final Pose3d[] cameraPoses;
         private static final PolynomialRegression xyStdDevModel;
         private static final PolynomialRegression thetaStdDevModel;
+        private static boolean trustHigh = false;
 
         private final AprilTagVisionIO[] io;
         private final AprilTagVisionIOInputs[] inputs;
@@ -100,6 +101,7 @@ public class AprilTagVision extends SubsystemBase {
                                                 (Integer id) -> {
                                                         lastDetectionTimeIds.put(id, 0.0);
                                                 });
+                setTrustLevel(false);
         }
 
         public void setDataInterfaces(
@@ -109,6 +111,9 @@ public class AprilTagVision extends SubsystemBase {
         }
 
         public void periodic() {
+
+                Logger.getInstance().recordOutput("AprilTagVision/StdDevScalar", mStdDevScalar);
+
                 for (int i = 0; i < io.length; i++) {
                         io[i].updateInputs(inputs[i]);
                         Logger.getInstance().processInputs("AprilTagVision/Inst" + Integer.toString(i), inputs[i]);
@@ -288,5 +293,9 @@ public class AprilTagVision extends SubsystemBase {
                                                                 Math.pow(rvec.get(0, 0), 2)
                                                                                 + Math.pow(rvec.get(1, 0), 2)
                                                                                 + Math.pow(rvec.get(2, 0), 2))));
+        }
+
+        public static void setTrustLevel(boolean isTrustHigh) {
+                mStdDevScalar = isTrustHigh ? 0.2 : 2.0;
         }
 }

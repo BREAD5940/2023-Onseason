@@ -59,7 +59,7 @@ public class EndEffectorIOTalonFX implements EndEffectorIO {
     @Override
     public void setCurrentLimit(double currentLimit, double triggerThreshhold) {
         if (currentLimit != mCurrentLimit) {
-            motor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, currentLimit, triggerThreshhold, 1.5));
+            motor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, currentLimit, triggerThreshhold, 2.5));
             mCurrentLimit = currentLimit;
         }
     }

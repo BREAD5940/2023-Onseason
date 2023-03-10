@@ -32,7 +32,7 @@ public class EndEffector {
     /* For intaking cones */
     public void intakeCone() {
         endEffectorIO.setPercent(intakeConePercent.get());
-        endEffectorIO.setCurrentLimit( 120, 150.0);
+        endEffectorIO.setCurrentLimit( 180, 200.0);
     }
 
     /* For intaking cubes */
@@ -44,7 +44,7 @@ public class EndEffector {
     /* For holding a game piece */
     public void holdGamePiece() {
         endEffectorIO.setPercent(holdingPercent.get());
-        endEffectorIO.setCurrentLimit(7, 10.0);
+        endEffectorIO.setCurrentLimit(10, 15.0);
     }
 
     /* For spitting a cube */
