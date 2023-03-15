@@ -34,7 +34,7 @@ public class TwoPieceBalanceBumpMode extends SequentialCommandGroup {
             new WaitCommand(0.3),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0)),
             new TrajectoryFollowerCommand(Robot.twoPieceBalanceBumpA, () -> Robot.twoPieceBalanceBumpA.getInitialHolonomicPose().getRotation(), swerve, true),
-            new WaitCommand(0.2),
+            new WaitCommand(0.05),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
             new TrajectoryFollowerCommand(Robot.twoPieceBalanceBumpB, swerve, true).alongWith(new SequentialCommandGroup(
                 new WaitCommand(2.5),
