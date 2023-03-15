@@ -132,7 +132,7 @@ public final class Constants {
         public static final double ELEVATOR_HOMING_POSITION = Units.inchesToMeters(1.0);
 
         public static final double ELEVATOR_MIN_LIMITED_ARM_ROM = 0.18;
-        public static final double ELEVATOR_MIN = Units.inchesToMeters(1.0);
+        public static final double ELEVATOR_MIN = Units.inchesToMeters(-5.0);
         public static final double ELEVATOR_MAX = 1.248288847926422;
         public static final double ELEVATOR_SETPOINT_TOLERANCE = Units.inchesToMeters(3.0);
         public static final double ELEVATOR_MAX_VELOCITY = (6380.0 * (10.5/12.0) * ELEVATOR_GEARING * ELEVATOR_PULLEY_PITCH_DIAMETER * Math.PI)/60.0;
@@ -182,6 +182,7 @@ public final class Constants {
         public static final double ARM_DOUBLE_SUBSTATION_CONE = 178.4;
         // public static final double ARM_DOUBLE_SUBSTATION_CUBE = 211.6;
         public static final double ARM_DOUBLE_SUBSTATION_CUBE = 155.478515625;
+        public static final double ARM_UNJAM_POSITION = 26.0;
 
         public static final double ARM_KP = 0.03;
         public static final double ARM_KI = 0.0;
@@ -216,6 +217,7 @@ public final class Constants {
         public static final double INTAKE_MIN_POSITION = 0.0;
         public static final double INTAKE_MAX_POSITION = 190.75;
         public static final double INTAKE_IDLE_POSITION = 28.04046224348974;
+        public static final double INTAKE_UNJAM_POSITION = 42.0;
 
         public static final double FLOOR_INTAKE_KP = 0.0;
         public static final double FLOOR_INTAKE_KD = 0.0;

@@ -44,8 +44,8 @@ public class Climber extends SubsystemBase {
 
         if (systemState == ClimberStates.RETRACTED) {
             climberIO.enableBrakeMode(true);
-            climberIO.setCurrentLimits(60, 70, 1.5);
-            // climberIO.setPercent(0.0);
+            climberIO.setCurrentLimits(1, 1, 1.5);
+            climberIO.setPercent(-0.1);
 
             if (requestDeploy) {
                 nextSystemState = ClimberStates.DEPLOYING;

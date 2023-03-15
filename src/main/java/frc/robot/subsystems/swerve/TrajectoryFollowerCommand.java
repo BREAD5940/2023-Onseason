@@ -89,7 +89,8 @@ public class TrajectoryFollowerCommand extends CommandBase {
         if (stop) {
             return timer.get() >= trajectory.getTotalTimeSeconds();
         } else {
-            if (timer.get() >= trajectory.getTotalTimeSeconds() && Math.abs(swerve.getRoll()) < 0.15 && !balanceStarted) {
+            Pose2d poseError = trajectory.getEndState().poseMeters.relativeTo(RobotContainer.poseEstimator.getLatestPose());
+            if (timer.get() >= trajectory.getTotalTimeSeconds() && Math.abs(swerve.getRoll()) < 0.15 && !balanceStarted && poseError.getTranslation().getNorm() < 0.07) {
                 balanceStarted  = true;
                 balanceTimer.start();
             } 

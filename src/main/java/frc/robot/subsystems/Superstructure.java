@@ -1,30 +1,27 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.RobotContainer;
-import frc.robot.subsystems.endeffector.EndEffector;
-import frc.robot.commons.BreadUtil;
-import frc.robot.commons.LoggedTunableNumber;
-import frc.robot.subsystems.elevatorarm.ArmIO;
-import frc.robot.subsystems.elevatorarm.ElevatorArmLowLevel;
-import frc.robot.subsystems.elevatorarm.ElevatorIO;
-import frc.robot.subsystems.elevatorarm.ElevatorArmLowLevel.ElevatorArmSystemStates;
-import frc.robot.subsystems.endeffector.EndEffectorIO;
-import frc.robot.subsystems.floorintake.FloorIntake;
-import frc.robot.subsystems.floorintake.FloorIntakeIO;
-import frc.robot.subsystems.floorintake.FloorIntake.FloorIntakeStates;
-
-import static frc.robot.Constants.Elevator.*;
-import static frc.robot.Constants.FloorIntake.*;
-
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commons.BreadUtil;
+import frc.robot.commons.LoggedTunableNumber;
+import frc.robot.subsystems.elevatorarm.ArmIO;
+import frc.robot.subsystems.elevatorarm.ElevatorArmLowLevel;
+import frc.robot.subsystems.elevatorarm.ElevatorArmLowLevel.ElevatorArmSystemStates;
+import frc.robot.subsystems.elevatorarm.ElevatorIO;
+import frc.robot.subsystems.endeffector.EndEffector;
+import frc.robot.subsystems.endeffector.EndEffectorIO;
+import frc.robot.subsystems.floorintake.FloorIntake;
+import frc.robot.subsystems.floorintake.FloorIntake.FloorIntakeStates;
+import frc.robot.subsystems.floorintake.FloorIntakeIO;
+
+import static frc.robot.Constants.Elevator.*;
 import static frc.robot.Constants.Arm.*;
+import static frc.robot.Constants.FloorIntake.*;
 import static frc.robot.Constants.EndEffector.*;
 
 public class Superstructure extends SubsystemBase {
@@ -87,7 +84,9 @@ public class Superstructure extends SubsystemBase {
         HP_INTAKE_CUBE,
         HP_INTAKE_CONE,
         HP_INTAKE_CONE_INTER,
+        PREPARE_TO_SPIT,
         SPIT,
+        EXIT_SPIT,
         PRE_PLACE_PIECE_LOW,
         PRE_PLACE_CUBE,
         PRE_PLACE_CONE,
@@ -169,8 +168,8 @@ public class Superstructure extends SubsystemBase {
             } else if (requestHPIntakeCube) {
                 nextSystemState = SuperstructureState.HP_INTAKE_CUBE;
             } else if (requestSpit) {
-                nextSystemState = SuperstructureState.SPIT;
-            }else if (requestPreScore && level == Level.LOW) {
+                nextSystemState = SuperstructureState.PREPARE_TO_SPIT;
+            } else if (requestPreScore && level == Level.LOW) {
                 nextSystemState = SuperstructureState.PRE_PLACE_PIECE_LOW;
             } else if (requestPreScore && piece == GamePiece.CUBE) {
                 nextSystemState = SuperstructureState.PRE_PLACE_CUBE;
@@ -243,14 +242,34 @@ public class Superstructure extends SubsystemBase {
             }
         } else if (systemState == SuperstructureState.SPIT) {
             // Outputs
-            elevatorArmLowLevel.requestDesiredState(0.0, ARM_MIN);
-            endEffector.spitCube();
-            floorIntake.requestClosedLoop(-1.0, INTAKE_IDLE_POSITION);
+            elevatorArmLowLevel.requestDesiredState(Units.inchesToMeters(-2.0), ARM_UNJAM_POSITION);
+            endEffector.idling();
+            floorIntake.requestClosedLoop(-1.0, INTAKE_UNJAM_POSITION);
 
             // Transitions
-            if (requestHome) {
-                nextSystemState = SuperstructureState.PRE_HOME;
-            } else if (!requestSpit) {
+            if (!requestSpit) {
+                nextSystemState = SuperstructureState.EXIT_SPIT;
+            }
+        } else if (systemState == SuperstructureState.PREPARE_TO_SPIT) {
+            // Outputs
+            elevatorArmLowLevel.requestDesiredState(ELEVATOR_IDLE_POSE, ARM_UNJAM_POSITION);
+            endEffector.idling();
+            floorIntake.requestClosedLoop(-1.0, INTAKE_UNJAM_POSITION);
+
+            // Transitions
+            if (!requestSpit) {
+                nextSystemState = SuperstructureState.IDLE;
+            } else if (elevatorArmLowLevel.atArmSetpoint(ARM_UNJAM_POSITION)) {
+                nextSystemState = SuperstructureState.SPIT;
+            }
+        } else if (systemState == SuperstructureState.EXIT_SPIT) {
+             // Outputs
+            elevatorArmLowLevel.requestDesiredState(ELEVATOR_IDLE_POSE, ARM_UNJAM_POSITION);
+            endEffector.idling();
+            floorIntake.requestClosedLoop(-1.0, INTAKE_UNJAM_POSITION);
+
+            // Transitions
+            if (elevatorArmLowLevel.atElevatorSetpoint(ELEVATOR_IDLE_POSE) || BreadUtil.getFPGATimeSeconds() - mStateStartTime >= 2.0) {
                 nextSystemState = SuperstructureState.IDLE;
             }
         } else if (systemState == SuperstructureState.PRE_PLACE_PIECE_LOW) {
@@ -369,7 +388,7 @@ public class Superstructure extends SubsystemBase {
             // Outputs
             endEffector.idling();
             if (floorIntake.getRollerCurrent() > 49.0) {
-                floorIntake.requestClosedLoop(-0.75, 4.0);
+                floorIntake.requestClosedLoop(-0.75, 7.0);
             } else {
                 floorIntake.requestClosedLoop(-0.75, 155.0);
             }
@@ -389,7 +408,7 @@ public class Superstructure extends SubsystemBase {
             } else {
                 elevatorArmLowLevel.requestDesiredState(0.5, 90.0);
             }
-            floorIntake.requestClosedLoop(-0.75, 4.0);
+            floorIntake.requestClosedLoop(-0.75, 7.0);
             endEffector.intakeCone();
 
             // Transitions
@@ -404,7 +423,7 @@ public class Superstructure extends SubsystemBase {
             if (elevatorArmLowLevel.atElevatorSetpoint(0.25)) {
                 floorIntake.requestClosedLoop(0.25, 0.0);
             } else {
-                floorIntake.requestClosedLoop(-0.75, 4.0);
+                floorIntake.requestClosedLoop(-0.75, 7.0);
             }
             endEffector.intakeCone();
 
