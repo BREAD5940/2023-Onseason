@@ -68,6 +68,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.appliedVoltage = leader.getMotorOutputVoltage();
         inputs.currentAmps = new double[] {leader.getStatorCurrent(), follower.getStatorCurrent()};
         inputs.tempCelcius = new double[] {leader.getTemperature(), follower.getTemperature()};
+
+        inputs.lastFollowerError = follower.getLastError();
+        inputs.lastLeaderError = leader.getLastError();
     }
 
     @Override
@@ -143,6 +146,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     /* returns the height of the climber in meters */
     private double getHeight() {
         return integratedSensorUnitsToMeters(leader.getSelectedSensorPosition());
+    }
+
+    /* resets sticky faults to allow error to change from anything back to "ok" */
+    public void clearFault(){
+        leader.clearStickyFaults();
+        follower.clearStickyFaults();
     }
     
 }

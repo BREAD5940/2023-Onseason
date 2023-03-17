@@ -2,6 +2,8 @@ package frc.robot.subsystems.floorintake;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import com.ctre.phoenix.ErrorCode;
+
 public interface FloorIntakeIO {
     @AutoLog
     public static class FloorIntakeIOInputs {
@@ -17,6 +19,9 @@ public interface FloorIntakeIO {
         public double deployPositionTarget = 0.0;
         public double deployVelocityTarget = 0.0;
         public double deployDutyCycle = 0.0;
+
+        public ErrorCode lastDeployError = ErrorCode.OK;
+        public ErrorCode lastRollerError = ErrorCode.OK;
     }
 
     /** Updates the set of loggable inputs */
@@ -46,4 +51,6 @@ public interface FloorIntakeIO {
     /** Enables or disables brake mode for the deploy motor */
     public default void enableDeployBrakeMode(boolean enable) {}
 
+    /* resets sticky faults to allow error to change from anything back to "ok" */
+    public default void clearFault(){}
 }

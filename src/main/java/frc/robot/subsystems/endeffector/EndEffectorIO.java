@@ -2,6 +2,8 @@ package frc.robot.subsystems.endeffector;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import com.ctre.phoenix.ErrorCode;
+
 public interface EndEffectorIO {
     @AutoLog
     public static class EndEffectorIOInputs {
@@ -10,6 +12,8 @@ public interface EndEffectorIO {
         public double avgStatorCurrentAmps = 0.0;
         public double appliedVoltage = 0.0;
         public double tempCelcius = 0.0;
+
+        public ErrorCode lastError = ErrorCode.OK;
     }
 
     /** Updates the set of loggable inputs */
@@ -26,5 +30,8 @@ public interface EndEffectorIO {
 
     /* Updates filters */
     public default void updateFilter() {}
+
+    /* resets sticky faults to allow error to change from anything back to "ok" */
+    public default void clearFault(){}
     
 }

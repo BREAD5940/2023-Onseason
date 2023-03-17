@@ -65,6 +65,9 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
         inputs.deployPositionTarget = integratedSensorUnitsToDegrees(deploy.getActiveTrajectoryPosition());
         inputs.deployVelocityTarget = integratedSensorUnitsToDegreesPerSecond(deploy.getActiveTrajectoryVelocity());
         inputs.deployDutyCycle = deploy.getMotorOutputPercent();
+
+        inputs.lastDeployError = deploy.getLastError();
+        inputs.lastRollerError = deploy.getLastError();
     }
 
     @Override
@@ -139,5 +142,11 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
     /* Returns the angle of the intake */
     private double getAngle() {
         return integratedSensorUnitsToDegrees(deploy.getSelectedSensorPosition());
+    }
+
+    /* resets sticky faults to allow error to change from anything back to "ok" */
+    public void clearFault(){
+        deploy.clearStickyFaults();
+        roller.clearStickyFaults();
     }
 }

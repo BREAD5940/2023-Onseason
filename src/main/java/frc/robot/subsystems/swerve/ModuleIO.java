@@ -2,6 +2,8 @@ package frc.robot.subsystems.swerve;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import com.ctre.phoenix.ErrorCode;
+
 public interface ModuleIO {
     @AutoLog
     public static class ModuleIOInputs {
@@ -18,6 +20,10 @@ public interface ModuleIO {
         public double turnAppliedVolts = 0.0;
         public double turnCurrentAmps = 0.0; 
         public double turnTempCelcius = 0.0;
+
+        public ErrorCode lastSteerError = ErrorCode.OK;
+        public ErrorCode lastDriveError = ErrorCode.OK;
+        public ErrorCode lastAzimuthError = ErrorCode.OK;
     }
 
     /** Updates the set of loggable inputs */
@@ -40,4 +46,7 @@ public interface ModuleIO {
 
     /** Resets the turn motor to its absolute position */
     public default void resetToAbsolute() {}
+
+    /* resets sticky faults to allow error to change from anything back to "ok" */
+    public default void clearFault(){}
 }

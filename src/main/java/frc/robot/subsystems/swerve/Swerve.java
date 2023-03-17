@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -48,6 +49,12 @@ public class Swerve extends SubsystemBase {
     private double[] lastModulePositionsMeters = new double[] { 0.0, 0.0, 0.0, 0.0 };
     private Rotation2d lastGyroYaw = new Rotation2d();
 
+    // For fault detection
+    private int[] steerErrCount = new int[4];
+    private int[] driveErrCount = new int[4];
+    private int[] azimuthErrCount = new int[4];
+    private int errCheckNum = 1;
+
     // State Variables
     private ChassisSpeeds robotSetpoints = new ChassisSpeeds(0, 0, 0);
     private SwerveState systemState = SwerveState.PERCENT;
@@ -90,7 +97,20 @@ public class Swerve extends SubsystemBase {
         for (int i = 0; i < 4; i++) {
             moduleIOs[i].updateInputs(moduleInputs[i]);
             Logger.getInstance().processInputs("Swerve/Module" + Integer.toString(i), moduleInputs[i]);
+
+            /** Check motors for errors and add to tally */
+            if(moduleInputs[i].lastDriveError != ErrorCode.OK){
+                driveErrCount[i]++;
+            }
+            if(moduleInputs[i].lastSteerError != ErrorCode.OK){
+                steerErrCount[i]++;
+            }
+            if(moduleInputs[i].lastAzimuthError != ErrorCode.OK){
+                azimuthErrCount[i]++;
+            }
+            moduleIOs[i].clearFault();
         }
+        errCheckNum++;
         Logger.getInstance().recordOutput("Swerve/loopCycleTime",
                 Logger.getInstance().getRealTimestamp() / 1.0E6 - lastFPGATimestamp);
         lastFPGATimestamp = Logger.getInstance().getRealTimestamp() / 1.0E6;
@@ -182,7 +202,7 @@ public class Swerve extends SubsystemBase {
         Logger.getInstance().recordOutput("Robot-Relative Swerve Velocity (angle)",
                 getVelocity().getAngle().getDegrees());
         Logger.getInstance().recordOutput("Odometry/PoseRaw", poseRaw);
-
+        
     }
 
     /** Requests a provided percent output to the swerve drive */
@@ -310,6 +330,33 @@ public class Swerve extends SubsystemBase {
         return new Translation2d(
                 speeds.vxMetersPerSecond,
                 speeds.vyMetersPerSecond);
+    }
+
+    /** Returns the error concetration for steer motor */
+    public double getSteerErrorConc(int i){
+        return(steerErrCount[i]/errCheckNum);
+    }
+
+    /* Returns the error concentration for the drive motor */
+    public double getDriveErrorConc(int i){
+        return(driveErrCount[i]/errCheckNum);
+    }
+
+    /* Returns the error concentration for the encoder */
+    public double getAzimuthErrorConc(int i){
+        return(azimuthErrCount[i]/errCheckNum);
+    }
+
+    /* Resets error counters */
+    public void resetError(){
+        int i = 0;
+        while(i<4){
+            azimuthErrCount[i] = 0;
+            steerErrCount[i] = 0;
+            driveErrCount[i] = 0;
+            errCheckNum = 1;
+            i++;
+        }
     }
 
     /** Returns continous output */

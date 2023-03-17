@@ -21,8 +21,11 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
+import frc.robot.subsystems.swerve.ModuleIOTalonFX;
+import frc.robot.subsystems.swerve.ModuleIO.ModuleIOInputs;;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -58,6 +61,9 @@ public class Robot extends LoggedRobot {
   public static Level scoringLevel = Level.HIGH;
 
   public static Alliance alliance = DriverStation.Alliance.Red;
+  
+  int loopcounter = 0;
+
 
   @Override
   public void robotInit() {
@@ -216,6 +222,33 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void testPeriodic() {
+    loopcounter++;
+    int i = 0;
+    if(loopcounter % 500 == 0){
+      while(i<4){
+        System.out.println("----------- Module " + i + " Error Concentrations -----------");
+        System.out.println("Steer: " + RobotContainer.swerve.getSteerErrorConc(i));
+        System.out.println("Drive " + RobotContainer.swerve.getDriveErrorConc(i));
+        System.out.println("Encoder: " + RobotContainer.swerve.getAzimuthErrorConc(i));
+        i++;
+      }
+      RobotContainer.swerve.resetError();
+      System.out.println("----------- SuperStructure Error Concentrations -----------");
+      System.out.println("Elevator Follower Motor: " + RobotContainer.superstructure.getFollowerErrorConc()*100 + "%");
+      System.out.println("Elevator Leader Motor: " + RobotContainer.superstructure.getLeaderErrorConc()*100 + "%");
+      System.out.println("Arm Motor: " + RobotContainer.superstructure.getArmErrorConc()*100 + "%");
+      System.out.println("Arm Encoder: " + RobotContainer.superstructure.getArmAzimuthErrorConc()*100 + "%");
+      System.out.println("----------- Climber Error Concentrations -----------");
+      System.out.println("Climber: " + RobotContainer.climber.getClimberErrorConc()*100 + "%");
+      RobotContainer.climber.resetError();
+      System.out.println("----------- Intake Error Concentrations -----------");
+      System.out.println("Deploy: " + RobotContainer.superstructure.getDeployErrorConc()*100 + "%");
+      System.out.println("Rollers: " + RobotContainer.superstructure.getRollerErrorConc()*100 + "%");
+      System.out.println("----------- End Effector Error Concentrations -----------");
+      System.out.println("End Effector Motor: " + RobotContainer.superstructure.getEndEffectorErrorConc()*100 + "%");
+
+      RobotContainer.superstructure.resetError();
+    }
   }
 
   @Override

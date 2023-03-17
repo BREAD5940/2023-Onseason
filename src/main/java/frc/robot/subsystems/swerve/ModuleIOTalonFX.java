@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
@@ -107,6 +108,10 @@ public class ModuleIOTalonFX implements ModuleIO {
         inputs.turnAppliedVolts = steer.getMotorOutputVoltage();
         inputs.turnCurrentAmps = steer.getStatorCurrent();
         inputs.turnTempCelcius = steer.getTemperature();
+
+        inputs.lastSteerError = steer.getLastError();
+        inputs.lastDriveError = drive.getLastError();
+        inputs.lastAzimuthError = azimuth.getLastError();
     }
 
     @Override
@@ -175,6 +180,13 @@ public class ModuleIOTalonFX implements ModuleIO {
     /** Returns a rotation2d representing the angle of the CANCoder object */
     public Rotation2d getCanCoderAbsolutePosition() {
         return Rotation2d.fromDegrees(azimuth.getAbsolutePosition());
+    }
+
+    /* resets sticky faults to allow error to change from anything back to "ok" */
+    public void clearFault(){
+        steer.clearStickyFaults();
+        drive.clearStickyFaults();
+        azimuth.clearStickyFaults();
     }
     
 }

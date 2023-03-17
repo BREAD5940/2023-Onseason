@@ -2,6 +2,8 @@ package frc.robot.subsystems.endeffector;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix.ErrorCode;
+
 import frc.robot.commons.TunableNumber;
 
 public class EndEffector {
@@ -16,6 +18,9 @@ public class EndEffector {
     TunableNumber holdingPercent = new TunableNumber("EndEffector/HoldingPercent", 0.1);
     TunableNumber spitCubePercent = new TunableNumber("EndEffector/SpitCubePercent", -1.0);
 
+    // For fault detection
+    private int ErrCount = 0;
+    private int errCheckNum = 1;
 
     /* Instantiate the IO instance in the constructor */
     public EndEffector(EndEffectorIO endEffectorIO) {
@@ -27,6 +32,11 @@ public class EndEffector {
         endEffectorIO.updateInputs(endEffectorInputs);
         Logger.getInstance().processInputs("EndEffector", endEffectorInputs);
         endEffectorIO.updateFilter();
+
+        if(endEffectorInputs.lastError != ErrorCode.OK) {
+            ErrCount++;
+        }
+        endEffectorIO.clearFault();
     }
 
     /* For intaking cones */
@@ -67,5 +77,16 @@ public class EndEffector {
     /* Returns the stator current of the end effector */
     public double getStatorCurrent() {
         return endEffectorInputs.avgStatorCurrentAmps;
+    }
+
+     /* Returns the Error concentration for the end effector motor */
+     public double getEndEffectorErrorConc(){
+        return(ErrCount/errCheckNum);
+    }
+
+    /* Resets error counters */
+    public void resetError(){
+        ErrCount = 0;
+        errCheckNum = 1;
     }
 }

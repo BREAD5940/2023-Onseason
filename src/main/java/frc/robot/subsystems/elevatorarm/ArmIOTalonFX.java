@@ -71,6 +71,9 @@ public class ArmIOTalonFX implements ArmIO {
         inputs.tempCelcius = arm.getTemperature();
         inputs.armTargetPosition = CANCoderSensorUnitsToDegrees(arm.getActiveTrajectoryPosition());
         inputs.armTargetPosition = CANCoderSensorUnitsToDegreesPerSecond(arm.getActiveTrajectoryVelocity());
+
+        inputs.lastArmAzimuthError = armAzimuth.getLastError();
+        inputs.lastArmError = arm.getLastError();
     }
 
     @Override
@@ -117,6 +120,12 @@ public class ArmIOTalonFX implements ArmIO {
 
     private double degreesPerSecondToCANCoderSensorUnits(double degrees) {
         return degrees * (4096.0/(360.0 * 10.0));
+    }
+
+    /* resets sticky faults to allow error to change from anything back to "ok" */
+    public void clearFault(){
+        arm.clearStickyFaults();
+        armAzimuth.clearStickyFaults();
     }
 
 }

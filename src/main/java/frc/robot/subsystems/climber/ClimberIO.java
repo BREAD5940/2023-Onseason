@@ -1,5 +1,7 @@
 package frc.robot.subsystems.climber;
 
+import com.ctre.phoenix.ErrorCode;
+
 import org.littletonrobotics.junction.AutoLog;
 
 /* Climber subsystem hardware interface */
@@ -11,6 +13,8 @@ public interface ClimberIO {
         public boolean forksDeployed = false;
         public double currentAmps = 0.0;
         public double tempCelcius = 0.0;
+
+        public ErrorCode lastClimberError = ErrorCode.OK;
     }
 
     /* Updates the set of loggable inputs */
@@ -23,6 +27,9 @@ public interface ClimberIO {
     public default void setHeight(double height) { }
 
     /* Enables brake mode on the climber motors */
-    public default void enableBrakeMode(boolean enable) { }    
+    public default void enableBrakeMode(boolean enable) { }
+
+    /* resets sticky faults to allow error to change from anything back to "ok" */
+    public default void clearFault(){}
     
 }
