@@ -226,7 +226,7 @@ public final class Constants {
         public static final double HIGH_TAPE_OFF_GROUND = 1.12;
         public static final double MID_TAPE_OFF_GROUND = 0.61;
         public static final double X_SCORING_POSITION = 1.85;
-
+		public static final double AMBIGUITY_THRESHOLD = 0.15;
     }
   
 }
