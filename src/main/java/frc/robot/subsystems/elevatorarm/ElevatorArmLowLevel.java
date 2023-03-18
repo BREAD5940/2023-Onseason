@@ -65,16 +65,16 @@ public class ElevatorArmLowLevel {
         armIO.updateInputs(armInputs);
 
         /* Fault Handling stuffs */
-        if(elevatorInputs.lastFollowerError != ErrorCode.OK){
+        if(elevatorInputs.lastFollowerError != ErrorCode.OK.toString()){
             followerErrCount++;
         }
-        if(elevatorInputs.lastLeaderError != ErrorCode.OK){
+        if(elevatorInputs.lastLeaderError != ErrorCode.OK.toString()){
             leaderErrCount++;
         }
-        if(armInputs.lastArmError != ErrorCode.OK){
+        if(armInputs.lastArmError != ErrorCode.OK.toString()){
             armAzimuthErrCount++;
         }
-        if(armInputs.lastArmError != ErrorCode.OK){
+        if(armInputs.lastArmError != ErrorCode.OK.toString()){
             armErrCount++;
         }
         errCheckNum++;

@@ -20,8 +20,8 @@ public interface FloorIntakeIO {
         public double deployVelocityTarget = 0.0;
         public double deployDutyCycle = 0.0;
 
-        public ErrorCode lastDeployError = ErrorCode.OK;
-        public ErrorCode lastRollerError = ErrorCode.OK;
+        public String lastDeployError = ErrorCode.OK.toString();
+        public String lastRollerError = ErrorCode.OK.toString();
     }
 
     /** Updates the set of loggable inputs */

@@ -33,7 +33,7 @@ public class EndEffector {
         Logger.getInstance().processInputs("EndEffector", endEffectorInputs);
         endEffectorIO.updateFilter();
 
-        if(endEffectorInputs.lastError != ErrorCode.OK) {
+        if(endEffectorInputs.lastError != ErrorCode.OK.toString()) {
             ErrCount++;
         }
         endEffectorIO.clearFault();

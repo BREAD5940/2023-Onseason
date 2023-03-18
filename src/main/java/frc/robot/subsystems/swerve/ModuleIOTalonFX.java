@@ -109,9 +109,9 @@ public class ModuleIOTalonFX implements ModuleIO {
         inputs.turnCurrentAmps = steer.getStatorCurrent();
         inputs.turnTempCelcius = steer.getTemperature();
 
-        inputs.lastSteerError = steer.getLastError();
-        inputs.lastDriveError = drive.getLastError();
-        inputs.lastAzimuthError = azimuth.getLastError();
+        inputs.lastSteerError = steer.getLastError().toString();
+        inputs.lastDriveError = drive.getLastError().toString();
+        inputs.lastAzimuthError = azimuth.getLastError().toString();
     }
 
     @Override
@@ -132,6 +132,12 @@ public class ModuleIOTalonFX implements ModuleIO {
     public void setDrivePercent(double percent) {
         drive.set(TalonFXControlMode.PercentOutput, percent);
     }
+
+    @Override
+    public void setTurnPercent(double percent) {
+        steer.set(TalonFXControlMode.PercentOutput, percent);
+    }
+
 
     @Override
     public void setTurnAngle(double angleDeg) {
@@ -183,6 +189,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     }
 
     /* resets sticky faults to allow error to change from anything back to "ok" */
+    @Override
     public void clearFault(){
         steer.clearStickyFaults();
         drive.clearStickyFaults();

@@ -66,8 +66,8 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
         inputs.deployVelocityTarget = integratedSensorUnitsToDegreesPerSecond(deploy.getActiveTrajectoryVelocity());
         inputs.deployDutyCycle = deploy.getMotorOutputPercent();
 
-        inputs.lastDeployError = deploy.getLastError();
-        inputs.lastRollerError = deploy.getLastError();
+        inputs.lastDeployError = deploy.getLastError().toString();
+        inputs.lastRollerError = deploy.getLastError().toString();
     }
 
     @Override

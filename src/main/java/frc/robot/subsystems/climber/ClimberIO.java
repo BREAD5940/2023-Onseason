@@ -14,7 +14,7 @@ public interface ClimberIO {
         public double currentAmps = 0.0;
         public double tempCelcius = 0.0;
 
-        public ErrorCode lastClimberError = ErrorCode.OK;
+        public String lastClimberError = ErrorCode.OK.toString();
     }
 
     /* Updates the set of loggable inputs */

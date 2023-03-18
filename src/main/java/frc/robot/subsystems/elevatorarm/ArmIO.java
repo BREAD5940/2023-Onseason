@@ -17,8 +17,8 @@ public interface ArmIO {
         public double armTargetPosition = 0.0;
         public double armTargetVelocity = 0.0;
 
-        public ErrorCode lastArmError = ErrorCode.OK;
-        public ErrorCode lastArmAzimuthError = ErrorCode.OK;
+        public String lastArmError = ErrorCode.OK.toString();
+        public String lastArmAzimuthError = ErrorCode.OK.toString();
     }
 
     /** Updates the set of loggable inputs */

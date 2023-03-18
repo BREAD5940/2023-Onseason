@@ -43,7 +43,7 @@ public class EndEffectorIOTalonFX implements EndEffectorIO {
         inputs.avgStatorCurrentAmps = filter.getAverage();
         inputs.tempCelcius = motor.getTemperature();
 
-        inputs.lastError = motor.getLastError();
+        inputs.lastError = motor.getLastError().toString();
     }
 
     @Override

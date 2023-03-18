@@ -47,7 +47,7 @@ public class ClimberIOTalonFX implements ClimberIO {
         inputs.heightMeters = integratedSensorUnitsToMeters(climber.getSelectedSensorPosition());
         inputs.tempCelcius = climber.getTemperature();
 
-        inputs.lastClimberError = climber.getLastError();
+        inputs.lastClimberError = climber.getLastError().toString();
     }
 
     @Override

@@ -69,8 +69,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.currentAmps = new double[] {leader.getStatorCurrent(), follower.getStatorCurrent()};
         inputs.tempCelcius = new double[] {leader.getTemperature(), follower.getTemperature()};
 
-        inputs.lastFollowerError = follower.getLastError();
-        inputs.lastLeaderError = leader.getLastError();
+        inputs.lastFollowerError = follower.getLastError().toString();
+        inputs.lastLeaderError = leader.getLastError().toString();
     }
 
     @Override

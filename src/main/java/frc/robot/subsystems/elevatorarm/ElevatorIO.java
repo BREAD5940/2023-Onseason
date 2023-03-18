@@ -16,8 +16,8 @@ public interface ElevatorIO {
         public double[] currentAmps = new double[] {}; // {leader, follower}
         public double[] tempCelcius = new double[] {}; // {leader, follower}
 
-        public ErrorCode lastLeaderError = ErrorCode.OK;
-        public ErrorCode lastFollowerError = ErrorCode.OK;
+        public String lastLeaderError = ErrorCode.OK.toString();
+        public String lastFollowerError = ErrorCode.OK.toString();
     }
 
     /* Updates the set of loggable inputs */

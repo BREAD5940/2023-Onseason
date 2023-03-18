@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.net.InetAddress;
+
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 
 import Jama.Matrix;
@@ -227,6 +229,14 @@ public final class Constants {
         public static final double MID_TAPE_OFF_GROUND = 0.61;
         public static final double X_SCORING_POSITION = 1.85;
 
+    }
+
+    // Ips for the stuff
+    public static class Network {
+        public static final String radio = "10.59.40.1";
+        public static final String orangepi1 = "10.59.40.30";
+        public static final String orangepi2 = "10.59.40.31";
+        public static final String limelight = "10.59.40.11";
     }
   
 }

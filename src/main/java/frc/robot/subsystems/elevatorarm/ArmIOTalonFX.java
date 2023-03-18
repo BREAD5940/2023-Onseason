@@ -72,8 +72,8 @@ public class ArmIOTalonFX implements ArmIO {
         inputs.armTargetPosition = CANCoderSensorUnitsToDegrees(arm.getActiveTrajectoryPosition());
         inputs.armTargetPosition = CANCoderSensorUnitsToDegreesPerSecond(arm.getActiveTrajectoryVelocity());
 
-        inputs.lastArmAzimuthError = armAzimuth.getLastError();
-        inputs.lastArmError = arm.getLastError();
+        inputs.lastArmAzimuthError = armAzimuth.getLastError().toString();
+        inputs.lastArmError = arm.getLastError().toString();
     }
 
     @Override

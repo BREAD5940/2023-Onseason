@@ -45,10 +45,10 @@ public class FloorIntake {
         Logger.getInstance().processInputs("FloorIntake", floorIntakeInputs);
         Logger.getInstance().recordOutput("FloorIntakeSetpoint", closedLoopSetpoint[1]);
 
-        if(floorIntakeInputs.lastDeployError != ErrorCode.OK){
+        if(floorIntakeInputs.lastDeployError != ErrorCode.OK.toString()){
             deployErrCount++;
         }
-        if(floorIntakeInputs.lastRollerError != ErrorCode.OK){
+        if(floorIntakeInputs.lastRollerError != ErrorCode.OK.toString()){
             rollerErrCount++;
         }
         floorIntakeIO.clearFault();

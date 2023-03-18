@@ -99,13 +99,13 @@ public class Swerve extends SubsystemBase {
             Logger.getInstance().processInputs("Swerve/Module" + Integer.toString(i), moduleInputs[i]);
 
             /** Check motors for errors and add to tally */
-            if(moduleInputs[i].lastDriveError != ErrorCode.OK){
+            if(moduleInputs[i].lastDriveError != ErrorCode.OK.toString()){
                 driveErrCount[i]++;
             }
-            if(moduleInputs[i].lastSteerError != ErrorCode.OK){
+            if(moduleInputs[i].lastSteerError != ErrorCode.OK.toString()){
                 steerErrCount[i]++;
             }
-            if(moduleInputs[i].lastAzimuthError != ErrorCode.OK){
+            if(moduleInputs[i].lastAzimuthError != ErrorCode.OK.toString()){
                 azimuthErrCount[i]++;
             }
             moduleIOs[i].clearFault();

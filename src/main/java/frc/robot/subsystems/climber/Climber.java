@@ -44,7 +44,7 @@ public class Climber extends SubsystemBase {
     public void periodic() {
         climberIO.updateInputs(climberInputs);
          /* Fault Handling stuffs */
-         if(climberInputs.lastClimberError != ErrorCode.OK){
+         if(climberInputs.lastClimberError != ErrorCode.OK.toString()){
             climberErrCount++;
         }
         climberIO.clearFault();

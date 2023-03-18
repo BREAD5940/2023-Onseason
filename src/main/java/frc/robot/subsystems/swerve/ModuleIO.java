@@ -21,9 +21,9 @@ public interface ModuleIO {
         public double turnCurrentAmps = 0.0; 
         public double turnTempCelcius = 0.0;
 
-        public ErrorCode lastSteerError = ErrorCode.OK;
-        public ErrorCode lastDriveError = ErrorCode.OK;
-        public ErrorCode lastAzimuthError = ErrorCode.OK;
+        public String lastSteerError = ErrorCode.OK.toString();
+        public String lastDriveError = ErrorCode.OK.toString();
+        public String lastAzimuthError = ErrorCode.OK.toString();
     }
 
     /** Updates the set of loggable inputs */
@@ -34,6 +34,9 @@ public interface ModuleIO {
 
     /** Run the drive motor at a specified percent */
     public default void setDrivePercent(double percent) {}
+
+    /* Set the turn motor to a particular percent */
+    public default void setTurnPercent(double percent) {}
 
     /** Set the turn motor to a particular angle */
     public default void setTurnAngle(double positionRads) {}

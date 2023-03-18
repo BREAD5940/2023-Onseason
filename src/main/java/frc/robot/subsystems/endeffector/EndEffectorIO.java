@@ -13,7 +13,7 @@ public interface EndEffectorIO {
         public double appliedVoltage = 0.0;
         public double tempCelcius = 0.0;
 
-        public ErrorCode lastError = ErrorCode.OK;
+        public String lastError = ErrorCode.OK.toString();
     }
 
     /** Updates the set of loggable inputs */
