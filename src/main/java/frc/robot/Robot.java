@@ -44,7 +44,14 @@ public class Robot extends LoggedRobot {
   public static PathPlannerTrajectory threePieceB;
   public static PathPlannerTrajectory threePieceC;
   public static PathPlannerTrajectory threePieceD;
-  public static PathPlannerTrajectory threePieceE;
+  public static PathPlannerTrajectory threePieceBalance;
+  public static PathPlannerTrajectory threePieceSetup;
+
+  public static PathPlannerTrajectory threePieceBumpA;
+  public static PathPlannerTrajectory threePieceBumpB;
+  public static PathPlannerTrajectory threePieceBumpC;
+  public static PathPlannerTrajectory threePieceBumpD;
+  public static PathPlannerTrajectory threePieceBumpE;
 
   public static PathPlannerTrajectory twoPieceBalanceA;
   public static PathPlannerTrajectory twoPieceBalanceB;
@@ -83,21 +90,27 @@ public class Robot extends LoggedRobot {
 
     RobotContainer.superstructure.zeroSensors();
 
-    threePieceA = PathPlanner.loadPath("Three Piece A", new PathConstraints(4.0, 2.0));
-    threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(3.0, 2.0));
-    threePieceC = PathPlanner.loadPath("Three Piece C", new PathConstraints(4.0, 2.5));
-    threePieceD = PathPlanner.loadPath("Three Piece D", new PathConstraints(4.0, 2.0));
-    // threePieceA = PathPlanner.loadPath("Three Piece A", new PathConstraints(1.0, 0.5));
-    // threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(1.0, 0.5));
-    // threePieceC = PathPlanner.loadPath("Three Piece C", new PathConstraints(1.0, 0.5));
-    // threePieceD = PathPlanner.loadPath("Three Piece D", new PathConstraints(1.0, 0.5));
-    // threePieceE = PathPlanner.loadPath("Three Piece E", new PathConstraints(1.0, 0.5));
+    threePieceA = PathPlanner.loadPath("Three Piece A", new PathConstraints(4.0, 3.0));
+    threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(4.0, 3.0));
+    threePieceC = PathPlanner.loadPath("Three Piece C", new PathConstraints(4.0, 3.0));
+    threePieceD = PathPlanner.loadPath("Three Piece D", new PathConstraints(4.0, 3.0));
+    threePieceBalance = PathPlanner.loadPath("Three Piece Balance", new PathConstraints(4.0, 3.0));
+    threePieceSetup = PathPlanner.loadPath("Three Piece Setup", new PathConstraints(4.0, 3.0));
+
+    threePieceBumpA = PathPlanner.loadPath("Three Piece Bump A", new PathConstraints(4.0, 3.0));
+    threePieceBumpB = PathPlanner.loadPath("Three Piece Bump B", new PathConstraints(4.0, 3.0));
+    threePieceBumpC = PathPlanner.loadPath("Three Piece Bump C", new PathConstraints(4.0, 3.0));
+    threePieceBumpD = PathPlanner.loadPath("Three Piece Bump D", new PathConstraints(4.0, 3.0));
+    threePieceBumpE = PathPlanner.loadPath("Three Piece Bump E", new PathConstraints(4.0, 3.0));
+
     twoPieceBalanceA = PathPlanner.loadPath("Two Piece Balance A", new PathConstraints(2.0, 2.0));
     twoPieceBalanceB = PathPlanner.loadPath("Two Piece Balance B", new PathConstraints(2.0, 2.0));
     twoPieceBalanceC = PathPlanner.loadPath("Two Piece Balance C", new PathConstraints(2.0, 2.0));
+
     twoPieceBalanceBumpA = PathPlanner.loadPath("Two Piece Balance Bump A", new PathConstraints(2.0, 2.0));
     twoPieceBalanceBumpB = PathPlanner.loadPath("Two Piece Balance Bump B", new PathConstraints(2.0, 2.0));
     twoPieceBalanceBumpC = PathPlanner.loadPath("Two Piece Balance Bump C", new PathConstraints(2.0, 2.0));
+
     onePieceBalanceA = PathPlanner.loadPath("One Piece Balance A", new PathConstraints(2.0, 2.0));
     onePieceBalanceB = PathPlanner.loadPath("One Piece Balance B", new PathConstraints(2.0, 2.0));
     RobotContainer.swerve.resetAllToAbsolute();

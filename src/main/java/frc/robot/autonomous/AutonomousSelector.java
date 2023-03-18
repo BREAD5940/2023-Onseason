@@ -5,6 +5,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.autonomous.modes.OnePieceBalanceMode;
 import frc.robot.autonomous.modes.PreloadMode;
+import frc.robot.autonomous.modes.ThreePieceBalanceMode;
+import frc.robot.autonomous.modes.ThreePieceBumpMode;
+import frc.robot.autonomous.modes.ThreePieceMode;
 import frc.robot.autonomous.modes.TwoPieceBalanceBumpMode;
 import frc.robot.autonomous.modes.TwoPieceBalanceMode;
 import frc.robot.autonomous.modes.TwoPieceBumpMode;
@@ -40,6 +43,18 @@ public class AutonomousSelector {
         autonomusSelector.addOption(
             "TWO_PIECE_BUMP", 
             new TwoPieceBumpMode(superstructure, swerve)
+        );
+        autonomusSelector.addOption(
+            "THREE_PIECE", 
+            new ThreePieceMode(superstructure, swerve)
+        );
+        autonomusSelector.addOption(
+            "THREE_PIECE_BALANCE",
+            new ThreePieceBalanceMode(superstructure, swerve)
+        );
+        autonomusSelector.addOption(
+            "THREE_PIECE_BUMP",
+            new ThreePieceBumpMode(superstructure, swerve)
         );
         SmartDashboard.putData("Autonomus Selector", autonomusSelector);
     }

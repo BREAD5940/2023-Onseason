@@ -163,7 +163,7 @@ public final class Constants {
         public static final int ARM_AZIMUTH_ID = 31;
         public static final boolean ARM_AZIMUTH_INVERTED = true;
         public static final double ARM_AZIMUTH_DEGREE_OFFSET = 312.451171875 - 90.0; // Subtract 90 from the offset because the zero was obtained when the arm was pointing straight up
-        public static final double ARM_GEAR_RATIO = (1.0/78.7);
+        public static final double ARM_GEAR_RATIO = (1.0/78.7) * (60.0/27.0);
         public static final double ARM_MAX_VELOCITY = ((1.0/78.7) * 6380.0 * 360.0)/60.0;
 
         public static final double ARM_MAX_LIMITED_ELEVATOR_ROM = 117.24609375; 

@@ -1,12 +1,6 @@
 package frc.robot.autonomous.modes;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -21,17 +15,9 @@ import frc.robot.subsystems.swerve.TrajectoryFollowerCommand;
 
 import static frc.robot.Constants.Elevator.*;
 
-import java.util.List;
+public class ThreePieceBalanceMode extends SequentialCommandGroup {
 
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.PathPoint;
-import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
-
-public class ThreePieceMode extends SequentialCommandGroup {
-
-    public ThreePieceMode(Superstructure superstructure, Swerve swerve) {
+    public ThreePieceBalanceMode(Superstructure superstructure, Swerve swerve) {
         addRequirements(superstructure, swerve);
         addCommands(
             new InstantCommand(() -> swerve.requestPercent(new ChassisSpeeds(0, 0, 0), false)),
@@ -63,9 +49,8 @@ public class ThreePieceMode extends SequentialCommandGroup {
             new WaitCommand(0.1),
             new InstantCommand(() -> superstructure.requestIdle()),
             new WaitCommand(0.1),
-            new TrajectoryFollowerCommand(Robot.threePieceE, swerve, false),
+            new TrajectoryFollowerCommand(Robot.threePieceBalance, swerve, false),
             new RunCommand(() -> swerve.requestPercent(new ChassisSpeeds(0, 0, 0), false))
-
         );
     }
     

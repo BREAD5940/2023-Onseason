@@ -312,7 +312,7 @@ public class Superstructure extends SubsystemBase {
             } else {
                 elevatorArmLowLevel.requestDesiredState(preConeHighHeight.get(), coneAngle.get());
             }
-            endEffector.holdGamePiece();
+            endEffector.holdConeElevatorMoving();
             floorIntake.requestClosedLoop(0.0, INTAKE_IDLE_POSITION);
 
             // Transitions
@@ -359,7 +359,7 @@ public class Superstructure extends SubsystemBase {
                 elevatorArmLowLevel.requestDesiredState(coneSlamHeight.get(), slamConeAngle.get());
             }
             endEffector.enableBrakeMode(false);
-            endEffector.idling();
+            endEffector.holdConeElevatorMoving();
             floorIntake.requestClosedLoop(0.0, INTAKE_IDLE_POSITION);
 
             // Transitions
@@ -383,6 +383,7 @@ public class Superstructure extends SubsystemBase {
                 nextSystemState = SuperstructureState.PRE_HOME;
             } else if (!requestScore) {
                 nextSystemState = SuperstructureState.IDLE;
+                endEffector.holdConeElevatorMoving();
             }
         } else if (systemState == SuperstructureState.FLOOR_INTAKE_CONE_A) {
             // Outputs
