@@ -19,6 +19,7 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -31,6 +32,7 @@ import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.subsystems.swerve.ModuleIOTalonFX;
 import frc.robot.subsystems.swerve.ModuleIO.ModuleIOInputs;
 import frc.robot.EthernetLogger;
+import frc.robot.subsystems.vision.visionTest.CameraPoseTester;;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -120,6 +122,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotPeriodic() {
+	System.out.println("L Ben Herman");
     CommandScheduler.getInstance().run();
     Logger.getInstance().recordOutput("Alliance Color", alliance.toString());
     RobotContainer.operatorControls.updateSelection();
@@ -227,15 +230,18 @@ public class Robot extends LoggedRobot {
   @Override
   public void testInit() {
     CommandScheduler.getInstance().cancelAll();
+	m_robotContainer.setupCameraTester(6);
   }
 
   @Override
   public void testPeriodic() {
     boolean driveFlipper = false;
+	RobotContainer.northstarVision.periodic();
     loopcounter++;
 
     int i = 0;
-    if(loopcounter % 50 == 0){
+    Pair<CameraPoseTester.AlignmentTypes, CameraPoseTester.AlignmentTypes> cameraAlignments = m_robotContainer.updateCameraTester();
+    if(loopcounter % 10 == 0){
       while(i<4){
         System.out.println("----------- Module " + i + " CAN Failure Percentage -----------");
         System.out.println("Steer: " + RobotContainer.swerve.getSteerErrorConc(i));
@@ -257,6 +263,10 @@ public class Robot extends LoggedRobot {
       System.out.println("Rollers: " + RobotContainer.superstructure.getRollerErrorConc()*100 + "%");
       System.out.println("----------- End Effector Error Concentrations -----------");
       System.out.println("End Effector Motor: " + RobotContainer.superstructure.getEndEffectorErrorConc()*100 + "%");
+	  // test camera alignment
+	    System.out.println("----------- Camera Alignments -----------");
+	    System.out.println("left vs center: " + cameraAlignments.getFirst().toString());
+	    System.out.println("right vs center: " + cameraAlignments.getSecond().toString());
       RobotContainer.superstructure.resetError();
       System.out.println("----------- Ethernet Total Failed Packet Counts (20ms timeout) -----------");
       System.out.println("Radio: " + ethernetLogger.radioErrCount);
