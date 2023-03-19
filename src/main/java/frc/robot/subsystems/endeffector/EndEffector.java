@@ -4,7 +4,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix.ErrorCode;
 
-import frc.robot.commons.TunableNumber;
+import frc.robot.commons.LoggedTunableNumber;
 
 public class EndEffector {
 
@@ -13,10 +13,10 @@ public class EndEffector {
     private EndEffectorIOInputsAutoLogged endEffectorInputs = new EndEffectorIOInputsAutoLogged();
     
     /* Tunable numbers */
-    TunableNumber intakeConePercent = new TunableNumber("EndEffector/IntakeConePercent", 1.0);
-    TunableNumber intakeCubePercent = new TunableNumber("EndEffector/IntakeCubePercent", 0.9);
-    TunableNumber holdingPercent = new TunableNumber("EndEffector/HoldingPercent", 0.1);
-    TunableNumber spitCubePercent = new TunableNumber("EndEffector/SpitCubePercent", -1.0);
+    LoggedTunableNumber intakeConePercent = new LoggedTunableNumber("EndEffector/IntakeConePercent", 1.0);
+    LoggedTunableNumber intakeCubePercent = new LoggedTunableNumber("EndEffector/IntakeCubePercent", 0.9);
+    LoggedTunableNumber holdingPercent = new LoggedTunableNumber("EndEffector/HoldingPercent", 0.1);
+    LoggedTunableNumber spitCubePercent = new LoggedTunableNumber("EndEffector/SpitCubePercent", -1.0);
 
     // For fault detection
     private int ErrCount = 0;
@@ -42,7 +42,7 @@ public class EndEffector {
     /* For intaking cones */
     public void intakeCone() {
         endEffectorIO.setPercent(intakeConePercent.get());
-        endEffectorIO.setCurrentLimit( 100, 120.0);
+        endEffectorIO.setCurrentLimit( 180, 200.0);
     }
 
     /* For intaking cubes */
@@ -54,19 +54,25 @@ public class EndEffector {
     /* For holding a game piece */
     public void holdGamePiece() {
         endEffectorIO.setPercent(holdingPercent.get());
-        endEffectorIO.setCurrentLimit(20, 30.0);
+        endEffectorIO.setCurrentLimit(10, 15.0);
     }
 
     /* For spitting a cube */
     public void spitCube() {
         endEffectorIO.setPercent(spitCubePercent.get());
-        endEffectorIO.setCurrentLimit(40, 60.0);
+        endEffectorIO.setCurrentLimit(80, 100.0);
     }
 
     /* For idling */
     public void idling() {
         endEffectorIO.setPercent(0.0);
         endEffectorIO.setCurrentLimit(20, 30.0);
+    }
+
+    /* For holding a cone while moving the elevator */
+    public void holdConeElevatorMoving() {
+         endEffectorIO.setPercent(holdingPercent.get());
+         endEffectorIO.setCurrentLimit(30, 40.0);
     }
 
     /* Enables/disables brake mode */

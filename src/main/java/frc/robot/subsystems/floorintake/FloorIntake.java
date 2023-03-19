@@ -3,7 +3,9 @@ package frc.robot.subsystems.floorintake;
 import org.littletonrobotics.junction.Logger;
 
 import frc.robot.commons.BreadUtil;
-import frc.robot.commons.TunableNumber;
+import frc.robot.commons.LoggedTunableNumber;
+
+import static frc.robot.Constants.FloorIntake.*;
 
 import com.ctre.phoenix.ErrorCode;
 
@@ -69,11 +71,11 @@ public class FloorIntake {
             // Outputs
             floorIntakeIO.setRollerPercent(0.0);
             floorIntakeIO.setDeployVelocity(-50.0);
-            floorIntakeIO.setCurrentLimit(10.0, 15.0, 0.0);
+            floorIntakeIO.setCurrentLimit(20.0, 25.0, 0.0);
 
             // Transitions
             if (BreadUtil.getFPGATimeSeconds() - mStateStartTime > 0.25 && Math.abs(floorIntakeInputs.deployVelDegreesPerSecond) < 10.0) {
-                floorIntakeIO.resetDeployAngle(0.0);
+                floorIntakeIO.resetDeployAngle(FLOOR_INTAKE_ZERO);
                 nextSystemState = FloorIntakeStates.IDLE;
                 requestHome = false;
             }
@@ -93,7 +95,7 @@ public class FloorIntake {
             // Outputs
             floorIntakeIO.setRollerPercent(closedLoopSetpoint[0]);
             floorIntakeIO.setDeployAngle(closedLoopSetpoint[1]);
-            floorIntakeIO.setCurrentLimit(30.0, 40.0, 0.0);
+            floorIntakeIO.setCurrentLimit(50.0, 60.0, 1.5);
 
             // Transitions
             if (requestHome) {
@@ -112,6 +114,8 @@ public class FloorIntake {
     /* Requests the intake to home */
     public void requestHome() {
         requestHome = true;
+        requestIdle = false;
+        requestClosedLoop = false;
     }
 
     /* Requests the intake to go into its idling mode */

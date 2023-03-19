@@ -8,16 +8,22 @@ import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
-import frc.robot.commons.TunableNumber;
+import frc.robot.commons.LoggedTunableNumber;
+
 
 import static frc.robot.Constants.Climber.*;
 
 public class ClimberIOTalonFX implements ClimberIO {
 
-    TunableNumber climbingFF = new TunableNumber("ClimbingFF", CLIMBING_FF);
+    LoggedTunableNumber climbingFF = new LoggedTunableNumber("ClimbingFF", CLIMBING_FF);
     
     /** Instantiate the hardware */
     private TalonFX climber = new TalonFX(CLIMBER_ID, "dabus");
+
+    /** Current limit variables */
+    private double mCurrentLimit = 0.0;
+    private double mCurrentLimitTriggerThreshhold = 0.0;
+    private double mcurrentLimitThresholdTime = 0.0;
 
     public ClimberIOTalonFX() {
         /* Climber configs */
@@ -27,7 +33,7 @@ public class ClimberIOTalonFX implements ClimberIO {
         climberConfig.slot0.kD = integratedSensorUnitsToMeters(0.003) * 1023.0;
         climberConfig.voltageCompSaturation = 10.0;
         climberConfig.neutralDeadband = 0.001;
-        climberConfig.statorCurrLimit = new StatorCurrentLimitConfiguration(true, 100, 100, 1.5);
+        climberConfig.statorCurrLimit = new StatorCurrentLimitConfiguration(true, 60, 70, 1.5);
         climber.setInverted(CLIMBER_INVERT_TYPE);
         climber.setNeutralMode(NeutralMode.Coast);
         climber.setSensorPhase(true);
@@ -57,7 +63,17 @@ public class ClimberIOTalonFX implements ClimberIO {
 
     @Override
     public void setHeight(double height) {
-        climber.set(ControlMode.Position, metersToIntegratedSensorUnits(height), DemandType.ArbitraryFeedForward, CLIMBING_FF);
+        climber.set(ControlMode.Position, metersToIntegratedSensorUnits(height));
+    }
+
+    @Override
+    public void setCurrentLimits(double currentLimit, double currentLimitTriggerThreshold, double currentLimitThresholdTime) {
+        if (currentLimit != mCurrentLimit || currentLimitTriggerThreshold != mCurrentLimitTriggerThreshhold || currentLimitThresholdTime != mcurrentLimitThresholdTime) {
+            mCurrentLimit = currentLimit;
+            mCurrentLimitTriggerThreshhold = currentLimitTriggerThreshold;
+            mcurrentLimitThresholdTime = currentLimitThresholdTime;
+            climber.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, currentLimit, currentLimitTriggerThreshold, currentLimitThresholdTime));
+        }
     }
 
     @Override

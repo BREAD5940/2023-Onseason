@@ -1,0 +1,23 @@
+{
+  "NetworkTables Settings": {
+    "mode": "Client (NT4)",
+    "serverTeam": "10.59.40.2"
+  },
+  "transitory": {
+    "SmartDashboard": {
+      "TunableNumbers": {
+        "Arm": {
+          "open": true
+        },
+        "Elevator": {
+          "open": true
+        },
+        "EndEffector": {
+          "open": true
+        },
+        "open": true
+      },
+      "open": true
+    }
+  }
+}

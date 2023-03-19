@@ -13,6 +13,7 @@ public interface ArmIO {
         public double velDegreesPerSecondCC = 0.0;
         public double currentAmps = 0.0;
         public double appliedVoltage = 0.0;
+        public double appliedPercent = 0.0;
         public double tempCelcius = 0.0;
         public double armTargetPosition = 0.0;
         public double armTargetVelocity = 0.0;
@@ -38,5 +39,6 @@ public interface ArmIO {
 
     /* resets sticky faults to allow error to change from anything back to "ok" */
     public default void clearFault(){}
-    
+    /** Updates tunable numbers */
+    public default void updateTunableNumbers() {}    
 }

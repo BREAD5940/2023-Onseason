@@ -22,6 +22,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -33,6 +34,8 @@ import frc.robot.subsystems.swerve.ModuleIOTalonFX;
 import frc.robot.subsystems.swerve.ModuleIO.ModuleIOInputs;
 import frc.robot.EthernetLogger;
 import frc.robot.subsystems.vision.visionTest.*;
+import frc.robot.subsystems.climber.Climber.ClimberStates;
+import frc.robot.subsystems.vision.northstar.AprilTagVision;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -43,7 +46,7 @@ public class Robot extends LoggedRobot {
 
   PowerDistribution pdp;
 
-  private boolean homed = false;
+  private boolean requestedHome = false;
   private boolean intakeTriggered = false;
   private boolean coneIntakeTriggered = false;
 
@@ -51,7 +54,14 @@ public class Robot extends LoggedRobot {
   public static PathPlannerTrajectory threePieceB;
   public static PathPlannerTrajectory threePieceC;
   public static PathPlannerTrajectory threePieceD;
-  public static PathPlannerTrajectory threePieceE;
+  public static PathPlannerTrajectory threePieceBalance;
+  public static PathPlannerTrajectory threePieceSetup;
+
+  public static PathPlannerTrajectory threePieceBumpA;
+  public static PathPlannerTrajectory threePieceBumpB;
+  public static PathPlannerTrajectory threePieceBumpC;
+  public static PathPlannerTrajectory threePieceBumpD;
+  public static PathPlannerTrajectory threePieceBumpE;
 
   public static PathPlannerTrajectory twoPieceBalanceA;
   public static PathPlannerTrajectory twoPieceBalanceB;
@@ -61,11 +71,8 @@ public class Robot extends LoggedRobot {
   public static PathPlannerTrajectory twoPieceBalanceBumpB;
   public static PathPlannerTrajectory twoPieceBalanceBumpC;
 
-  public static PathPlannerTrajectory test;
-
-  public static int scoringSquare = 0; // Number 0-2
-  public static int scoringSpot = 0; // Number 0-2
-  public static Level scoringLevel = Level.HIGH;
+  public static PathPlannerTrajectory onePieceBalanceA;
+  public static PathPlannerTrajectory onePieceBalanceB;
 
   public static Alliance alliance = DriverStation.Alliance.Red;
   
@@ -97,27 +104,35 @@ public class Robot extends LoggedRobot {
 
     RobotContainer.superstructure.zeroSensors();
 
-    threePieceA = PathPlanner.loadPath("Three Piece A", new PathConstraints(4.0, 2.0));
-    threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(3.0, 2.0));
-    threePieceC = PathPlanner.loadPath("Three Piece C", new PathConstraints(4.0, 2.5));
-    threePieceD = PathPlanner.loadPath("Three Piece D", new PathConstraints(4.0, 2.0));
-    threePieceE = PathPlanner.loadPath("Three Piece E", new PathConstraints(4.0, 2.0));
-    // threePieceA = PathPlanner.loadPath("Three Piece A", new PathConstraints(1.0, 0.5));
-    // threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(1.0, 0.5));
-    // threePieceC = PathPlanner.loadPath("Three Piece C", new PathConstraints(1.0, 0.5));
-    // threePieceD = PathPlanner.loadPath("Three Piece D", new PathConstraints(1.0, 0.5));
-    // threePieceE = PathPlanner.loadPath("Three Piece E", new PathConstraints(1.0, 0.5));
-    twoPieceBalanceA = PathPlanner.loadPath("Two Piece Balance A", new PathConstraints(4.5, 2.5));
-    twoPieceBalanceB = PathPlanner.loadPath("Two Piece Balance B", new PathConstraints(4.5, 2.5));
+    threePieceA = PathPlanner.loadPath("Three Piece A", new PathConstraints(4.0, 3.0));
+    threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(4.0, 3.0));
+    threePieceC = PathPlanner.loadPath("Three Piece C", new PathConstraints(4.0, 3.0));
+    threePieceD = PathPlanner.loadPath("Three Piece D", new PathConstraints(4.0, 3.0));
+    threePieceBalance = PathPlanner.loadPath("Three Piece Balance", new PathConstraints(4.0, 3.0));
+    threePieceSetup = PathPlanner.loadPath("Three Piece Setup", new PathConstraints(4.0, 3.0));
+
+    threePieceBumpA = PathPlanner.loadPath("Three Piece Bump A", new PathConstraints(4.0, 3.0));
+    threePieceBumpB = PathPlanner.loadPath("Three Piece Bump B", new PathConstraints(4.0, 3.0));
+    threePieceBumpC = PathPlanner.loadPath("Three Piece Bump C", new PathConstraints(4.0, 3.0));
+    threePieceBumpD = PathPlanner.loadPath("Three Piece Bump D", new PathConstraints(4.0, 3.0));
+    threePieceBumpE = PathPlanner.loadPath("Three Piece Bump E", new PathConstraints(4.0, 3.0));
+
+    twoPieceBalanceA = PathPlanner.loadPath("Two Piece Balance A", new PathConstraints(2.0, 2.0));
+    twoPieceBalanceB = PathPlanner.loadPath("Two Piece Balance B", new PathConstraints(2.0, 2.0));
     twoPieceBalanceC = PathPlanner.loadPath("Two Piece Balance C", new PathConstraints(2.0, 2.0));
-    twoPieceBalanceBumpA = PathPlanner.loadPath("Two Piece Balance Bump A", new PathConstraints(2.0, 1.0));
-    twoPieceBalanceBumpB = PathPlanner.loadPath("Two Piece Balance Bump B", new PathConstraints(2.0, 1.0));
+
+
+    twoPieceBalanceBumpA = PathPlanner.loadPath("Two Piece Balance Bump A", new PathConstraints(2.0, 2.0));
+    twoPieceBalanceBumpB = PathPlanner.loadPath("Two Piece Balance Bump B", new PathConstraints(2.0, 2.0));
     twoPieceBalanceBumpC = PathPlanner.loadPath("Two Piece Balance Bump C", new PathConstraints(2.0, 2.0));
-    test = PathPlanner.loadPath("Test", new PathConstraints(1.0, 0.5));
+
+    onePieceBalanceA = PathPlanner.loadPath("One Piece Balance A", new PathConstraints(2.0, 2.0));
+    onePieceBalanceB = PathPlanner.loadPath("One Piece Balance B", new PathConstraints(2.0, 2.0));
     RobotContainer.swerve.resetAllToAbsolute();
 
     ethernetLogger = new EthernetLogger();
     ethernetLogger.start();
+    m_robotContainer.configureAutonomousSelector(); // Needed down here so auto paths exist when the selector is created
   }
 
   @Override
@@ -139,10 +154,17 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    
+    if (!requestedHome) {
+      RobotContainer.superstructure.requestHome();
+      requestedHome = true;
+    }
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+
+    alliance = DriverStation.getAlliance();
   }
 
   @Override
@@ -155,9 +177,9 @@ public class Robot extends LoggedRobot {
       m_autonomousCommand.cancel();
     }
 
-    if (!homed) {
+    if (!requestedHome) {
       RobotContainer.superstructure.requestHome();
-      homed = true;
+      requestedHome = true;
     }
 
     alliance = DriverStation.getAlliance();
@@ -174,7 +196,7 @@ public class Robot extends LoggedRobot {
 
     if (RobotContainer.driver.getRightTriggerAxis() > 0.05 && !intakeTriggered) {
       Supplier<Double> pressure = () -> {
-        if (RobotContainer.driver.getRightStickButton() && RobotContainer.driver.getRightTriggerAxis() > 0.95 ) {
+        if (RobotContainer.driver.getYButton() && RobotContainer.driver.getRightTriggerAxis() > 0.95 ) {
           return (RobotContainer.driver.getRightTriggerAxis() - 0.95) * (1.0 / 0.05);
         } else {
           return 0.0;
@@ -187,6 +209,10 @@ public class Robot extends LoggedRobot {
     if (RobotContainer.driver.getRightTriggerAxis() <= 0.05 && intakeTriggered) {
       intakeTriggered = false;
       RobotContainer.superstructure.requestIdle();
+    }
+
+    if (RobotContainer.driver.getRightBumperPressed()) {
+      RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
     }
 
     if (RobotContainer.driver.getRightBumperPressed()) {
@@ -213,18 +239,35 @@ public class Robot extends LoggedRobot {
       RobotContainer.superstructure.requestScore();
     }
 
-    // if (RobotContainer.driver.getRightStickButtonPressed()) {
-    //   RobotContainer.superstructure.requestIdle();
-    //   coneIntakeTriggered = false;
-    // }
-
-    if (RobotContainer.operator.getRightTriggerAxis() > 0.1) {
-      RobotContainer.climberIO.setPercent(1.0);
-    } else if (RobotContainer.operator.getLeftTriggerAxis() > 0.1) {
-      RobotContainer.climberIO.setPercent(-1.0);
-    } else {
-      RobotContainer.climberIO.setPercent(0.0);
+    if (RobotContainer.operator.getLeftStickButtonPressed()) {
+      RobotContainer.superstructure.requestIdle();
     }
+
+    if (RobotContainer.operator.getPOV() == 0 || RobotContainer.operator.getPOV() == 45 || RobotContainer.operator.getPOV() == 315) {
+      RobotContainer.superstructure.requestSpit();
+    }
+
+    
+    if (RobotContainer.operator.getRawButtonPressed(XboxController.Button.kStart.value)) {
+      RobotContainer.superstructure.requestPreScore(Level.LOW, GamePiece.CUBE);
+    }
+
+    if (RobotContainer.operator.getRightBumper() && RobotContainer.operator.getLeftBumper()) {
+      RobotContainer.climber.requestDeploy();
+    }
+
+
+    if (RobotContainer.climber.getSystemState() != ClimberStates.RETRACTED && RobotContainer.climber.getSystemState() != ClimberStates.DEPLOYING) {
+      if (RobotContainer.operator.getRightTriggerAxis() > 0.1) {
+        RobotContainer.climber.requestRun(RobotContainer.operator.getRightTriggerAxis());
+      } else if (RobotContainer.operator.getLeftTriggerAxis() > 0.1) {
+        RobotContainer.climber.requestRun(-RobotContainer.operator.getLeftTriggerAxis());
+      } else {
+        RobotContainer.climber.requestRun(0.0);
+      }
+    }
+
+    AprilTagVision.setTrustLevel(RobotContainer.operator.getPOV() == 135 || RobotContainer.operator.getPOV() == 180 || RobotContainer.operator.getPOV() == 225);
   }
 
   @Override

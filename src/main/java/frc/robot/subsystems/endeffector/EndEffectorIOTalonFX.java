@@ -11,6 +11,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.commons.AveragingFilter;
+import frc.robot.commons.Conversions;
 
 import static frc.robot.Constants.EndEffector.*;
 import static frc.robot.Constants.Electrical.*;
@@ -44,6 +45,8 @@ public class EndEffectorIOTalonFX implements EndEffectorIO {
         inputs.tempCelcius = motor.getTemperature();
 
         inputs.lastError = motor.getLastError().toString();
+
+        inputs.motorSpeed = Conversions.falconToRPM(motor.getSelectedSensorVelocity(), 1.0);
     }
 
     @Override
@@ -59,7 +62,7 @@ public class EndEffectorIOTalonFX implements EndEffectorIO {
     @Override
     public void setCurrentLimit(double currentLimit, double triggerThreshhold) {
         if (currentLimit != mCurrentLimit) {
-            motor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, currentLimit, triggerThreshhold, 1.5));
+            motor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, currentLimit, triggerThreshhold, 2.5));
             mCurrentLimit = currentLimit;
         }
     }

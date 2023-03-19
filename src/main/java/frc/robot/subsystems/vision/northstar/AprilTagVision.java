@@ -28,12 +28,61 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class AprilTagVision extends SubsystemBase {
-    private static final double targetLogTimeSecs = 0.1;
-    public static double mStdDevScalar;
-    private static final Pose3d[] cameraPoses;
-    private static final PolynomialRegression xyStdDevModel;
-    private static final PolynomialRegression thetaStdDevModel;
-    private static boolean trustHigh = false;
+
+        private static final double ambiguityThreshold = 0.15;
+        private static final double targetLogTimeSecs = 0.1;
+        public static  double mStdDevScalar;
+        private static final Pose3d[] cameraPoses;
+        private static final PolynomialRegression xyStdDevModel;
+        private static final PolynomialRegression thetaStdDevModel;
+        private static boolean trustHigh = false;
+
+        private final AprilTagVisionIO[] io;
+        private final AprilTagVisionIOInputs[] inputs;
+
+        private Supplier<Pose2d> poseSupplier = () -> new Pose2d();
+        private Consumer<List<TimestampedVisionUpdate>> visionConsumer = (x) -> {
+        };
+        private Map<Integer, Double> lastDetectionTimeIds = new HashMap<>();
+
+        static {
+                cameraPoses = new Pose3d[] {
+                                new Pose3d(-0.245 - Units.inchesToMeters(0.5), 0.33, 0.345,
+                                                new Rotation3d(0.0, 0.0, 0.541)),
+                                new Pose3d(-0.245 - Units.inchesToMeters(0.5), -0.33, 0.345,
+                                                new Rotation3d(-0.055 + Units.degreesToRadians(180), -0.03, -0.541)),
+                                new Pose3d(
+                                        Units.inchesToMeters(12.79), Units.inchesToMeters(-3), Units.inchesToMeters(13.43),
+                                                new Rotation3d(Units.degreesToRadians(180.0), Units.degreesToRadians(-9.5), Units.degreesToRadians(0.0))
+                                )
+
+                };
+                xyStdDevModel = new PolynomialRegression(
+                                new double[] {
+                                                0.752358, 1.016358, 1.296358, 1.574358, 1.913358, 2.184358, 2.493358,
+                                                2.758358,
+                                                3.223358, 4.093358, 4.726358
+                                },
+                                // new double[] {
+                                // 0.005, 0.0135, 0.016, 0.038, 0.0515, 0.0925, 0.0695, 0.046, 0.1245,
+                                // 0.0815, 0.193
+                                // },
+                                new double[] {
+                                                0.005, 0.0135, 0.016, 0.038, 0.0515, 0.0925, 0.12, 0.14, 0.17,
+                                                0.27, 0.38
+                                },
+                                2);
+                thetaStdDevModel = new PolynomialRegression(
+                                new double[] {
+                                                0.752358, 1.016358, 1.296358, 1.574358, 1.913358, 2.184358, 2.493358,
+                                                2.758358,
+                                                3.223358, 4.093358, 4.726358
+                                },
+                                new double[] {
+                                                0.008, 0.027, 0.015, 0.044, 0.04, 0.078, 0.049, 0.027, 0.059, 0.029,
+                                                0.068
+                                },
+                                1);
 
     private final AprilTagVisionIO[] io;
     private final AprilTagVisionIOInputs[] inputs;
@@ -54,48 +103,14 @@ public class AprilTagVision extends SubsystemBase {
 			new Pose3d(Units.inchesToMeters(12.79), Units.inchesToMeters(-3), Units.inchesToMeters(13.43),
 					new Rotation3d(Units.degreesToRadians(180.0), Units.degreesToRadians(-9.5), 0.0))*/
 
-			// beta camera poses
-			new Pose3d(-0.245, 0.33, 0.345,
-					new Rotation3d(3.031, 0.049, 0.593)),
-			new Pose3d(-0.245, -0.33, 0.345,
-					new Rotation3d(-0.055, -0.03, -0.541)),
-			new Pose3d(Units.inchesToMeters(8.640), Units.inchesToMeters(-5.163), Units.inchesToMeters(12.209),
-					new Rotation3d(0.0, Units.degreesToRadians(-25.0), 0.0))
-	};
-        xyStdDevModel = new PolynomialRegression(
-                new double[] {
-                        0.752358, 1.016358, 1.296358, 1.574358, 1.913358, 2.184358, 2.493358,
-                        2.758358,
-                        3.223358, 4.093358, 4.726358
-                },
-                // new double[] {
-                // 0.005, 0.0135, 0.016, 0.038, 0.0515, 0.0925, 0.0695, 0.046, 0.1245,
-                // 0.0815, 0.193
-                // },
-                new double[] {
-                        0.005, 0.0135, 0.016, 0.038, 0.0515, 0.0925, 0.12, 0.14, 0.17,
-                        0.27, 0.38
-                },
-                2);
-        thetaStdDevModel = new PolynomialRegression(
-                new double[] {
-                        0.752358, 1.016358, 1.296358, 1.574358, 1.913358, 2.184358, 2.493358,
-                        2.758358,
-                        3.223358, 4.093358, 4.726358
-                },
-                new double[] {
-                        0.008, 0.027, 0.015, 0.044, 0.04, 0.078, 0.049, 0.027, 0.059, 0.029,
-                        0.068
-                },
-                1);
-
-    }
-
-    public AprilTagVision(AprilTagVisionIO... io) {
-        this.io = io;
-        inputs = new AprilTagVisionIOInputs[io.length];
-        for (int i = 0; i < io.length; i++) {
-            inputs[i] = new AprilTagVisionIOInputs();
+                // Create map of last detection times
+                FieldConstants.aprilTags
+                                .keySet()
+                                .forEach(
+                                                (Integer id) -> {
+                                                        lastDetectionTimeIds.put(id, 0.0);
+                                                });
+                setTrustLevel(false);
         }
 
         // Create map of last detection times
@@ -125,14 +140,15 @@ public class AprilTagVision extends SubsystemBase {
             Logger.getInstance().processInputs("AprilTagVision/Inst" + Integer.toString(i), inputs[i]);
         }
 
-        // Loop over instances
-        Pose2d currentPose = poseSupplier.get();
-        List<TimestampedVisionUpdate> visionUpdates = new ArrayList<>();
-        for (int instanceIndex = 0; instanceIndex < io.length; instanceIndex++) {
-            List<Pose2d> visionPose2ds = new ArrayList<>();
-            List<Pose3d> tagPose3ds = new ArrayList<>();
-            List<Integer> tagIds = new ArrayList<>();
-            String cameraIdentifier = io[instanceIndex].getIdentifier();
+
+        public void periodic() {
+
+                Logger.getInstance().recordOutput("AprilTagVision/StdDevScalar", mStdDevScalar);
+
+                for (int i = 0; i < io.length; i++) {
+                        io[i].updateInputs(inputs[i]);
+                        Logger.getInstance().processInputs("AprilTagVision/Inst" + Integer.toString(i), inputs[i]);
+                }
 
             // Loop over frames
             for (int frameIndex = 0; frameIndex < inputs[instanceIndex].timestamps.length; frameIndex++) {
@@ -320,5 +336,9 @@ public class AprilTagVision extends SubsystemBase {
                 result.isOld = true;
             }
         }
-    }
+
+
+        public static void setTrustLevel(boolean isTrustHigh) {
+                mStdDevScalar = isTrustHigh ? 0.2 : 2.0;
+        }
 }

@@ -11,6 +11,7 @@ import com.ctre.phoenix.ErrorCode;
 import edu.wpi.first.math.MathUtil;
 import frc.robot.RobotContainer;
 import frc.robot.commons.BreadUtil;
+import frc.robot.commons.LoggedTunableNumber;
 
 public class ElevatorArmLowLevel {
 
@@ -37,6 +38,9 @@ public class ElevatorArmLowLevel {
     private int armErrCount = 0;
     private int armAzimuthErrCount = 0;
     private int errCheckNum = 1;
+
+    LoggedTunableNumber armOutput = new LoggedTunableNumber("Arm/ArmOutput", 0.0);
+    LoggedTunableNumber elevatorOutput = new LoggedTunableNumber("Elevator/ElevatorOutput", 0.0);
     
 
     /** Define variables in constructor */
@@ -62,6 +66,7 @@ public class ElevatorArmLowLevel {
 
         elevatorIO.updateInputs(elevatorInputs);
         elevatorIO.updateTunableNumbers();
+        armIO.updateTunableNumbers();
         armIO.updateInputs(armInputs);
 
         /* Fault Handling stuffs */
@@ -106,11 +111,11 @@ public class ElevatorArmLowLevel {
                 nextSystemState = ElevatorArmSystemStates.HOMING;
             }
         } else if (systemState == ElevatorArmSystemStates.HOMING) {
-            elevatorIO.setPercent(-0.2);
+            elevatorIO.setPercent(-0.3);
             armIO.setAngle(ARM_NEUTRAL_ANGLE);
 
             if (BreadUtil.getFPGATimeSeconds() - mStateStartTime > 0.25 && Math.abs(elevatorInputs.velMetersPerSecond) < 0.1) {
-                elevatorIO.resetHeight(0.0);
+                elevatorIO.resetHeight(ELEVATOR_HOMING_POSITION);
                 nextSystemState = ElevatorArmSystemStates.IDLE;
                 requestHome = false;
             }
@@ -152,7 +157,6 @@ public class ElevatorArmLowLevel {
     public void requestDesiredState(double elevatorHeight, double armAngle) {
         requestSetpointFollower = true;
         requestIdle = false;
-        requestSetpointFollower = true;
         heightSetpoint = elevatorHeight;
         angleSetpoint = armAngle;
     }
@@ -166,6 +170,8 @@ public class ElevatorArmLowLevel {
     /** Requests the elevator + arm to home */
     public void requestHome() {
         requestHome = true;
+        requestSetpointFollower = false;
+        requestIdle = false;
     }
 
     /** Zeros sensors */
@@ -192,6 +198,8 @@ public class ElevatorArmLowLevel {
     public double[] getState() {
         return new double[] {elevatorInputs.posMeters, armInputs.angleDegrees};
     }
+
+    /** Returns the height of the elevator */
 
     /** Returns the system state of the elevator and arm */
     public ElevatorArmSystemStates getSystemState() {

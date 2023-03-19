@@ -52,12 +52,12 @@ public class TrajectoryFollowerCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        // if (startHeading != null) {
-        //     RobotContainer.poseEstimator.resetPose(new Pose2d(
-        //         trajectory.sample(0.0).poseMeters.getTranslation(), 
-        //         startHeading.get()
-        //     ));
-        // }
+        if (startHeading != null) {
+            Pose2d startPose = AllianceFlipUtil.apply(new Pose2d(
+                trajectory.sample(0.0).poseMeters.getTranslation(), 
+                startHeading.get()));
+            RobotContainer.poseEstimator.resetPose(startPose);
+        }
         timer.reset();
         timer.start();
         balanceTimer.reset();
@@ -89,7 +89,8 @@ public class TrajectoryFollowerCommand extends CommandBase {
         if (stop) {
             return timer.get() >= trajectory.getTotalTimeSeconds();
         } else {
-            if (timer.get() >= trajectory.getTotalTimeSeconds() && Math.abs(swerve.getRoll()) < 0.15 && !balanceStarted) {
+            Pose2d poseError = trajectory.getEndState().poseMeters.relativeTo(RobotContainer.poseEstimator.getLatestPose());
+            if (timer.get() >= trajectory.getTotalTimeSeconds() && Math.abs(swerve.getRoll()) < 0.15 && !balanceStarted && poseError.getTranslation().getNorm() < 0.07) {
                 balanceStarted  = true;
                 balanceTimer.start();
             } 
@@ -100,7 +101,7 @@ public class TrajectoryFollowerCommand extends CommandBase {
                 balanceTimer.reset();
             }
 
-            return timer.get() >= trajectory.getTotalTimeSeconds() && balanceTimer.get() > 0.5;
+            return timer.get() >= trajectory.getTotalTimeSeconds() && balanceTimer.get() > 2.0;
         }
     }
 

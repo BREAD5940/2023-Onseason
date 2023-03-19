@@ -8,17 +8,22 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commons.PoseEstimator;
 import frc.robot.autonomous.modes.TwoPieceBalanceBumpMode;
 import frc.robot.autonomous.modes.TwoPieceBalanceMode;
+import frc.robot.drivers.LEDs;
+import frc.robot.autonomous.AutonomousSelector;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIOTalonFX;
@@ -38,8 +43,6 @@ import frc.robot.subsystems.vision.northstar.AprilTagVision;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIO;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIONorthstar;
 import frc.robot.subsystems.vision.visionTest.CameraPoseTester;
-
-import static frc.robot.FieldConstants.*;
 
 public class RobotContainer {
 
@@ -65,7 +68,10 @@ public class RobotContainer {
   
   public static final ClimberIOTalonFX climberIO = new ClimberIOTalonFX();
   public static final Climber climber = new Climber(climberIO);
-  private int cameraTestingId = 0;
+
+  public static final LEDs leds = new LEDs(0, 74);
+
+  private static AutonomousSelector autonomousSelector;
 
   public RobotContainer() {
     configureControls();
@@ -83,25 +89,26 @@ public class RobotContainer {
       double dx;
       double dy;
       if (Robot.alliance == DriverStation.Alliance.Blue) {
-        dx = Math.abs(x) > 0.075 ? Math.pow(-x, 1) * scale : 0.0;
-        dy = Math.abs(y) > 0.075 ? Math.pow(-y, 1) * scale : 0.0;
+        dx = Math.abs(x) > 0.05 ? Math.pow(-x, 1) * scale : 0.0;
+        dy = Math.abs(y) > 0.05 ? Math.pow(-y, 1) * scale : 0.0;
       } else {
-        dx = Math.abs(x) > 0.075 ? Math.pow(-x, 1) * scale * -1 : 0.0;
-        dy = Math.abs(y) > 0.075 ? Math.pow(-y, 1) * scale * -1 : 0.0;
+        dx = Math.abs(x) > 0.05 ? Math.pow(-x, 1) * scale * -1 : 0.0;
+        dy = Math.abs(y) > 0.05 ? Math.pow(-y, 1) * scale * -1 : 0.0;
       }
       double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.75 * scale : 0.0;
       swerve.requestPercent(new ChassisSpeeds(dx, dy, rot), true);
 
       // Sets the 0 of the robot
-      if (driver.getAButtonPressed()) {
-        poseEstimator.resetPose(new Pose2d());
-      }
-
-      // Sets the raw pose of the swerve
-      if (driver.getXButtonPressed()) {
-        swerve.resetRaw();
+      if (driver.getRawButtonPressed(XboxController.Button.kStart.value)) {
+        if (DriverStation.getAlliance() == Alliance.Blue) {
+          poseEstimator.resetPose(new Pose2d());
+        } else {
+          poseEstimator.resetPose(new Pose2d(new Translation2d(), new Rotation2d(Math.PI)));
+        }
       }
     }, swerve));
+
+    new JoystickButton(operator, XboxController.Button.kBack.value).onTrue(new InstantCommand(() -> superstructure.requestHome()));
 
     // superstructure.setDefaultCommand(new RunCommand(() -> {
     // if (RobotContainer.operator.getRightBumperPressed()) {
@@ -142,14 +149,15 @@ public class RobotContainer {
     // new InstantCommand(() -> superstructure.requestFloorIntakeCone())
     // );
 
-    new JoystickButton(driver, XboxController.Button.kRightBumper.value).whileTrue(new AutoPickupRoutine(
-        () -> new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(43.4), aprilTags.get(4).getY() - Units.inchesToMeters(20.5), new Rotation2d(0.0)),
-        (pose, time) -> new Rotation2d(0.0),
-        swerve,
-        superstructure));
 
-    new JoystickButton(driver, XboxController.Button.kLeftStick.value)
-        .whileTrue(new AutoPlaceCommand(swerve, superstructure));
+    new JoystickButton(driver, XboxController.Button.kX.value)
+        .whileTrue(new AutoPlaceCommand(swerve, superstructure, () -> operatorControls.getLastSelectedScoringLocation(), () -> operatorControls.getLastSelectedLevel()));
+
+    new JoystickButton(driver, XboxController.Button.kA.value)
+        .whileTrue(new AutoPickupRoutine(driver::getAButton, driver::getBButton, swerve, superstructure));
+
+    new JoystickButton(driver, XboxController.Button.kB.value)
+        .whileTrue(new AutoPickupRoutine(driver::getAButton, driver::getBButton, swerve, superstructure));
   }
 
   private void configureNorthstarVision() {
@@ -157,7 +165,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new TwoPieceBalanceBumpMode(superstructure, swerve);
+    return Commands.waitUntil(superstructure::homedOnce).andThen(autonomousSelector.get());
   }
 
   /**
@@ -178,6 +186,10 @@ public class RobotContainer {
 	cameraPoseTester.update();
 	return new Pair<CameraPoseTester.AlignmentTypes,CameraPoseTester.AlignmentTypes>(
 		cameraPoseTester.updateAlignmentCheck(leftCamera.getIdentifier(), centerCamera.getIdentifier(), cameraTestingId),
-		cameraPoseTester.updateAlignmentCheck(rightCamera.getIdentifier(), centerCamera.getIdentifier(), cameraTestingId));
+		cameraPoseTester.updateAlignmentCheck(rightCamera.getIdentifier(), centerCamera.getIdentifier(), cameraTestingId));    
+  }
+
+  public void configureAutonomousSelector() {
+    autonomousSelector = new AutonomousSelector(swerve, superstructure);
   }
 }

@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 
 import Jama.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -20,10 +21,12 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 
+import static frc.robot.FieldConstants.*;
+
 // All Constants
 public final class Constants {
 
-    public static boolean tuningMode = true;
+    public static boolean tuningMode = false;
     
     // Constants pertaining to the drive subsystem go here
     public static class Drive {
@@ -84,10 +87,10 @@ public final class Constants {
         // };
 
         public static final Rotation2d[] AZIMUTH_OFFSETS = {
-            Rotation2d.fromDegrees(80.859), // FL
-            Rotation2d.fromDegrees(115.488), // FR
-            Rotation2d.fromDegrees(312.890625), // BL
-            Rotation2d.fromDegrees(36.738) //BR
+            Rotation2d.fromDegrees(67.5), // FL
+            Rotation2d.fromDegrees(259.1), // FR
+            Rotation2d.fromDegrees(57.56), // BL
+            Rotation2d.fromDegrees(65.478515625) //BR
         };
 
         // Drive-by shooting constants
@@ -95,8 +98,8 @@ public final class Constants {
         public static final double RADIAL_SHOT_SCALAR = 0.9;
 
         // Measurements/Gearings
-        public static final double DRIVE_GEARING = (14.0/50.0) * (28.0/16.0) * (15.0/45.0);
-        public static final double STEER_GEARING = (150.0/7.0);
+        public static final double DRIVE_GEARING = 1/6.75;
+        public static final double STEER_GEARING = (24.0/8) * (72.0/14);
         public static final double ROBOT_WIDTH = Units.inchesToMeters(27.0 - 2.625 * 2.0);
         public static final double ROBOT_LENGTH = Units.inchesToMeters(28.0 - 2.625 * 2.0);
         // Madtown field callibration constant factor is 0.97
@@ -120,29 +123,37 @@ public final class Constants {
         public static final int ELEVATOR_LEFT_ID = 11;
         public static final int ELEVATOR_RIGHT_ID = 12;
 
-        public static final double ELEVATOR_GEARING = 0.13636363636;
+        public static final double ELEVATOR_GEARING = (9.0/44.0);
         public static final double ELEVATOR_PULLEY_PITCH_DIAMETER = 0.06096;
-        public static final double GRAVITY_FF = 0.00916666666;
-        public static final double CF_SPRING_FF = 0.00916666666;
-        public static final double SECOND_STAGE_HEIGHT = 0.5657486369247514;
+
+        public static final double ELEVATOR_BELOW_STAGE1_KG = -0.004;
+        public static final double ELEVATOR_ABOVE_STAGE1_KG = 0.028;
+
+        public static final double SECOND_STAGE_HEIGHT = 0.5872286463821073;
+
+        public static final double ELEVATOR_HOMING_POSITION = Units.inchesToMeters(1.0);
 
         public static final double ELEVATOR_MIN_LIMITED_ARM_ROM = 0.18;
-        public static final double ELEVATOR_MIN = 0.0;
-        public static final double ELEVATOR_MAX = 1.1712183954944326;
+        public static final double ELEVATOR_MIN = Units.inchesToMeters(-5.0);
+        public static final double ELEVATOR_MAX = 1.248288847926422;
         public static final double ELEVATOR_SETPOINT_TOLERANCE = Units.inchesToMeters(3.0);
-        public static final double ELEVATOR_MAX_VELOCITY = (6380.0 * ELEVATOR_GEARING * ELEVATOR_PULLEY_PITCH_DIAMETER * Math.PI)/60.0;
+        public static final double ELEVATOR_MAX_VELOCITY = (6380.0 * (10.5/12.0) * ELEVATOR_GEARING * ELEVATOR_PULLEY_PITCH_DIAMETER * Math.PI)/60.0;
 
-        public static final double ELEVATOR_PRE_CUBE_HIGH = 1.021;
-        public static final double ELEVATOR_PRE_CONE_HIGH = 1.115;
-        public static final double ELEVATOR_CONE_SLAM_HIGH = 1.115;
-        public static final double ELEVATOR_CONE_PULL_OUT_HIGH = 1.0;
-        public static final double ELEVATOR_CUBE_OFFSET = 0.659856;
-        public static final double ELEVATOR_CONE_OFFSET = 0.4702;
+        public static final double ELEVATOR_IDLE_POSE = 0.18;
+        public static final double ELEVATOR_PRE_CUBE_HIGH = 0.85;
+        public static final double ELEVATOR_PRE_CONE_HIGH = 1.21;
+        public static final double ELEVATOR_CONE_SLAM_HIGH = 1.21;
+        public static final double ELEVATOR_CONE_PULL_OUT_HIGH = 1.2;
+        public static final double ELEVATOR_CUBE_OFFSET = 0.509856;
+        public static final double ELEVATOR_CONE_OFFSET = 0.54;
         public static final double ELEVATOR_PRE_LOW = 0.34;
         public static final double ELEVATOR_FLOOR_INTAKE_CUBE = 0.15;
-        public static final double ELEVATOR_DOUBLE_SUBSTATION_CONE = 1.1;
+        public static final double ELEVATOR_DOUBLE_SUBSTATION_CONE = 1.15;
         // public static final double ELEVATOR_DOUBLE_SUBSTATION_CUBE = 1.115;
         public static final double ELEVATOR_DOUBLE_SUBSTATION_CUBE = 0.19550697818942656;
+
+        public static final TalonFXInvertType ELEVATOR_LEFT_INVERT_TYPE = TalonFXInvertType.CounterClockwise;
+        public static final TalonFXInvertType ELEVATOR_RIGHT_INVERT_TYPE = TalonFXInvertType.CounterClockwise;
     }
 
     // Constants pertaining to the arm subsystem go here
@@ -152,18 +163,20 @@ public final class Constants {
         public static final Rotation2d ARM_ENCODER_OFFSET = Rotation2d.fromDegrees(0.0);
 
         public static final int ARM_AZIMUTH_ID = 31;
-        public static final double ARM_AZIMUTH_DEGREE_OFFSET = 196.875;
-        public static final double ARM_GEAR_RATIO = (1.0/78.7);
+        public static final boolean ARM_AZIMUTH_INVERTED = true;
+        public static final double ARM_AZIMUTH_DEGREE_OFFSET = 312.451171875 - 90.0; // Subtract 90 from the offset because the zero was obtained when the arm was pointing straight up
+        public static final double ARM_GEAR_RATIO = (1.0/78.7) * (60.0/27.0);
         public static final double ARM_MAX_VELOCITY = ((1.0/78.7) * 6380.0 * 360.0)/60.0;
 
         public static final double ARM_MAX_LIMITED_ELEVATOR_ROM = 117.24609375; 
-        public static final double ARM_NEUTRAL_ANGLE = 90.0;
-        public static final double ARM_MIN = 0.0;
+        public static final double ARM_NEUTRAL_ANGLE = 110.0;
+        public static final double ARM_MIN = 8.61328125;
         public static final double ARM_MAX = 236.77734375;
         public static final double ARM_SETPOINT_TOLERANCE = 3.0;
-        public static final double ARM_NULL_RANGE = 300.0; // To 360 degrees
+        public static final double ARM_NULL_RANGE = 310.0; // To 360 degrees
 
-        public static final double ARM_PRE_SCORE_CUBE = 172.88867;
+        public static final double ARM_IDLE_POSE = 90.0;
+        public static final double ARM_PRE_SCORE_CUBE = 169.0;
         public static final double ARM_PRE_SCORE_CONE = 118.076;
         public static final double ARM_SLAM_CONE = 187.3828;
         public static final double ARM_PRE_SCORE_LOW = 230.0;
@@ -171,12 +184,17 @@ public final class Constants {
         public static final double ARM_DOUBLE_SUBSTATION_CONE = 178.4;
         // public static final double ARM_DOUBLE_SUBSTATION_CUBE = 211.6;
         public static final double ARM_DOUBLE_SUBSTATION_CUBE = 155.478515625;
+        public static final double ARM_UNJAM_POSITION = 26.0;
 
-        public static final double ARM_KP = 0.0;
+        public static final double ARM_KP = 0.03;
         public static final double ARM_KI = 0.0;
-        public static final double ARM_KD = 0.0;
-        public static final double ARM_KF = 0.0;
-        public static final double ARM_KG = 0.0;
+        public static final double ARM_KD = 0.0003;
+        public static final double ARM_EFFECTIVE_MAX_VELOCITY = 405.000000;
+        public static final double ARM_KG = 0.026;
+        public static final double ARM_KA = 0.0;
+
+        public static final double ARM_MAX_MOTION_ACCELERATION = 1400.0;
+        public static final double ARM_MAX_MOTION_CRUISE_VELOCITY = 375.0;
         
     }
 
@@ -194,13 +212,21 @@ public final class Constants {
         public static final int DEPLOY_ID = 16;
         public static final int ROLLER_ID = 17;
 
-        public static final double DEPLOY_GEAR_RATIO = 1.0/83.33;
-        public static final TalonFXInvertType DEPLOY_INVERT_TYPE = TalonFXInvertType.CounterClockwise;
+        public static final double DEPLOY_GEAR_RATIO = (12.0/36) * (20.0/100) * (18.0/60) * (12.0/24);
+        public static final TalonFXInvertType DEPLOY_INVERT_TYPE = TalonFXInvertType.Clockwise;
         public static final TalonFXInvertType ROLLER_INVERT_TYPE = TalonFXInvertType.CounterClockwise;
         public static final double DEPLOY_MAX_SPEED = (6380.0 * DEPLOY_GEAR_RATIO * 360.0)/60.0;
         public static final double INTAKE_MIN_POSITION = 0.0;
         public static final double INTAKE_MAX_POSITION = 190.75;
-        public static final double INTAKE_IDLE_POSITION = 33.04046224348974;
+        public static final double INTAKE_IDLE_POSITION = 28.04046224348974;
+        public static final double INTAKE_UNJAM_POSITION = 42.0;
+
+        public static final double FLOOR_INTAKE_KP = 0.0;
+        public static final double FLOOR_INTAKE_KD = 0.0;
+        public static final double FLOOR_INTAKE_KF = 0.0;
+        public static final double FLOOR_INTAKE_KG = 0.0;
+
+        public static final double FLOOR_INTAKE_ZERO = -5.0;
     }
 
     // Constants pertaining to the climber subsystem
@@ -209,13 +235,14 @@ public final class Constants {
         public static final double CLIMBING_FF = 0.0;
         public static final double CLIMBER_GEARING = 1.0;
         public static final double CLIMBER_PULLEY_DIAMETER = 1.0;
-        public static final double CLIMBER_DEPLOY_HEIGHT = 0.1;
-        public static final double CLIMBER_SETPOINT_TOLERANCE = 0.05;
-        public static final TalonFXInvertType CLIMBER_INVERT_TYPE = TalonFXInvertType.CounterClockwise;
+        public static final double CLIMBER_DEPLOY_HEIGHT = 117.59343321852536;
+        public static final double CLIMBER_SETPOINT_TOLERANCE = 3.0;
+        public static final TalonFXInvertType CLIMBER_INVERT_TYPE = TalonFXInvertType.Clockwise;
     }
 
     // Constants pertaining to electrical
     public static class Electrical {
+        public static final double FALCON_FULL_THROTTLE = 1023.0;
         public static final String CANIVORE_BUS_NAME = "dabus"; 
     }
 
@@ -223,8 +250,8 @@ public final class Constants {
     public static class Vision {
         public static final Transform3d ROBOT_TO_LL =
                 new Transform3d(
-                        new Translation3d(0.26, 0.25, 0.29),
-                        new Rotation3d(Units.degreesToRadians(0.7496413), Units.degreesToRadians(-38.0), 0.0)); //Units.degreesToRadians(1.6593493)));
+                        new Translation3d(Units.inchesToMeters(12), Units.inchesToMeters(-9), Units.inchesToMeters(10)),
+                        new Rotation3d(Units.degreesToRadians(0.0), Units.degreesToRadians(-23.5), 0.0)); //Units.degreesToRadians(1.6593493)));
         public static final double HIGH_TAPE_OFF_GROUND = 1.12;
         public static final double MID_TAPE_OFF_GROUND = 0.61;
         public static final double X_SCORING_POSITION = 1.85;
@@ -237,6 +264,19 @@ public final class Constants {
         public static final String orangepi1 = "10.59.40.30";
         public static final String orangepi2 = "10.59.40.31";
         public static final String limelight = "10.59.40.11";
+    }
+
+    // Constants pertaining to the LEDs 
+    public static class LEDs {
+        public static final int[] PURPLE = {255, 0, 255};
+        public static final int[] YELLOW = {255, 255, 0};
+    }
+
+    // Constants pertaining to robot locations on the field
+    public static class RobotLocations {
+        public static final Pose2d FIELD_SIDE_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(51.4), aprilTags.get(4).getY() - Units.inchesToMeters(29), new Rotation2d());
+        public static final Pose2d WALL_SIDE_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(51.4), aprilTags.get(4).getY() + Units.inchesToMeters(29), new Rotation2d());
+
     }
   
 }

@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.commons.AllianceFlipUtil;
-import frc.robot.commons.TunableNumber;
+import frc.robot.commons.LoggedTunableNumber;
 import frc.robot.commons.LimelightHelpers.LimelightTarget_Retro;
 import frc.robot.commons.PoseEstimator.TimestampedVisionUpdate;
 import frc.robot.subsystems.Superstructure;
@@ -28,6 +28,8 @@ import static frc.robot.FieldConstants.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -46,6 +48,9 @@ public class AutoPlaceCommand extends CommandBase {
     private boolean scored = false;
     private Level level;
 
+    private Supplier<Integer> scoringLocationSup; 
+    private Supplier<Level> levelSup;
+
     private final PIDController xController = new PIDController(4.0, 0.0, 0.004);
     private final PIDController yController = new PIDController(4.0, 0.0, 0.004);
     private final PIDController thetaController = new PIDController(5.0, 0.0, 0.0);
@@ -53,10 +58,12 @@ public class AutoPlaceCommand extends CommandBase {
     private final Swerve swerve;
     private final Superstructure superstructure;
 
-    public AutoPlaceCommand(Swerve swerve, Superstructure superstructure) {
+    public AutoPlaceCommand(Swerve swerve, Superstructure superstructure, Supplier<Integer> scoringLocationSup, Supplier<Level> levelSup) {
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
         this.swerve = swerve;
         this.superstructure = superstructure;
+        this.scoringLocationSup = scoringLocationSup;
+        this.levelSup = levelSup;
         addRequirements(swerve, superstructure);
     }
 
@@ -66,11 +73,11 @@ public class AutoPlaceCommand extends CommandBase {
         isUsingLimelight = false;
         linedUp = false;
         scored = false;
-        int scoringLocation = RobotContainer.operatorControls.getLastSelectedScoringLocation();
+        int scoringLocation = scoringLocationSup.get();
         if (DriverStation.getAlliance() == Alliance.Blue) {
             scoringLocation = 10 - scoringLocation;
         }
-        this.level = RobotContainer.operatorControls.getLastSelectedLevel();
+        this.level = levelSup.get();
         if (level == Level.HIGH) {
             Translation2d xyNodeTranslation = AllianceFlipUtil.apply(Grids.highTranslations[scoringLocation - 1]);
             nodeLocation = new Pose3d(
@@ -78,7 +85,8 @@ public class AutoPlaceCommand extends CommandBase {
                     xyNodeTranslation.getY(),
                     HIGH_TAPE_OFF_GROUND,
                     new Rotation3d());
-        } else if (level == Level.MID) {
+        } else 
+        if (level == Level.MID) {
             Translation2d xyNodeTranslation = AllianceFlipUtil.apply(Grids.midTranslations[scoringLocation - 1]);
             nodeLocation = new Pose3d(
                     xyNodeTranslation.getX(),
@@ -93,10 +101,14 @@ public class AutoPlaceCommand extends CommandBase {
                     0.0,
                     new Rotation3d());
         }
-        targetRobotPose = new Pose2d(X_SCORING_POSITION, nodeLocation.getY(), new Rotation2d(Math.PI));
+        isCubeNode = (scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8);
+        if (isCubeNode) {
+            targetRobotPose = new Pose2d(X_SCORING_POSITION + 0.1, nodeLocation.getY(), new Rotation2d(Math.PI));
+        } else {
+            targetRobotPose = new Pose2d(X_SCORING_POSITION, nodeLocation.getY(), new Rotation2d(Math.PI));
+        }
         preTargetRobotPose = new Pose2d(targetRobotPose.getX() + 0.5, targetRobotPose.getY(), targetRobotPose.getRotation());
         shouldUseLimelight = !(scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8 || level == Level.LOW);
-        isCubeNode = (scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8);
     }
 
     @Override
@@ -156,24 +168,28 @@ public class AutoPlaceCommand extends CommandBase {
 
         if (!scored) {
             if (level == Level.LOW) {
-                if (superstructure.atElevatorSetpoint(ELEVATOR_PRE_LOW)) {
+                if (superstructure.atElevatorSetpoint(Superstructure.preLowHeight.get())) {
                     superstructure.requestScore();
                     scored = true;
                 }
             } else if (isCubeNode) {
-                if (superstructure.atElevatorSetpoint(level == Level.HIGH ? ELEVATOR_PRE_CUBE_HIGH : ELEVATOR_PRE_CUBE_HIGH - ELEVATOR_CUBE_OFFSET)) {
+                if (superstructure.atElevatorSetpoint(level == Level.HIGH ? Superstructure.preCubeHighHeight.get() : Superstructure.preCubeHighHeight.get() - Superstructure.cubeOffset.get())) {
                     superstructure.requestScore();
                     scored = true;
                 }
             } else if (!isCubeNode) {
-                if (superstructure.atElevatorSetpoint(level == Level.HIGH ? ELEVATOR_PRE_CONE_HIGH : ELEVATOR_PRE_CONE_HIGH - ELEVATOR_CONE_OFFSET)) {
+                if (superstructure.atElevatorSetpoint(level == Level.HIGH ? Superstructure.preConeHighHeight.get() : Superstructure.preConeHighHeight.get() - Superstructure.coneOffset.get())) {
                     superstructure.requestScore();
                     scored = true;
                 }
             }
         }
-
-        swerve.requestVelocity(new ChassisSpeeds(xFeedback, yFeedback, thetaFeedback), true, false);
+        
+        if (!linedUp) {
+            swerve.requestVelocity(new ChassisSpeeds(xFeedback, yFeedback, thetaFeedback), true, false);
+        } else {
+            swerve.requestVelocity(new ChassisSpeeds(0, 0, 0), true, false);
+        }
 
         Logger.getInstance().recordOutput("AutoPlace/RealGoal", realGoal);
         Logger.getInstance().recordOutput("AutoPlace/TargetRobotPose", targetRobotPose);

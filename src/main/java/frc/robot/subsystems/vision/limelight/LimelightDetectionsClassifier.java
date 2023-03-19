@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.commons.BreadUtil;
 import frc.robot.commons.LimelightHelpers;
-import frc.robot.commons.TunableNumber;
+import frc.robot.commons.LoggedTunableNumber;
 import frc.robot.commons.LimelightHelpers.LimelightResults;
 import frc.robot.commons.LimelightHelpers.LimelightTarget_Retro;
 
@@ -28,7 +28,7 @@ public class LimelightDetectionsClassifier extends SubsystemBase {
     private LimelightTarget_Retro[] rawDetections;
     private double timestamp;
 
-    TunableNumber latency = new TunableNumber("Latency", 11);
+    LoggedTunableNumber latency = new LoggedTunableNumber("Latency", 11);
 
     public LimelightDetectionsClassifier(String cameraName) {
         this.cameraName = cameraName;

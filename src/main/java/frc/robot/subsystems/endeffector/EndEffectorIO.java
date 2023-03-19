@@ -14,6 +14,8 @@ public interface EndEffectorIO {
         public double tempCelcius = 0.0;
 
         public String lastError = ErrorCode.OK.toString();
+
+        public double motorSpeed = 0.0;
     }
 
     /** Updates the set of loggable inputs */
