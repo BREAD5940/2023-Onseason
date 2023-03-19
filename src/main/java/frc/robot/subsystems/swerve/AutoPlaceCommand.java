@@ -115,13 +115,16 @@ public class AutoPlaceCommand extends CommandBase {
     public void execute() { 
         Pose2d realGoal = AllianceFlipUtil.apply(targetRobotPose);
         Pose2d poseError = realGoal.relativeTo(RobotContainer.poseEstimator.getLatestPose());
-        if (Math.abs(poseError.getY()) > Units.inchesToMeters(6.0)) {
+        if (Math.abs(poseError.getY()) > Units.inchesToMeters(12.0)) {
             realGoal = AllianceFlipUtil.apply(preTargetRobotPose);
         }
+        double translationalError = poseError.getTranslation().getNorm();
+        double maxTranslationalRange = Units.inchesToMeters(18.0);
+        double minTranslationalRange = Units.inchesToMeters(12.0);
 
-        Pose2d measurement = RobotContainer.poseEstimator.getLatestPose();
         if (shouldUseLimelight) {
-            if (poseError.getTranslation().getNorm() < Units.inchesToMeters(12.0) || isUsingLimelight) { // Start using limelight
+            
+            if (translationalError < maxTranslationalRange || isUsingLimelight) { // Start using limelight
                 List<TimestampedVisionUpdate> limelightUpdate = new ArrayList<>();
                 
                 ArrayList<Pose3d> poses = RobotContainer.limelightVision.getTargets(level == Level.HIGH ? true : false);
@@ -129,6 +132,13 @@ public class AutoPlaceCommand extends CommandBase {
                 int indexOfPoseClosestToTarget = getIndexOfPoseClosestToTarget(poses);
 
                 // isUsingLimelight = true;
+
+                double maxStdDev = 0.005;
+                double minStdDev = 0.00005;
+                double stdDevRange = (maxStdDev - minStdDev);
+                double t = (translationalError - minTranslationalRange)/(maxTranslationalRange - minTranslationalRange);
+                double stdDev = minStdDev + t * stdDevRange;
+                stdDev = MathUtil.clamp(stdDev, minStdDev, maxStdDev);
 
                 Logger.getInstance().recordOutput("AutoPlace/IndexOfPoseClosestToTarget", indexOfPoseClosestToTarget);
                 if (indexOfPoseClosestToTarget != -1) {
@@ -139,7 +149,7 @@ public class AutoPlaceCommand extends CommandBase {
                     limelightUpdate.add(new TimestampedVisionUpdate(
                         RobotContainer.limelightVision.getAssociatedTimestamp(), 
                         llRobotPose.toPose2d(), 
-                        VecBuilder.fill(0.00005, 0.00005, 1.0E6)
+                        VecBuilder.fill(stdDev, stdDev, 1.0E6)
                     ));
 
                     Logger.getInstance().recordOutput("LimelightEstimatedRobotPose", llRobotPose);
@@ -150,7 +160,8 @@ public class AutoPlaceCommand extends CommandBase {
             }
         }
 
-        
+        Pose2d measurement = RobotContainer.poseEstimator.getLatestPose();
+
         double xFeedback = xController.calculate(measurement.getX(), realGoal.getX());
         double yFeedback = yController.calculate(measurement.getY(), realGoal.getY());
         double thetaFeedback = thetaController.calculate(
