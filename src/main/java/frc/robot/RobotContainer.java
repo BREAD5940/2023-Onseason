@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -39,6 +40,8 @@ import frc.robot.subsystems.vision.limelight.LimelightDetectionsClassifier;
 import frc.robot.subsystems.vision.northstar.AprilTagVision;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIO;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIONorthstar;
+import frc.robot.subsystems.vision.visionTest.CameraPoseTester;
+
 
 public class RobotContainer {
 
@@ -60,12 +63,15 @@ public class RobotContainer {
   private static final AprilTagVisionIO centerCamera = new AprilTagVisionIONorthstar("northstar-center");
   public static final AprilTagVision northstarVision = new AprilTagVision(leftCamera, rightCamera, centerCamera);
   public static final PoseEstimator poseEstimator = new PoseEstimator(VecBuilder.fill(0.005, 0.005, 0.0005));
+  public static final CameraPoseTester cameraPoseTester = new CameraPoseTester(northstarVision);
   
   public static final ClimberIOTalonFX climberIO = new ClimberIOTalonFX();
   public static final Climber climber = new Climber(climberIO);
   public static final LEDs leds = new LEDs(0, 74);
 
   private static AutonomousSelector autonomousSelector;
+
+  private int cameraTestingId = 0;
 
   public RobotContainer() {
     configureControls();
@@ -164,4 +170,25 @@ public class RobotContainer {
   public void configureAutonomousSelector() {
     autonomousSelector = new AutonomousSelector(swerve, superstructure);
   }
+
+  /**
+   * Used to start the camera tester
+   * @param tagId
+   */
+  public void setupCameraTester(int tagId) {
+    cameraTestingId = tagId;
+    cameraPoseTester.startAlignmentCheck(leftCamera.getIdentifier(), centerCamera.getIdentifier(), cameraTestingId);
+    cameraPoseTester.startAlignmentCheck(rightCamera.getIdentifier(), centerCamera.getIdentifier(), cameraTestingId);
+    }
+  
+    /**
+     * Used to update and retrive results form the camera tester
+     * @return a pair with the left vs center in the first and the right vs center in the second
+     */
+    public Pair<CameraPoseTester.AlignmentTypes, CameraPoseTester.AlignmentTypes> updateCameraTester() {
+    cameraPoseTester.update();
+    return new Pair<CameraPoseTester.AlignmentTypes,CameraPoseTester.AlignmentTypes>(
+      cameraPoseTester.updateAlignmentCheck(leftCamera.getIdentifier(), centerCamera.getIdentifier(), cameraTestingId),
+      cameraPoseTester.updateAlignmentCheck(rightCamera.getIdentifier(), centerCamera.getIdentifier(), cameraTestingId));
+    }
 }

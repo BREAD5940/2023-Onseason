@@ -550,5 +550,47 @@ public class Superstructure extends SubsystemBase {
         return homedOnce;
     }
 
+     /* Returns the error concentration for the arm motor */
+     public double getArmErrorConc(){
+        return(elevatorArmLowLevel.getArmErrorConc());
+    }
+
+    /* Returns the error concentration for the arm encoder */
+    public double getArmAzimuthErrorConc(){
+        return(elevatorArmLowLevel.getArmAzimuthErrorConc());
+    }
+
+    /* Returns the error concentration for the leading elevator motor */
+    public double getLeaderErrorConc(){
+        return(elevatorArmLowLevel.getLeaderErrorConc());
+    }
+
+    /* Returns the Error concentration for the following elevator motor */
+    public double getFollowerErrorConc(){
+        return(elevatorArmLowLevel.getFollowerErrorConc());
+    }
+
+    /* Returns the Error concentration for the intake roller motor */
+    public double getRollerErrorConc(){
+        return(floorIntake.getRollerErrorConc());
+    }
+
+    /* Returns the Error concentration for the intake deploy motor */
+    public double getDeployErrorConc(){
+        return(floorIntake.getDeployErrorConc());
+    }
+
+    /* Returns the Error concentration for the end effector motor */
+    public double getEndEffectorErrorConc(){
+        return(endEffector.getEndEffectorErrorConc());
+    }
+
+    /* Resets error counters */
+    public void resetError(){
+        elevatorArmLowLevel.resetError();
+        floorIntake.resetError();
+        endEffector.resetError();
+    }
+
 }
 

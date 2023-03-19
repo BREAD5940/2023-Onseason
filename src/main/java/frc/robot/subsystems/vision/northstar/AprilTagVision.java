@@ -17,6 +17,8 @@ import frc.robot.commons.GeomUtil;
 import frc.robot.commons.PolynomialRegression;
 import frc.robot.commons.PoseEstimator.TimestampedVisionUpdate;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIO.AprilTagVisionIOInputs;
+import frc.robot.subsystems.vision.visionTest.AprilTagResult;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +47,8 @@ public class AprilTagVision extends SubsystemBase {
         private Consumer<List<TimestampedVisionUpdate>> visionConsumer = (x) -> {
         };
         private Map<Integer, Double> lastDetectionTimeIds = new HashMap<>();
+        private Map<Integer, Map<String, AprilTagResult>> latestTagReadings = new HashMap<>();;
+
 
         static {
                 cameraPoses = new Pose3d[] {
@@ -126,6 +130,7 @@ public class AprilTagVision extends SubsystemBase {
                         List<Pose2d> visionPose2ds = new ArrayList<>();
                         List<Pose3d> tagPose3ds = new ArrayList<>();
                         List<Integer> tagIds = new ArrayList<>();
+                        String cameraIdentifier = io[instanceIndex].getIdentifier();
 
                         // Loop over frames
                         for (int frameIndex = 0; frameIndex < inputs[instanceIndex].timestamps.length; frameIndex++) {
@@ -218,6 +223,17 @@ public class AprilTagVision extends SubsystemBase {
                                         // Logger.getInstance().recordOutput("Robot To Cam",
                                         // GeomUtil.transform3dToPose3d(robotToCam));
 
+                                        // Set latest tag pose per input
+                                        if (!latestTagReadings.containsKey(tagId)) {
+                                                latestTagReadings.put(tagId, new HashMap<String, AprilTagResult>());
+                                        }
+                                        latestTagReadings.get(tagId).put(cameraIdentifier, new AprilTagResult(
+                                                error0,
+                                                cameraPoses[instanceIndex].transformBy(GeomUtil.pose3dToTransform3d(pose0)),
+                                                error1,
+                                                cameraPoses[instanceIndex].transformBy(GeomUtil.pose3dToTransform3d(pose1)),
+                                                timestamp));
+
                                         // Log tag pose
                                         tagPose3ds.add(tagPose);
                                         tagIds.add(tagId);
@@ -297,5 +313,17 @@ public class AprilTagVision extends SubsystemBase {
 
         public static void setTrustLevel(boolean isTrustHigh) {
                 mStdDevScalar = isTrustHigh ? 0.2 : 2.0;
+        }
+
+        public Map<Integer, Map<String, AprilTagResult>> getLatestTagReadings() {
+                return latestTagReadings;
+        }
+
+        private void makeLatestTagOld(){
+                for (Map<String, AprilTagResult> tagReading : latestTagReadings.values()) {
+                    for (AprilTagResult result : tagReading.values()) {
+                        result.isOld = true;
+                    }
+                }
         }
 }

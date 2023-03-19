@@ -7,6 +7,8 @@ import frc.robot.commons.LoggedTunableNumber;
 
 import static frc.robot.Constants.FloorIntake.*;
 
+import com.ctre.phoenix.ErrorCode;
+
 public class FloorIntake {
 
     /* IO and inputs classes */
@@ -29,6 +31,12 @@ public class FloorIntake {
 
     }
 
+    // For fault detection
+    private int deployErrCount = 0;
+    private int rollerErrCount = 0;
+    private int errCheckNum = 1;
+
+
     /* Instantiate IO class in the constructor */
     public FloorIntake(FloorIntakeIO floorIntakeIO) {
         this.floorIntakeIO = floorIntakeIO;
@@ -39,6 +47,15 @@ public class FloorIntake {
         floorIntakeIO.updateInputs(floorIntakeInputs);
         Logger.getInstance().processInputs("FloorIntake", floorIntakeInputs);
         Logger.getInstance().recordOutput("FloorIntakeSetpoint", closedLoopSetpoint[1]);
+
+        if(floorIntakeInputs.lastDeployError != ErrorCode.OK.toString()){
+            deployErrCount++;
+        }
+        if(floorIntakeInputs.lastRollerError != ErrorCode.OK.toString()){
+            rollerErrCount++;
+        }
+        floorIntakeIO.clearFault();
+        errCheckNum++;
 
         FloorIntakeStates nextSystemState = systemState;
 
@@ -134,6 +151,22 @@ public class FloorIntake {
     /** Enables coast mode on the intake */
     public void requestBrakeMode(boolean enable) {
         floorIntakeIO.enableDeployBrakeMode(enable);
+    }
+
+    public double getRollerErrorConc(){
+        return(rollerErrCount/errCheckNum);
+    }
+
+    /* Returns the Error concentration for the following elevator motor */
+    public double getDeployErrorConc(){
+        return(deployErrCount/errCheckNum);
+    }
+
+    /* Resets error counters */
+    public void resetError(){
+        deployErrCount = 0;
+        rollerErrCount = 0;
+        errCheckNum = 1;
     }
     
 }
