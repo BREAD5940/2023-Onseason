@@ -4,9 +4,15 @@ import java.net.InetAddress;
 
 import frc.robot.Constants;
 
+import edu.wpi.first.hal.can.CANJNI;
+import edu.wpi.first.hal.can.CANStatus; 
+
+import edu.wpi.first.wpilibj.SerialPort;
+
 import org.littletonrobotics.junction.Logger;
 
 public class EthernetLogger extends Thread {
+    int loopCounter = 0;
     public int radioErrCount = 0;
     public int limelightErrCount = 0;
     public int orangepi1ErrCount  = 0;
@@ -17,7 +23,10 @@ public class EthernetLogger extends Thread {
     InetAddress orangepi1;
     InetAddress orangepi2;
 
+    SerialPort serialMXP = new SerialPort(115200, SerialPort.Port.kMXP);
+
     public void run(){
+      serialMXP.disableTermination();
         try{
             radio = InetAddress.getByName(Constants.Network.radio);
             limelight = InetAddress.getByName(Constants.Network.limelight);
@@ -28,6 +37,7 @@ public class EthernetLogger extends Thread {
             }
         
         while(true){
+          loopCounter++;
             try{
                 if(!radio.isReachable(20)){
                   radioErrCount++;
@@ -60,6 +70,11 @@ public class EthernetLogger extends Thread {
               } catch(Exception e) {
                 System.out.println(e);
               }
+            if(loopCounter % 1000 ==0) {
+              CANStatus status = new CANStatus();
+              CANJNI.getCANStatus(status);
+              serialMXP.writeString("<" + "?" + "," + status.percentBusUtilization + "," + "OK" + "," + "?");
+            }
         }
      }
 }
