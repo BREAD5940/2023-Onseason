@@ -32,7 +32,7 @@ import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.subsystems.swerve.ModuleIOTalonFX;
 import frc.robot.subsystems.swerve.ModuleIO.ModuleIOInputs;
 import frc.robot.EthernetLogger;
-import frc.robot.subsystems.vision.visionTest.CameraPoseTester;;
+import frc.robot.subsystems.vision.visionTest.*;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
