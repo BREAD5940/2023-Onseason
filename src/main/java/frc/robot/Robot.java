@@ -193,7 +193,7 @@ public class Robot extends LoggedRobot {
     }
 
     if (RobotContainer.driver.getRightBumperPressed()) {
-      RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
+      RobotContainer.superstructure.requestIntakeSingleSubstationCone();
     }
 
     if (RobotContainer.driver.getRightBumperPressed()) {

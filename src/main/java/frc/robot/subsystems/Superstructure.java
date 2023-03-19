@@ -36,7 +36,7 @@ public class Superstructure extends SubsystemBase {
     private SuperstructureState systemState = SuperstructureState.PRE_HOME;
     private boolean requestHome = false;
     private boolean requestFloorIntakeCube = false;
-    private boolean requestHPIntakeCube = false;
+    private boolean requestSingleSubstationCone = false;
     private boolean requestHPIntakeCone = false;
     private boolean requestPreScore = false;
     private boolean requestScore = false;
@@ -62,7 +62,7 @@ public class Superstructure extends SubsystemBase {
     public static LoggedTunableNumber preLowHeight = new LoggedTunableNumber("Elevator/PreLowHeight", ELEVATOR_PRE_LOW);
     public static LoggedTunableNumber floorIntakeCubeHeight = new LoggedTunableNumber("Elevator/FloorIntakeCubeHeight", ELEVATOR_FLOOR_INTAKE_CUBE);
     public static LoggedTunableNumber doubleSubstationConeHeight = new LoggedTunableNumber("Elevator/DoubleSubstationConeHeight", ELEVATOR_DOUBLE_SUBSTATION_CONE);
-    public static LoggedTunableNumber doubleSubstationCubeHeight = new LoggedTunableNumber("Elevator/DoubleSubstationCubeHeight", ELEVATOR_DOUBLE_SUBSTATION_CUBE);
+    public static LoggedTunableNumber singleSubstationConeHeight = new LoggedTunableNumber("Elevator/DoubleSubstationCubeHeight", ELEVATOR_SINGLE_SUBSTATION_CONE);
 
     public static LoggedTunableNumber cubeAngle = new LoggedTunableNumber("Arm/ArmCubeAngle", ARM_PRE_SCORE_CUBE);
     public static LoggedTunableNumber coneAngle = new LoggedTunableNumber("Arm/ArmConeAngle", ARM_PRE_SCORE_CONE);
@@ -70,7 +70,7 @@ public class Superstructure extends SubsystemBase {
     public static LoggedTunableNumber lowAngle = new LoggedTunableNumber("Arm/ArmLowAngle", ARM_PRE_SCORE_LOW);
     public static LoggedTunableNumber floorIntakeCubeAngle = new LoggedTunableNumber("Arm/ArmFloorIntakeCube", ARM_FLOOR_INTAKE_CUBE);
     public static LoggedTunableNumber doubleSubstationConeAngle = new LoggedTunableNumber("Arm/ArmDoubleSubstationConeAngle", ARM_DOUBLE_SUBSTATION_CONE);
-    public static LoggedTunableNumber doubleSubstationCubeAngle = new LoggedTunableNumber("Arm/ArmDoubleSubstationCubeAngle", ARM_DOUBLE_SUBSTATION_CUBE);
+    public static LoggedTunableNumber singleSubstationConeAngle = new LoggedTunableNumber("Arm/ArmDoubleSubstationCubeAngle", ARM_SINGLE_SUBSTATION_CONE);
     // TunableNumber floorIntakeOutput = new TunableNumber("FloorIntake/Output", 0.0);
 
     double lastFPGATimestamp = 0.0;
@@ -81,7 +81,7 @@ public class Superstructure extends SubsystemBase {
         HOMING,
         IDLE,
         FLOOR_INTAKE_CUBE,
-        HP_INTAKE_CUBE,
+        SINGLE_SUBSTATION_CONE,
         HP_INTAKE_CONE,
         HP_INTAKE_CONE_INTER,
         PREPARE_TO_SPIT,
@@ -165,8 +165,8 @@ public class Superstructure extends SubsystemBase {
                 nextSystemState = SuperstructureState.FLOOR_INTAKE_CUBE;
             } else if (requestHPIntakeCone) {
                 nextSystemState = SuperstructureState.HP_INTAKE_CONE;
-            } else if (requestHPIntakeCube) {
-                nextSystemState = SuperstructureState.HP_INTAKE_CUBE;
+            } else if (requestSingleSubstationCone) {
+                nextSystemState = SuperstructureState.SINGLE_SUBSTATION_CONE;
             } else if (requestSpit) {
                 nextSystemState = SuperstructureState.PREPARE_TO_SPIT;
             } else if (requestPreScore && level == Level.LOW) {
@@ -228,16 +228,19 @@ public class Superstructure extends SubsystemBase {
             if (elevatorArmLowLevel.getState()[1] < 120.0) {
                 nextSystemState = SuperstructureState.IDLE;
             }
-        } else if (systemState == SuperstructureState.HP_INTAKE_CUBE) {
+        } else if (systemState == SuperstructureState.SINGLE_SUBSTATION_CONE) {
             // Outputs
-            elevatorArmLowLevel.requestDesiredState(doubleSubstationCubeHeight.get(), doubleSubstationCubeAngle.get());
-            endEffector.intakeCube();
+            elevatorArmLowLevel.requestDesiredState(singleSubstationConeHeight.get(), singleSubstationConeAngle.get());
+            endEffector.intakeCone();
             floorIntake.requestClosedLoop(0.0, INTAKE_IDLE_POSITION);
 
             // Transitions
             if (requestHome) {
                 nextSystemState = SuperstructureState.PRE_HOME;
-            } else if (!requestHPIntakeCube) {
+            } else if (!requestSingleSubstationCone) {
+                nextSystemState = SuperstructureState.IDLE;
+            } else if (endEffector.getStatorCurrent() > INTAKE_CONE_CURR_LIMIT) {
+                requestSingleSubstationCone = false;
                 nextSystemState = SuperstructureState.IDLE;
             }
         } else if (systemState == SuperstructureState.SPIT) {
@@ -489,9 +492,9 @@ public class Superstructure extends SubsystemBase {
     }
 
     /* Requests the sytem to intake a cube from the double substation */
-    public void requestIntakeCubeDoubleSubstation() {
+    public void requestIntakeSingleSubstationCone() {
         unsetAllRequests();
-        requestHPIntakeCube = true;
+        requestSingleSubstationCone = true;
     }
 
     /* Requests the system to pre score */
@@ -517,7 +520,7 @@ public class Superstructure extends SubsystemBase {
     /* Sets all of the requests to false */
     private void unsetAllRequests() {
         requestFloorIntakeCube = false;
-        requestHPIntakeCube = false;
+        requestSingleSubstationCone = false;
         requestHPIntakeCone = false;
         requestPreScore = false;
         requestScore = false;

@@ -148,7 +148,7 @@ public final class Constants {
         public static final double ELEVATOR_FLOOR_INTAKE_CUBE = 0.15;
         public static final double ELEVATOR_DOUBLE_SUBSTATION_CONE = 1.15;
         // public static final double ELEVATOR_DOUBLE_SUBSTATION_CUBE = 1.115;
-        public static final double ELEVATOR_DOUBLE_SUBSTATION_CUBE = 0.19550697818942656;
+        public static final double ELEVATOR_SINGLE_SUBSTATION_CONE = 0.184;
 
         public static final TalonFXInvertType ELEVATOR_LEFT_INVERT_TYPE = TalonFXInvertType.CounterClockwise;
         public static final TalonFXInvertType ELEVATOR_RIGHT_INVERT_TYPE = TalonFXInvertType.CounterClockwise;
@@ -181,7 +181,7 @@ public final class Constants {
         public static final double ARM_FLOOR_INTAKE_CUBE = 1.0;
         public static final double ARM_DOUBLE_SUBSTATION_CONE = 178.4;
         // public static final double ARM_DOUBLE_SUBSTATION_CUBE = 211.6;
-        public static final double ARM_DOUBLE_SUBSTATION_CUBE = 155.478515625;
+        public static final double ARM_SINGLE_SUBSTATION_CONE = 126;
         public static final double ARM_UNJAM_POSITION = 26.0;
 
         public static final double ARM_KP = 0.03;
