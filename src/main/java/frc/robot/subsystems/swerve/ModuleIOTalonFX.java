@@ -107,6 +107,10 @@ public class ModuleIOTalonFX implements ModuleIO {
         inputs.turnAppliedVolts = steer.getMotorOutputVoltage();
         inputs.turnCurrentAmps = steer.getStatorCurrent();
         inputs.turnTempCelcius = steer.getTemperature();
+
+        inputs.lastSteerError = steer.getLastError().toString();
+        inputs.lastDriveError = drive.getLastError().toString();
+        inputs.lastAzimuthError = azimuth.getLastError().toString();
     }
 
     @Override
@@ -175,6 +179,14 @@ public class ModuleIOTalonFX implements ModuleIO {
     /** Returns a rotation2d representing the angle of the CANCoder object */
     public Rotation2d getCanCoderAbsolutePosition() {
         return Rotation2d.fromDegrees(azimuth.getAbsolutePosition());
+    }
+
+    /* resets sticky faults to allow error to change from anything back to "ok" */
+    @Override
+    public void clearFault(){
+        steer.clearStickyFaults();
+        drive.clearStickyFaults();
+        azimuth.clearStickyFaults();
     }
     
 }

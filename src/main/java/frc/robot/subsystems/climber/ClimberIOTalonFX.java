@@ -52,6 +52,8 @@ public class ClimberIOTalonFX implements ClimberIO {
         inputs.forksDeployed = false;
         inputs.heightMeters = integratedSensorUnitsToMeters(climber.getSelectedSensorPosition());
         inputs.tempCelcius = climber.getTemperature();
+
+        inputs.lastClimberError = climber.getLastError().toString();
     }
 
     @Override
@@ -85,6 +87,11 @@ public class ClimberIOTalonFX implements ClimberIO {
 
     private double metersToIntegratedSensorUnits(double meters) {
         return meters * (2048.0/(CLIMBER_GEARING * Math.PI * CLIMBER_PULLEY_DIAMETER));
+    }
+
+    /* resets sticky faults to allow error to change from anything back to "ok" */
+    public void clearFault(){
+        climber.clearStickyFaults();
     }
     
 }

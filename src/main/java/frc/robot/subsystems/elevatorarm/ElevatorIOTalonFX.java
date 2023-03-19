@@ -73,6 +73,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.appliedVoltage = leader.getMotorOutputVoltage();
         inputs.currentAmps = new double[] {leader.getStatorCurrent(), follower.getStatorCurrent()};
         inputs.tempCelcius = new double[] {leader.getTemperature(), follower.getTemperature()};
+
+        inputs.lastFollowerError = follower.getLastError().toString();
+        inputs.lastLeaderError = leader.getLastError().toString();
     }
 
     @Override
@@ -165,4 +168,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         return integratedSensorUnitsToMeters(leader.getSelectedSensorPosition());
     }
     
+    /* resets sticky faults to allow error to change from anything back to "ok" */
+    public void clearFault(){
+        leader.clearStickyFaults();
+        follower.clearStickyFaults();
+    }
 }

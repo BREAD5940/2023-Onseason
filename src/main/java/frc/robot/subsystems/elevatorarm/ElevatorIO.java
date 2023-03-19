@@ -2,6 +2,8 @@ package frc.robot.subsystems.elevatorarm;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import com.ctre.phoenix.ErrorCode;
+
 /* Elevator subsystem hardware interface */
 public interface ElevatorIO {
     @AutoLog
@@ -13,6 +15,9 @@ public interface ElevatorIO {
         public double appliedVoltage = 0.0;
         public double[] currentAmps = new double[] {}; // {leader, follower}
         public double[] tempCelcius = new double[] {}; // {leader, follower}
+
+        public String lastLeaderError = ErrorCode.OK.toString();
+        public String lastFollowerError = ErrorCode.OK.toString();
     }
 
     /* Updates the set of loggable inputs */
@@ -32,5 +37,8 @@ public interface ElevatorIO {
 
     /* Updates tunable numbers if neccesary */
     public default void updateTunableNumbers() {}
+
+    /* resets sticky faults to allow error to change from anything back to "ok" */
+    public default void clearFault(){}
 
 }

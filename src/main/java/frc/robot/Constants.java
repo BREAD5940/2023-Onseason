@@ -253,6 +253,7 @@ public final class Constants {
         public static final double HIGH_TAPE_OFF_GROUND = 1.12;
         public static final double MID_TAPE_OFF_GROUND = 0.61;
         public static final double X_SCORING_POSITION = 1.85;
+        public static final double AMBIGUITY_THRESHOLD = 0.15;
 
     }
 
@@ -267,6 +268,14 @@ public final class Constants {
         public static final Pose2d FIELD_SIDE_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(51.4), aprilTags.get(4).getY() - Units.inchesToMeters(29), new Rotation2d());
         public static final Pose2d WALL_SIDE_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(51.4), aprilTags.get(4).getY() + Units.inchesToMeters(29), new Rotation2d());
 
+    }
+
+    // Ips for the stuff
+    public static class Network {
+        public static final String radio = "10.59.40.1";
+        public static final String orangepi1 = "10.59.40.30";
+        public static final String orangepi2 = "10.59.40.31";
+        public static final String limelight = "10.59.40.11";
     }
   
 }

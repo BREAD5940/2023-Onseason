@@ -40,4 +40,8 @@ public interface AprilTagVisionIO {
 
     public default void updateInputs(AprilTagVisionIOInputs inputs) {
     }
+
+    public default String getIdentifier() {
+        return "";
+    }
 }
