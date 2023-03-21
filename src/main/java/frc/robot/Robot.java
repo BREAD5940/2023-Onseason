@@ -94,10 +94,9 @@ public class Robot extends LoggedRobot {
       Logger.getInstance().addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save
                                                                                                           // outputs to
                                                                                                           // a new log
-
+                                                                                                        }
     ethernetLogger = new EthernetLogger();
     ethernetLogger.start();
-    }
 
     Logger.getInstance().start(); // Start logging! No more data receivers, replay sources, or metadata values may
                                   // be added.

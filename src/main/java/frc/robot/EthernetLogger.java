@@ -8,6 +8,8 @@ import edu.wpi.first.hal.can.CANJNI;
 import edu.wpi.first.hal.can.CANStatus; 
 
 import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -70,11 +72,12 @@ public class EthernetLogger extends Thread {
               } catch(Exception e) {
                 System.out.println(e);
               }
-            if(loopCounter % 1000 ==0) {
+            if(loopCounter % 10 == 0) {
               CANStatus status = new CANStatus();
               CANJNI.getCANStatus(status);
-              serialMXP.writeString("<" + "?" + "," + status.percentBusUtilization + "," + "OK" + "," + "?");
+              serialMXP.writeString("<0,"+ Math.round(status.percentBusUtilization*100) +",0,0>");
             }
         }
      }
 }
+ 
