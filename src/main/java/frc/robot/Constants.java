@@ -85,10 +85,10 @@ public final class Constants {
         // };
 
         public static final Rotation2d[] AZIMUTH_OFFSETS = {
-            Rotation2d.fromDegrees(67.5), // FL
-            Rotation2d.fromDegrees(259.1), // FR
-            Rotation2d.fromDegrees(57.56), // BL
-            Rotation2d.fromDegrees(65.478515625) //BR
+            Rotation2d.fromDegrees(100.9), // FL
+            Rotation2d.fromDegrees(36.3), // FR
+            Rotation2d.fromDegrees(112.1), // BL
+            Rotation2d.fromDegrees(239.4) //BR
         };
 
         // Drive-by shooting constants
@@ -96,8 +96,9 @@ public final class Constants {
         public static final double RADIAL_SHOT_SCALAR = 0.9;
 
         // Measurements/Gearings
-        public static final double DRIVE_GEARING = 1/6.75;
-        public static final double STEER_GEARING = (24.0/8) * (72.0/14);
+        public static final double DRIVE_GEARING = 1/5.5;
+        // public static final double STEER_GEARING = (24.0/8) * (72.0/14);
+        public static final double STEER_GEARING = (24.0/12) * (72.0/14);
         public static final double ROBOT_WIDTH = Units.inchesToMeters(27.0 - 2.625 * 2.0);
         public static final double ROBOT_LENGTH = Units.inchesToMeters(28.0 - 2.625 * 2.0);
         // Madtown field callibration constant factor is 0.97

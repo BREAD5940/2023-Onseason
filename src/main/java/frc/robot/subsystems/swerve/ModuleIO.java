@@ -12,6 +12,7 @@ public interface ModuleIO {
         public double driveDistanceMeters = 0.0;
         public double driveBusVoltage = 0.0;
         public double driveOutputPercent = 0.0;
+        public double rawDriveRPM = 0.0;
 
         public double moduleAngleRads = 0.0;
         public double rawAbsolutePositionDegrees = 0.0;

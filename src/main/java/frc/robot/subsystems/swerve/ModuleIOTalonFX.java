@@ -101,6 +101,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         inputs.driveDistanceMeters = (DRIVE_GEARING * drive.getSelectedSensorPosition() * 2.0 * Math.PI * WHEEL_RADIUS)/2048.0;
         inputs.driveBusVoltage = drive.getBusVoltage();
         inputs.driveOutputPercent = drive.getMotorOutputPercent();
+        inputs.rawDriveRPM = drive.getSelectedSensorVelocity() * (600.0/2048.0);
 
         inputs.moduleAngleRads = Units.degreesToRadians(Conversions.falconToDegrees(steer.getSelectedSensorPosition(), STEER_GEARING));
         inputs.rawAbsolutePositionDegrees = azimuth.getAbsolutePosition();
