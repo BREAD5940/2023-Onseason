@@ -34,12 +34,12 @@ public class Climber extends SubsystemBase {
         RUNNING
     }
 
-    /* Instantiate IO class in the constructor */
+    /** Instantiate IO class in the constructor */
     public Climber(ClimberIO climberIO) {
         this.climberIO = climberIO;
     }
 
-    /* Periodic method */
+    /** Periodic method */
     @Override
     public void periodic() {
         climberIO.updateInputs(climberInputs);
@@ -126,12 +126,12 @@ public class Climber extends SubsystemBase {
         return BreadUtil.atReference(climberInputs.heightMeters, setpoint, CLIMBER_SETPOINT_TOLERANCE, true);
     }
 
-    /* Returns the Error concentration for the following elevator motor */
+    /** Returns the Error concentration for the following elevator motor */
     public double getClimberErrorConc(){
         return(climberErrCount/errCheckNum);
     }
 
-    /* Resets error counters */
+    /** Resets error counters */
     public void resetError(){
         climberErrCount = 0;
         errCheckNum = 1;

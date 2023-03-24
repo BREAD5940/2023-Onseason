@@ -89,7 +89,7 @@ public class ClimberIOTalonFX implements ClimberIO {
         return meters * (2048.0/(CLIMBER_GEARING * Math.PI * CLIMBER_PULLEY_DIAMETER));
     }
 
-    /* resets sticky faults to allow error to change from anything back to "ok" */
+    /** resets sticky faults to allow error to change from anything back to "ok" */
     public void clearFault(){
         climber.clearStickyFaults();
     }

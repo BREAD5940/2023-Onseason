@@ -181,7 +181,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         return Rotation2d.fromDegrees(azimuth.getAbsolutePosition());
     }
 
-    /* resets sticky faults to allow error to change from anything back to "ok" */
+    /** resets sticky faults to allow error to change from anything back to "ok" */
     @Override
     public void clearFault(){
         steer.clearStickyFaults();

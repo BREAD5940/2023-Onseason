@@ -51,7 +51,7 @@ public interface FloorIntakeIO {
     /** Enables or disables brake mode for the deploy motor */
     public default void enableDeployBrakeMode(boolean enable) {}
 
-    /* resets sticky faults to allow error to change from anything back to "ok" */
+    /** resets sticky faults to allow error to change from anything back to "ok" */
     public default void clearFault(){}
 
 }

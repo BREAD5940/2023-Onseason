@@ -30,7 +30,7 @@ public final class FieldConstants {
   public static final double tapeWidth = Units.inchesToMeters(2.0);
   public static final double aprilTagWidth = Units.inchesToMeters(6.0);
 
-  // Dimensions for community and charging station, including the tape.
+  /** Dimensions for community and charging station, including the tape. */
   public static final class Community {
     // Region dimensions
     public static final double innerX = 0.0;
@@ -80,7 +80,7 @@ public final class FieldConstants {
         };
   }
 
-  // Dimensions for grids and nodes
+  /** Dimensions for grids and nodes */
   public static final class Grids {
     // X layout
     public static final double outerX = Units.inchesToMeters(54.25);
@@ -144,7 +144,7 @@ public final class FieldConstants {
         };
   }
 
-  // Dimensions for loading zone and substations, including the tape
+  /** Dimensions for loading zone and substations, including the tape */
   public static final class LoadingZone {
     // Region dimensions
     public static final double width = Units.inchesToMeters(99.0);
@@ -189,7 +189,7 @@ public final class FieldConstants {
         singleSubstationLowZ + singleSubstationHeight;
   }
 
-  // Locations of staged game pieces
+  /** Locations of staged game pieces */
   public static final class StagingLocations {
     public static final double centerOffsetX = Units.inchesToMeters(47.36);
     public static final double positionX = fieldLength / 2.0 - Units.inchesToMeters(47.36);
@@ -204,7 +204,7 @@ public final class FieldConstants {
     }
   }
 
-  // AprilTag locations (do not flip for red alliance)
+  /** AprilTag locations (do not flip for red alliance) */
   public static final Map<Integer, Pose3d> aprilTags =
       Map.of(
           1,

@@ -37,12 +37,12 @@ public class FloorIntake {
     private int errCheckNum = 1;
 
 
-    /* Instantiate IO class in the constructor */
+    /** Instantiate IO class in the constructor */
     public FloorIntake(FloorIntakeIO floorIntakeIO) {
         this.floorIntakeIO = floorIntakeIO;
     }
 
-    /* This onLoop() method is to be called periodically */
+    /** This onLoop() method is to be called periodically */
     public void onLoop() {
         floorIntakeIO.updateInputs(floorIntakeInputs);
         Logger.getInstance().processInputs("FloorIntake", floorIntakeInputs);
@@ -113,20 +113,20 @@ public class FloorIntake {
         }
     }
 
-    /* Requests the intake to home */
+    /** Requests the intake to home */
     public void requestHome() {
         requestHome = true;
         requestIdle = false;
         requestClosedLoop = false;
     }
 
-    /* Requests the intake to go into its idling mode */
+    /** Requests the intake to go into its idling mode */
     public void requestIdle() {
         requestIdle = true;
         requestClosedLoop = false;
     }
 
-    /* Requests the intake to go into its closed loop mode */
+    /** Requests the intake to go into its closed loop mode */
     public void requestClosedLoop(double rollerPercent, double deployAngle) {
         closedLoopSetpoint = new double[] {rollerPercent, deployAngle};
         requestClosedLoop = true;
@@ -157,12 +157,12 @@ public class FloorIntake {
         return(rollerErrCount/errCheckNum);
     }
 
-    /* Returns the Error concentration for the following elevator motor */
+    /** Returns the Error concentration for the following elevator motor */
     public double getDeployErrorConc(){
         return(deployErrCount/errCheckNum);
     }
 
-    /* Resets error counters */
+    /** Resets error counters */
     public void resetError(){
         deployErrCount = 0;
         rollerErrCount = 0;

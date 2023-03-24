@@ -11,7 +11,7 @@ public class TriggerButton {
         this.trigger = trigger;
     }
 
-    // Returns whether the trigger was pressed
+    /** Returns whether the trigger was pressed */
     public boolean whenPressed() {
         boolean rPressed = pressed;
         pressed = false;
@@ -19,21 +19,21 @@ public class TriggerButton {
     }
 
 
-    // Returns whether the trigger was pressed
+    /** Returns whether the trigger was pressed */
     public boolean whilePressed() {
         boolean rPressed = pressed;
         pressed = false;
         return rPressed;
     }
 
-    // Returns the current value of the trigger if its being pressed
+    /** Returns the current value of the trigger if its being pressed */
     public double whileTrue(double deadzone) {
         double triggerVal = trigger.getAsDouble(); 
         if (triggerVal < deadzone) return 0;
         else return triggerVal;
     }
 
-    // Returns the current value of the trigger if its being pressed
+    /** Returns the current value of the trigger if its being pressed */
     public double whenTrue(double deadzone) {
         double triggerVal = trigger.getAsDouble(); 
         if (triggerVal < deadzone) return 0;
