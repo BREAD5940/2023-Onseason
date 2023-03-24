@@ -97,4 +97,8 @@ public class EndEffector {
         ErrCount = 0;
         errCheckNum = 1;
     }
+
+	public boolean isHoldingCone() {
+		return endEffectorIO.isHoldingCone();
+	}
 }

@@ -13,6 +13,7 @@ import frc.robot.subsystems.elevatorarm.ArmIO;
 import frc.robot.subsystems.elevatorarm.ElevatorArmLowLevel;
 import frc.robot.subsystems.elevatorarm.ElevatorArmLowLevel.ElevatorArmSystemStates;
 import frc.robot.subsystems.elevatorarm.ElevatorIO;
+import frc.robot.subsystems.endeffector.BeamBreakIO;
 import frc.robot.subsystems.endeffector.EndEffector;
 import frc.robot.subsystems.endeffector.EndEffectorIO;
 import frc.robot.subsystems.floorintake.FloorIntake;
@@ -428,13 +429,13 @@ public class Superstructure extends SubsystemBase {
             }
             endEffector.intakeCone();
 
-            if (endEffector.getStatorCurrent() > INTAKE_CONE_CURR_LIMIT && !currentTriggerTimerStarted) {
+            if (endEffector.isHoldingCone() && !currentTriggerTimerStarted) { //TODO: check if we still need currentTriggerTimer
                 currentTriggerTimerStarted = true;
                 currentTriggerTimer.reset();
                 currentTriggerTimer.start();
             } 
 
-            if (endEffector.getStatorCurrent() < INTAKE_CONE_CURR_LIMIT) {
+            if (!endEffector.isHoldingCone()) {
                 currentTriggerTimer.reset();
                 currentTriggerTimer.stop();
                 currentTriggerTimerStarted = false;
