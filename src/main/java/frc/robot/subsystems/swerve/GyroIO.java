@@ -2,6 +2,8 @@ package frc.robot.subsystems.swerve;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import com.ctre.phoenix.ErrorCode;;
+
 public interface GyroIO {
     @AutoLog
     public static class GyroIOInputs {
