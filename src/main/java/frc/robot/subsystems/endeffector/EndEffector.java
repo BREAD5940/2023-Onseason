@@ -6,6 +6,7 @@ import frc.robot.commons.LoggedTunableNumber;
 
 import com.ctre.phoenix.ErrorCode;
 
+/** a class that is used to mannage a FloorIntakeIO */
 public class EndEffector {
 
     /* IO classes and inputs */

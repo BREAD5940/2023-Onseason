@@ -9,6 +9,7 @@ import static frc.robot.Constants.Climber.*;
 
 import com.ctre.phoenix.ErrorCode;
 
+/** a class that is used to mannage a ClimberIO */
 public class Climber extends SubsystemBase {
 
     /* IO and inputs classes */

@@ -6,8 +6,7 @@ package frc.robot.subsystems.vision.visionTest;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import static frc.robot.Constants.Vision.*;
-
-/** Add your docs here. */
+/** This holds the data for a apriltag to be used in CameraPoseTester */
 public class AprilTagResult {
     public double error0;
     public Pose3d tagPose0;
@@ -16,7 +15,7 @@ public class AprilTagResult {
     public Pose3d bestPose;
     public double timestamp;
     public boolean isOld = false;
-
+	
     public AprilTagResult() {
     }
 
@@ -30,6 +29,7 @@ public class AprilTagResult {
         bestPose = getBestPose();
     }
 
+	/** Gets the best pose */
     public Pose3d getBestPose() {
         if (error0 < error1 * AMBIGUITY_THRESHOLD) {
             return tagPose0;

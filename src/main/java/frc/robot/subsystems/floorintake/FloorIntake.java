@@ -9,6 +9,7 @@ import static frc.robot.Constants.FloorIntake.*;
 
 import com.ctre.phoenix.ErrorCode;
 
+/** a class that is used to mannage a FloorIntakeIO */
 public class FloorIntake {
 
     /* IO and inputs classes */
@@ -153,6 +154,10 @@ public class FloorIntake {
         floorIntakeIO.enableDeployBrakeMode(enable);
     }
 
+	/**
+	 * @return
+	 * returns a double that is the roller error conc
+	 */
     public double getRollerErrorConc(){
         return(rollerErrCount/errCheckNum);
     }

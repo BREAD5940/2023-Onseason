@@ -30,6 +30,10 @@ public class LimelightDetectionsClassifier extends SubsystemBase {
 
     LoggedTunableNumber latency = new LoggedTunableNumber("Latency", 11);
 
+	/**
+	 * set the 
+	 * @param cameraName
+	 */
     public LimelightDetectionsClassifier(String cameraName) {
         this.cameraName = cameraName;
     }
@@ -38,6 +42,11 @@ public class LimelightDetectionsClassifier extends SubsystemBase {
         return rawDetections;
     }
 
+	/**
+	 * @param lookingForTallPoles
+	 * @return
+	 * returns an array of Pose3ds are target pose estimates
+	 */
     public ArrayList<Pose3d> getTargets(boolean lookingForTallPoles) {
         Pose3d robotPoseEstimate = new Pose3d(RobotContainer.poseEstimator.getLatestPose());
         Pose3d cameraPoseEstimate = robotPoseEstimate.transformBy(ROBOT_TO_LL); 
@@ -80,6 +89,13 @@ public class LimelightDetectionsClassifier extends SubsystemBase {
         Logger.getInstance().recordOutput("VisionAdjustedTimestamp", timestamp);
     }
 
+	/**
+	 * gets the xy or 2d distance to the target
+	 * @param detection // the limelight detection
+	 * @param targetHeightOffGround // the expected height that the target is off the ground
+	 * @return
+	 * returns the distance to the target
+	 */
     private static double getXYDistanceToTarget(LimelightTarget_Retro detection, double targetHeightOffGround) {
         // Define the vector
         double x = 1.0 * Math.tan(Units.degreesToRadians(detection.tx));

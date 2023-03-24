@@ -76,12 +76,13 @@ public class EndEffectorIOTalonFX implements EndEffectorIO {
         filter.addSample(Math.abs(motor.getStatorCurrent()));
     }
 
-    public void clearFault(){
-        motor.clearStickyFaults();
-    }
-
+	@Override
 	public boolean isHoldingCone() {
 		return beamBreakIO.isDetecting();
 	}
+
+    public void clearFault(){
+        motor.clearStickyFaults();
+    }
 }
 

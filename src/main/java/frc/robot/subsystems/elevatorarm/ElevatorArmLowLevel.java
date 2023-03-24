@@ -12,6 +12,7 @@ import frc.robot.commons.LoggedTunableNumber;
 
 import com.ctre.phoenix.ErrorCode;
 
+/** a class that is used to mannage a ArmIO and a ElevatorIO */
 public class ElevatorArmLowLevel {
 
     /** State variables */
