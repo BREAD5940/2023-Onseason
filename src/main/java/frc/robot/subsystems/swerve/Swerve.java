@@ -7,6 +7,8 @@ import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
+import com.ctre.phoenix.ErrorCode;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -57,6 +59,12 @@ public class Swerve extends SubsystemBase {
     private boolean auto = false;
     private double lastFPGATimestamp = 0.0;
 
+    // For fault detection
+    private int[] steerErrCount = new int[4];
+    private int[] driveErrCount = new int[4];
+    private int[] azimuthErrCount = new int[4];
+    private int errCheckNum = 1;
+
     /* Swerve States Enum */
     enum SwerveState {
         VELOCITY,
@@ -90,6 +98,17 @@ public class Swerve extends SubsystemBase {
         for (int i = 0; i < 4; i++) {
             moduleIOs[i].updateInputs(moduleInputs[i]);
             Logger.getInstance().processInputs("Swerve/Module" + Integer.toString(i), moduleInputs[i]);
+            /** Check motors for errors and add to tally */
+            if(moduleInputs[i].lastDriveError != ErrorCode.OK.toString()){
+                driveErrCount[i]++;
+            }
+            if(moduleInputs[i].lastSteerError != ErrorCode.OK.toString()){
+                steerErrCount[i]++;
+            }
+            if(moduleInputs[i].lastAzimuthError != ErrorCode.OK.toString()){
+                azimuthErrCount[i]++;
+            }
+            moduleIOs[i].clearFault();
         }
         Logger.getInstance().recordOutput("Swerve/loopCycleTime",
                 Logger.getInstance().getRealTimestamp() / 1.0E6 - lastFPGATimestamp);
@@ -254,6 +273,33 @@ public class Swerve extends SubsystemBase {
         return poseRaw;
     }
 
+    /** Returns the error concentration for the drive motor */
+    public double getSteerErrorConc(int i){
+        return(steerErrCount[i]/errCheckNum);
+    }
+
+    /** Returns the error concentration for the drive motor */
+    public double getDriveErrorConc(int i){
+        return(driveErrCount[i]/errCheckNum);
+    }
+
+    /** Returns the error concentration for the encoder */
+    public double getAzimuthErrorConc(int i){
+        return(azimuthErrCount[i]/errCheckNum);
+    }
+
+    /** Resets error counters */
+    public void resetError(){
+        int i = 0;
+        while(i<4){
+            azimuthErrCount[i] = 0;
+            steerErrCount[i] = 0;
+            driveErrCount[i] = 0;
+            errCheckNum = 1;
+            i++;
+        }
+    }
+
     /** Returns the measured states of the swerve drive */
     public SwerveModuleState[] getMeasuredStates() {
         SwerveModuleState[] measuredStates = new SwerveModuleState[4];
@@ -353,5 +399,4 @@ public class Swerve extends SubsystemBase {
             moduleIOs[i].resetToAbsolute();
         }
     }
-
 }

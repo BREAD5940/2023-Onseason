@@ -25,10 +25,10 @@ import frc.robot.commons.BreadHolonomicDriveController;
 
 public class TrajectoryFollowerCommand extends CommandBase {
 
-    private final PathPlannerTrajectory trajectory;
+    protected final PathPlannerTrajectory trajectory;
     private final Supplier<Rotation2d> startHeading;
-    private final Swerve swerve;
-    private final Timer timer = new Timer();
+    protected final Swerve swerve;
+    protected final Timer timer = new Timer();
     private final Timer balanceTimer = new Timer();
     private boolean balanceStarted = false;
     private final boolean stop;

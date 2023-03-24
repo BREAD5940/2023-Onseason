@@ -7,6 +7,9 @@ import frc.robot.commons.LoggedTunableNumber;
 
 import static frc.robot.Constants.FloorIntake.*;
 
+import com.ctre.phoenix.ErrorCode;
+
+/** a class that is used to mannage a FloorIntakeIO */
 public class FloorIntake {
 
     /* IO and inputs classes */
@@ -29,16 +32,31 @@ public class FloorIntake {
 
     }
 
-    /* Instantiate IO class in the constructor */
+    // For fault detection
+    private int deployErrCount = 0;
+    private int rollerErrCount = 0;
+    private int errCheckNum = 1;
+
+
+    /** Instantiate IO class in the constructor */
     public FloorIntake(FloorIntakeIO floorIntakeIO) {
         this.floorIntakeIO = floorIntakeIO;
     }
 
-    /* This onLoop() method is to be called periodically */
+    /** This onLoop() method is to be called periodically */
     public void onLoop() {
         floorIntakeIO.updateInputs(floorIntakeInputs);
         Logger.getInstance().processInputs("FloorIntake", floorIntakeInputs);
         Logger.getInstance().recordOutput("FloorIntakeSetpoint", closedLoopSetpoint[1]);
+
+        if(floorIntakeInputs.lastDeployError != ErrorCode.OK.toString()){
+            deployErrCount++;
+        }
+        if(floorIntakeInputs.lastRollerError != ErrorCode.OK.toString()){
+            rollerErrCount++;
+        }
+        floorIntakeIO.clearFault();
+        errCheckNum++;
 
         FloorIntakeStates nextSystemState = systemState;
 
@@ -96,20 +114,20 @@ public class FloorIntake {
         }
     }
 
-    /* Requests the intake to home */
+    /** Requests the intake to home */
     public void requestHome() {
         requestHome = true;
         requestIdle = false;
         requestClosedLoop = false;
     }
 
-    /* Requests the intake to go into its idling mode */
+    /** Requests the intake to go into its idling mode */
     public void requestIdle() {
         requestIdle = true;
         requestClosedLoop = false;
     }
 
-    /* Requests the intake to go into its closed loop mode */
+    /** Requests the intake to go into its closed loop mode */
     public void requestClosedLoop(double rollerPercent, double deployAngle) {
         closedLoopSetpoint = new double[] {rollerPercent, deployAngle};
         requestClosedLoop = true;
@@ -134,6 +152,26 @@ public class FloorIntake {
     /** Enables coast mode on the intake */
     public void requestBrakeMode(boolean enable) {
         floorIntakeIO.enableDeployBrakeMode(enable);
+    }
+
+	/**
+	 * @return
+	 * returns a double that is the roller error conc
+	 */
+    public double getRollerErrorConc(){
+        return(rollerErrCount/errCheckNum);
+    }
+
+    /** Returns the Error concentration for the following elevator motor */
+    public double getDeployErrorConc(){
+        return(deployErrCount/errCheckNum);
+    }
+
+    /** Resets error counters */
+    public void resetError(){
+        deployErrCount = 0;
+        rollerErrCount = 0;
+        errCheckNum = 1;
     }
     
 }

@@ -72,6 +72,9 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
         inputs.deployPositionTarget = integratedSensorUnitsToDegrees(deploy.getActiveTrajectoryPosition());
         inputs.deployVelocityTarget = integratedSensorUnitsToDegreesPerSecond(deploy.getActiveTrajectoryVelocity());
         inputs.deployDutyCycle = deploy.getMotorOutputPercent();
+
+        inputs.lastDeployError = deploy.getLastError().toString();
+        inputs.lastRollerError = deploy.getLastError().toString();
     }
 
     @Override
@@ -123,28 +126,34 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
         roller.setNeutralMode(enable ? NeutralMode.Brake : NeutralMode.Coast);
     }
 
-    /* converts integrated sensor units to meters */
+    /** converts integrated sensor units to meters */
     private static double integratedSensorUnitsToDegrees(double integratedSensorUnits) {
         return integratedSensorUnits * ((DEPLOY_GEAR_RATIO * 360.0)/2048.0);
     }
 
-    /* converts meters to integrated sensor units */
+    /** converts meters to integrated sensor units */
     private static double degreesToIntegratedSensorUnits(double degrees) {
         return degrees * (2048.0/(DEPLOY_GEAR_RATIO * 360.0));
     }
 
-    /* converts integrated sensor units to meters per second */
+    /** converts integrated sensor units to meters per second */
     private static double integratedSensorUnitsToDegreesPerSecond(double integratedSensorUnits) {
         return integratedSensorUnits * ((DEPLOY_GEAR_RATIO * (600.0/2048.0) * 360.0)/60.0);
     }
 
-    /* converts meters per second to integrated sensor units */
+    /** converts meters per second to integrated sensor units */
     private static double degreesPerSecondToIntegratedSensorUnits(double degreesPerSecond) {
         return degreesPerSecond * (60.0/(DEPLOY_GEAR_RATIO * (600.0/2048.0) * 360.0));
     }
 
-    /* Returns the angle of the intake */
+    /** Returns the angle of the intake */
     private double getAngle() {
         return integratedSensorUnitsToDegrees(deploy.getSelectedSensorPosition());
+    }
+
+    /** resets sticky faults to allow error to change from anything back to "ok" */
+    public void clearFault(){
+        deploy.clearStickyFaults();
+        roller.clearStickyFaults();
     }
 }

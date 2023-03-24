@@ -22,12 +22,12 @@ import edu.wpi.first.math.numbers.N3;
 
 import static frc.robot.FieldConstants.*;
 
-// All Constants
+/** All Constants */
 public final class Constants {
 
     public static boolean tuningMode = false;
     
-    // Constants pertaining to the drive subsystem go here
+    /** Constants pertaining to the drive subsystem go here */
     public static class Drive {
     
         // Motor IDs 
@@ -118,7 +118,7 @@ public final class Constants {
 
     }
 
-    // Constants pertaining to the elevator subsystem go here 
+    /** Constants pertaining to the elevator subsystem go here */
     public static class Elevator {
         public static final int ELEVATOR_LEFT_ID = 11;
         public static final int ELEVATOR_RIGHT_ID = 12;
@@ -157,7 +157,7 @@ public final class Constants {
         public static final TalonFXInvertType ELEVATOR_RIGHT_INVERT_TYPE = TalonFXInvertType.CounterClockwise;
     }
 
-    // Constants pertaining to the arm subsystem go here
+    /** Constants pertaining to the arm subsystem go here */
     public static class Arm {
         public static final int ARM_ID = 14; 
         public static final TalonFXInvertType ARM_INVERT_TYPE = TalonFXInvertType.Clockwise;
@@ -201,7 +201,7 @@ public final class Constants {
         
     }
 
-    // Constants pertaining to the end effector subsystem go here 
+    /** Constants pertaining to the end effector subsystem go here */
     public static class EndEffector {
         public static final int MOTOR_ID = 18;
         public static final TalonFXInvertType INVERSION = TalonFXInvertType.Clockwise;
@@ -210,7 +210,7 @@ public final class Constants {
         public static final double INTAKE_CUBE_CURR_LIMIT = 25.0;
     }
 
-    // Constants pertaining to the floor intake subsystem
+    /** Constants pertaining to the floor intake subsystem */
     public static class FloorIntake {
         public static final int DEPLOY_ID = 16;
         public static final int ROLLER_ID = 17;
@@ -232,7 +232,7 @@ public final class Constants {
         public static final double FLOOR_INTAKE_ZERO = -5.0;
     }
 
-    // Constants pertaining to the climber subsystem
+    /** Constants pertaining to the climber subsystem */
     public static class Climber {
         public static final int CLIMBER_ID = 20;
         public static final double CLIMBING_FF = 0.0;
@@ -243,13 +243,13 @@ public final class Constants {
         public static final TalonFXInvertType CLIMBER_INVERT_TYPE = TalonFXInvertType.Clockwise;
     }
 
-    // Constants pertaining to electrical
+    /** Constants pertaining to electrical */
     public static class Electrical {
         public static final double FALCON_FULL_THROTTLE = 1023.0;
         public static final String CANIVORE_BUS_NAME = "dabus"; 
     }
 
-    // Constants pertaining to the camera
+    /** Constants pertaining to the camera */
     public static class Vision {
         public static final Transform3d ROBOT_TO_LL =
                 new Transform3d(
@@ -258,20 +258,29 @@ public final class Constants {
         public static final double HIGH_TAPE_OFF_GROUND = 1.12;
         public static final double MID_TAPE_OFF_GROUND = 0.61;
         public static final double X_SCORING_POSITION = 1.85;
+        public static final double AMBIGUITY_THRESHOLD = 0.15;
 
     }
 
-    // Constants pertaining to the LEDs 
+    /** Constants pertaining to the LEDs */
     public static class LEDs {
         public static final int[] PURPLE = {255, 0, 255};
         public static final int[] YELLOW = {255, 255, 0};
     }
 
-    // Constants pertaining to robot locations on the field
+    /** Constants pertaining to robot locations on the field */
     public static class RobotLocations {
         public static final Pose2d FIELD_SIDE_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(51.4), aprilTags.get(4).getY() - Units.inchesToMeters(29), new Rotation2d());
         public static final Pose2d WALL_SIDE_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(51.4), aprilTags.get(4).getY() + Units.inchesToMeters(29), new Rotation2d());
 
+    }
+
+    /** Ips for the stuff */
+    public static class Network {
+        public static final String radio = "10.59.40.1";
+        public static final String orangepi1 = "10.59.40.30";
+        public static final String orangepi2 = "10.59.40.31";
+        public static final String limelight = "10.59.40.11";
     }
   
 }

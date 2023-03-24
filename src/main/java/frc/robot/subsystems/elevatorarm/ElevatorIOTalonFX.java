@@ -73,6 +73,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.appliedVoltage = leader.getMotorOutputVoltage();
         inputs.currentAmps = new double[] {leader.getStatorCurrent(), follower.getStatorCurrent()};
         inputs.tempCelcius = new double[] {leader.getTemperature(), follower.getTemperature()};
+
+        inputs.lastFollowerError = follower.getLastError().toString();
+        inputs.lastLeaderError = leader.getLastError().toString();
     }
 
     @Override
@@ -143,29 +146,34 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         }
     }
 
-    /* converts integrated sensor units to meters */
+    /** converts integrated sensor units to meters */
     private double integratedSensorUnitsToMeters(double integratedSensorUnits) {
         return integratedSensorUnits * ((ELEVATOR_GEARING * Math.PI * ELEVATOR_PULLEY_PITCH_DIAMETER)/2048.0);
     }
 
-    /* converts meters to integrated sensor units */
+    /** converts meters to integrated sensor units */
     private double metersToIntegratedSensorUnits(double meters) {
         return meters * (2048.0/(ELEVATOR_GEARING * Math.PI * ELEVATOR_PULLEY_PITCH_DIAMETER));
     }   
 
-    /* converts integrated sensor units to meters per second */
+    /** converts integrated sensor units to meters per second */
     private double integratedSensorUnitsToMetersPerSecond(double integratedSensorUnits) {
         return integratedSensorUnits * ((ELEVATOR_GEARING * (600.0/2048.0) * Math.PI * ELEVATOR_PULLEY_PITCH_DIAMETER)/60.0);
     }
 
-    /* converts meters per second to integrated sensor units */
+    /** converts meters per second to integrated sensor units */
     private double metersPerSecondToIntegratedSensorUnits(double metersPerSecond) {
         return metersPerSecond * (60.0/(ELEVATOR_GEARING * (600.0/2048.0) * Math.PI * ELEVATOR_PULLEY_PITCH_DIAMETER));
     }
 
-    /* returns the height of the climber in meters */
+    /** returns the height of the climber in meters */
     private double getHeight() {
         return integratedSensorUnitsToMeters(leader.getSelectedSensorPosition());
     }
     
+    /** resets sticky faults to allow error to change from anything back to "ok" */
+    public void clearFault(){
+        leader.clearStickyFaults();
+        follower.clearStickyFaults();
+    }
 }
