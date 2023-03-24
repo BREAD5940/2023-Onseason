@@ -49,4 +49,7 @@ public interface ModuleIO {
 
     /** resets sticky faults to allow error to change from anything back to "ok" */
     public default void clearFault(){}
+
+	/** sets the current limit for the drive motor */
+	public default void setDriveCurrentLimits(double currentLimit) {}
 }

@@ -115,7 +115,9 @@ public final class Constants {
     
         // Other
         public static final double CANCODER_RESOLUTION = 4096.0;
-
+		public static final double SWERVE_TEMP_THRESHOLD_CELCIUS_UPPER = 95; // when to start cooling
+		public static final double SWERVE_TEMP_THRESHOLD_CELCIUS_LOWER = 80; // when to stop cooling
+		public static final double SWERVE_COOLING_CURRENT_LIMIT = 80;
     }
 
     /** Constants pertaining to the elevator subsystem go here */

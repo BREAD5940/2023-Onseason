@@ -58,6 +58,7 @@ public class Swerve extends SubsystemBase {
     private boolean fieldRelative = true;
     private boolean auto = false;
     private double lastFPGATimestamp = 0.0;
+	private boolean isCoolingMotors = false;
 
     // For fault detection
     private int[] steerErrCount = new int[4];
@@ -95,6 +96,7 @@ public class Swerve extends SubsystemBase {
         /** Update inputs */
         gyroIO.updateInputs(gyroInputs);
         Logger.getInstance().processInputs("Swerve/Gyro", gyroInputs);
+		boolean keepCoolingMotors = false;
         for (int i = 0; i < 4; i++) {
             moduleIOs[i].updateInputs(moduleInputs[i]);
             Logger.getInstance().processInputs("Swerve/Module" + Integer.toString(i), moduleInputs[i]);
@@ -108,8 +110,22 @@ public class Swerve extends SubsystemBase {
             if(moduleInputs[i].lastAzimuthError != ErrorCode.OK.toString()){
                 azimuthErrCount[i]++;
             }
+			if (moduleInputs[i].driveTempCelcius > SWERVE_TEMP_THRESHOLD_CELCIUS_UPPER && !isCoolingMotors) {
+				isCoolingMotors = true;
+				for (int j = 0; j < 4; j++) {
+					moduleIOs[j].setDriveCurrentLimits(SWERVE_COOLING_CURRENT_LIMIT);
+				}
+			}
+			if (moduleInputs[i].driveTempCelcius > SWERVE_TEMP_THRESHOLD_CELCIUS_LOWER) {
+				keepCoolingMotors = true;
+			}
             moduleIOs[i].clearFault();
         }
+		if (isCoolingMotors && !keepCoolingMotors) {
+			for (int j = 0; j < 4; j++) {
+				moduleIOs[j].setDriveCurrentLimits(150);
+			}
+		}
         Logger.getInstance().recordOutput("Swerve/loopCycleTime",
                 Logger.getInstance().getRealTimestamp() / 1.0E6 - lastFPGATimestamp);
         lastFPGATimestamp = Logger.getInstance().getRealTimestamp() / 1.0E6;

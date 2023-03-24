@@ -281,55 +281,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void testPeriodic() {
-    boolean driveFlipper = false;
-	  RobotContainer.northstarVision.periodic();
-    loopcounter++;
-
-    int i = 0;
-    Pair<CameraPoseTester.AlignmentTypes, CameraPoseTester.AlignmentTypes> cameraAlignments = m_robotContainer.updateCameraTester();
-    if(loopcounter % 10 == 0){
-      while(i<4){
-        System.out.println("----------- Module " + i + " CAN Failure Percentage -----------");
-        System.out.println("Steer: " + RobotContainer.swerve.getSteerErrorConc(i));
-        System.out.println("Drive " + RobotContainer.swerve.getDriveErrorConc(i));
-        System.out.println("Encoder: " + RobotContainer.swerve.getAzimuthErrorConc(i));
-        i++;
-      }
-      RobotContainer.swerve.resetError();
-      System.out.println("----------- SuperStructure CAN Failure Percentage -----------");
-      System.out.println("Elevator Follower Motor: " + RobotContainer.superstructure.getFollowerErrorConc()*100 + "%");
-      System.out.println("Elevator Leader Motor: " + RobotContainer.superstructure.getLeaderErrorConc()*100 + "%");
-      System.out.println("Arm Motor: " + RobotContainer.superstructure.getArmErrorConc()*100 + "%");
-      System.out.println("Arm Encoder: " + RobotContainer.superstructure.getArmAzimuthErrorConc()*100 + "%");
-      System.out.println("----------- Climber CAN Failure Percentage -----------");
-      System.out.println("Climber: " + RobotContainer.climber.getClimberErrorConc()*100 + "%");
-      RobotContainer.climber.resetError();
-      System.out.println("----------- Intake CAN Failure Percentage -----------");
-      System.out.println("Deploy: " + RobotContainer.superstructure.getDeployErrorConc()*100 + "%");
-      System.out.println("Rollers: " + RobotContainer.superstructure.getRollerErrorConc()*100 + "%");
-      System.out.println("----------- End Effector Error Concentrations -----------");
-      System.out.println("End Effector Motor: " + RobotContainer.superstructure.getEndEffectorErrorConc()*100 + "%");
-	  // test camera alignment
-	    System.out.println("----------- Camera Alignments -----------");
-	    System.out.println("left vs center: " + cameraAlignments.getFirst().toString());
-	    System.out.println("right vs center: " + cameraAlignments.getSecond().toString());
-      RobotContainer.superstructure.resetError();
-      System.out.println("----------- Ethernet Total Failed Packet Counts (20ms timeout) -----------");
-      System.out.println("Radio: " + ethernetLogger.radioErrCount);
-      System.out.println("Limelight: " + ethernetLogger.limelightErrCount);
-      System.out.println("Orangepi1: " + ethernetLogger.orangepi1ErrCount);
-      System.out.println("Orangepi2: " + ethernetLogger.orangepi2ErrCount);
-    }
-
-    if(loopcounter % 50 == 0){
-      if(driveFlipper){
-        RobotContainer.swerve.requestPercent(new ChassisSpeeds(0.1, 0, 0), false);
-        driveFlipper = false;
-      } else {
-        RobotContainer.swerve.requestPercent(new ChassisSpeeds(0, 0.1, 0), false);
-        driveFlipper = true;
-      }
-    }
   }
 
   @Override
