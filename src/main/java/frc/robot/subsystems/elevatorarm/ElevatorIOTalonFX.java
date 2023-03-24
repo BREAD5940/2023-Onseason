@@ -76,12 +76,15 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     }
 
     @Override
-    public void setHeight(double heightMeters) {
+    public void setHeight(double heightMeters, boolean goSlow) {
         if (mLastCommandedPosition != heightMeters) {
             mLastCommandedPosition = heightMeters;
             if (Math.abs(getHeight() - heightMeters) < 0.25) {
                 leader.configMotionAcceleration(metersPerSecondToIntegratedSensorUnits(3.0));
                 leader.configMotionCruiseVelocity(metersPerSecondToIntegratedSensorUnits(1.5));
+            } else if (goSlow) {
+                leader.configMotionAcceleration(metersPerSecondToIntegratedSensorUnits(6.0));
+                leader.configMotionCruiseVelocity(metersPerSecondToIntegratedSensorUnits(3.0));
             } else {
                 leader.configMotionAcceleration(metersPerSecondToIntegratedSensorUnits(12.0));
                 leader.configMotionCruiseVelocity(metersPerSecondToIntegratedSensorUnits(3.0));

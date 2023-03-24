@@ -64,6 +64,11 @@ public class Robot extends LoggedRobot {
   public static PathPlannerTrajectory onePieceBalanceA;
   public static PathPlannerTrajectory onePieceBalanceB;
 
+  public static PathPlannerTrajectory throwA; 
+  public static PathPlannerTrajectory throwB;
+  public static PathPlannerTrajectory throwC;
+  public static PathPlannerTrajectory throwD;
+
   public static Alliance alliance = DriverStation.Alliance.Red;
 
   @Override
@@ -89,6 +94,11 @@ public class Robot extends LoggedRobot {
                                   // be added.
 
     RobotContainer.superstructure.zeroSensors();
+
+    throwA = PathPlanner.loadPath("Throw A", new PathConstraints(3.0, 2.0));
+    throwB = PathPlanner.loadPath("Throw B", new PathConstraints(3.0, 2.0));
+    throwC = PathPlanner.loadPath("Throw C", new PathConstraints(3.0, 2.0));
+    throwD = PathPlanner.loadPath("Throw D", new PathConstraints(3.0, 2.0));
 
     threePieceA = PathPlanner.loadPath("Three Piece A", new PathConstraints(4.0, 3.0));
     threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(4.0, 3.0));
@@ -230,7 +240,7 @@ public class Robot extends LoggedRobot {
 
     
     if (RobotContainer.operator.getRawButtonPressed(XboxController.Button.kStart.value)) {
-      RobotContainer.superstructure.requestPreScore(Level.LOW, GamePiece.CUBE);
+      RobotContainer.superstructure.requestThrow();
     }
 
     if (RobotContainer.operator.getRightBumper() && RobotContainer.operator.getLeftBumper()) {

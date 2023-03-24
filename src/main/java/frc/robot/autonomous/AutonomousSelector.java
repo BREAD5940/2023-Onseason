@@ -8,6 +8,7 @@ import frc.robot.autonomous.modes.PreloadMode;
 import frc.robot.autonomous.modes.ThreePieceBalanceMode;
 import frc.robot.autonomous.modes.ThreePieceBumpMode;
 import frc.robot.autonomous.modes.ThreePieceMode;
+import frc.robot.autonomous.modes.ThrowBalanceMode;
 import frc.robot.autonomous.modes.TwoPieceBalanceBumpMode;
 import frc.robot.autonomous.modes.TwoPieceBalanceMode;
 import frc.robot.autonomous.modes.TwoPieceBumpMode;
@@ -55,6 +56,10 @@ public class AutonomousSelector {
         autonomusSelector.addOption(
             "THREE_PIECE_BUMP",
             new ThreePieceBumpMode(superstructure, swerve)
+        );
+        autonomusSelector.addOption(
+            "THROW_BALANCE",
+            new ThrowBalanceMode(superstructure, swerve)
         );
         SmartDashboard.putData("Autonomus Selector", autonomusSelector);
     }

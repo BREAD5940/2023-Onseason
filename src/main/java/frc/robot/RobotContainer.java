@@ -49,22 +49,10 @@ public class RobotContainer {
   public static final OperatorControls operatorControls = new OperatorControls(keyboard);
 
   public static final Swerve swerve = new Swerve();
-  // public static final ElevatorIO elevatorIO = new ElevatorIOTalonFX();
-  public static final ElevatorIO elevatorIO = new ElevatorIO() {
-    
-  };;
-  // public static final ArmIO armIO = new ArmIOTalonFX();
-  public static final ArmIO armIO = new ArmIO() {
-    
-  };
-  // public static final EndEffectorIO endEffectorIO = new EndEffectorIOTalonFX();
-  public static final EndEffectorIO endEffectorIO = new EndEffectorIO() {
-    
-  };
-  // public static final FloorIntakeIO floorIntakeIO = new FloorIntakeIOTalonFX();
-  public static final FloorIntakeIO floorIntakeIO = new FloorIntakeIO() {
-    
-  };
+  public static final ElevatorIO elevatorIO = new ElevatorIOTalonFX();
+  public static final ArmIO armIO = new ArmIOTalonFX();
+  public static final EndEffectorIO endEffectorIO = new EndEffectorIOTalonFX();
+  public static final FloorIntakeIO floorIntakeIO = new FloorIntakeIOTalonFX();
   public static final Superstructure superstructure = new Superstructure(elevatorIO, armIO, endEffectorIO,
       floorIntakeIO);
   public static final LimelightDetectionsClassifier limelightVision = new LimelightDetectionsClassifier("limelight");
@@ -74,10 +62,7 @@ public class RobotContainer {
   public static final AprilTagVision northstarVision = new AprilTagVision(leftCamera, rightCamera, centerCamera);
   public static final PoseEstimator poseEstimator = new PoseEstimator(VecBuilder.fill(0.005, 0.005, 0.0005));
   
-  // public static final ClimberIOTalonFX climberIO = new ClimberIOTalonFX();
-  public static final ClimberIO climberIO = new ClimberIO() {
-    
-  };
+  public static final ClimberIOTalonFX climberIO = new ClimberIOTalonFX();
   public static final Climber climber = new Climber(climberIO);
   public static final LEDs leds = new LEDs(0, 74);
 
@@ -101,6 +86,7 @@ public class RobotContainer {
       if (Robot.alliance == DriverStation.Alliance.Blue) {
         dx = Math.abs(x) > 0.05 ? Math.pow(-x, 1) * scale : 0.0;
         dy = Math.abs(y) > 0.05 ? Math.pow(-y, 1) * scale : 0.0;
+        
       } else {
         dx = Math.abs(x) > 0.05 ? Math.pow(-x, 1) * scale * -1 : 0.0;
         dy = Math.abs(y) > 0.05 ? Math.pow(-y, 1) * scale * -1 : 0.0;

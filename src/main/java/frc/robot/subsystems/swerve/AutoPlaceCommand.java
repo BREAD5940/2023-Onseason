@@ -44,6 +44,7 @@ public class AutoPlaceCommand extends CommandBase {
     private boolean shouldUseLimelight = false;
     private boolean isUsingLimelight = false;
     private boolean isCubeNode = false;
+    private boolean extended = false;
     private boolean linedUp = false;
     private boolean scored = false;
     private Level level;
@@ -71,6 +72,7 @@ public class AutoPlaceCommand extends CommandBase {
     public void initialize() {
         // Read selection from the operator controls
         isUsingLimelight = false;
+        extended = false;
         linedUp = false;
         scored = false;
         int scoringLocation = scoringLocationSup.get();
@@ -172,24 +174,35 @@ public class AutoPlaceCommand extends CommandBase {
         yFeedback = MathUtil.clamp(yFeedback, -1, 1);
         thetaFeedback = MathUtil.clamp(thetaFeedback, -1.0, 1.0);
 
-        if (poseError.getTranslation().getNorm() < Units.inchesToMeters(1.0) && Math.abs(poseError.getRotation().getDegrees()) < 1.0 && !linedUp) {
-            linedUp = true;
-            superstructure.requestPreScore(level, isCubeNode ? GamePiece.CUBE : GamePiece.CONE);
-        } 
+        if (poseError.getTranslation().getNorm() < Units.inchesToMeters(20.0) && Math.abs(poseError.getRotation().getDegrees()) < 20.0 && !extended) {
+            superstructure.requestPreScore(level, isCubeNode ? GamePiece.CUBE : GamePiece.CONE, true);
+            extended = true;
+        }
+
+        if (!isCubeNode) {
+            if (poseError.getTranslation().getNorm() < Units.inchesToMeters(1.0) && Math.abs(poseError.getRotation().getDegrees()) < 1.0 && !linedUp) {
+                linedUp = true;
+            } 
+        } else {
+            if (poseError.getTranslation().getNorm() < Units.inchesToMeters(4.0) && Math.abs(poseError.getRotation().getDegrees()) < 4.0 && !linedUp) {
+                linedUp = true;
+            }   
+        }
+       
 
         if (!scored) {
             if (level == Level.LOW) {
-                if (superstructure.atElevatorSetpoint(Superstructure.preLowHeight.get())) {
+                if (superstructure.atElevatorSetpoint(Superstructure.preLowHeight.get()) && linedUp) {
                     superstructure.requestScore();
                     scored = true;
                 }
             } else if (isCubeNode) {
-                if (superstructure.atElevatorSetpoint(level == Level.HIGH ? Superstructure.preCubeHighHeight.get() : Superstructure.preCubeHighHeight.get() - Superstructure.cubeOffset.get())) {
+                if (superstructure.atElevatorSetpoint(level == Level.HIGH ? Superstructure.preCubeHighHeight.get() : Superstructure.preCubeHighHeight.get() - Superstructure.cubeOffset.get()) && linedUp) {
                     superstructure.requestScore();
                     scored = true;
                 }
             } else if (!isCubeNode) {
-                if (superstructure.atElevatorSetpoint(level == Level.HIGH ? Superstructure.preConeHighHeight.get() : Superstructure.preConeHighHeight.get() - Superstructure.coneOffset.get())) {
+                if (superstructure.atElevatorSetpoint(level == Level.HIGH ? Superstructure.preConeHighHeight.get() : Superstructure.preConeHighHeight.get() - Superstructure.coneOffset.get()) && linedUp) {
                     superstructure.requestScore();
                     scored = true;
                 }

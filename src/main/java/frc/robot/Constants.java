@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
+import com.ctre.phoenixpro.signals.InvertedValue;
 
 import Jama.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -40,11 +41,11 @@ public final class Constants {
         public static final int[] AZIMUTH_CHANNELS = {21, 22, 23, 24};
 
         // Reversed Constants
-        public static final TalonFXInvertType[] DRIVE_INVERT_TYPES = {
-            TalonFXInvertType.CounterClockwise, 
-            TalonFXInvertType.Clockwise, 
-            TalonFXInvertType.CounterClockwise, 
-            TalonFXInvertType.Clockwise
+        public static final InvertedValue[] DRIVE_INVERT_TYPES = {
+            InvertedValue.CounterClockwise_Positive, 
+            InvertedValue.Clockwise_Positive, 
+            InvertedValue.CounterClockwise_Positive, 
+            InvertedValue.Clockwise_Positive
         };
         // public static final boolean[] STEERS_ARE_REVERSED = {false, false, false, false};
         public static final TalonFXInvertType[] STEER_INVERT_TYPES = {
@@ -106,7 +107,7 @@ public final class Constants {
         public static final Translation2d FIELD_TO_TARGET = new Translation2d(Units.feetToMeters(27), Units.feetToMeters(13.5));
         public static final double CAMERA_TO_SHOOTER_DISTANCE = Units.inchesToMeters(15.0);
         public static final double UPPER_HUB_RADIUS = Units.inchesToMeters(53.38)/2;
-        public static final double ROBOT_MAX_SPEED = (6380.0 * DRIVE_GEARING * 2.0 * Math.PI * WHEEL_RADIUS) / 60.0;
+        public static final double ROBOT_MAX_SPEED = 4.95;
         public static final Translation2d FL_LOCATION = new Translation2d(ROBOT_LENGTH/2, ROBOT_WIDTH/2);
         public static final Translation2d FR_LOCATION = new Translation2d(ROBOT_LENGTH/2, -ROBOT_WIDTH/2);
         public static final Translation2d BL_LOCATION = new Translation2d(-ROBOT_LENGTH/2, ROBOT_WIDTH/2);
@@ -139,6 +140,7 @@ public final class Constants {
         public static final double ELEVATOR_MAX_VELOCITY = (6380.0 * (10.5/12.0) * ELEVATOR_GEARING * ELEVATOR_PULLEY_PITCH_DIAMETER * Math.PI)/60.0;
 
         public static final double ELEVATOR_IDLE_POSE = 0.18;
+        public static final double ELEVATOR_THROW_POSE = 0.25;
         public static final double ELEVATOR_PRE_CUBE_HIGH = 0.85;
         public static final double ELEVATOR_PRE_CONE_HIGH = 1.21;
         public static final double ELEVATOR_CONE_SLAM_HIGH = 1.21;
@@ -184,6 +186,8 @@ public final class Constants {
         // public static final double ARM_DOUBLE_SUBSTATION_CUBE = 211.6;
         public static final double ARM_SINGLE_SUBSTATION_CONE = 126;
         public static final double ARM_UNJAM_POSITION = 26.0;
+        public static final double ARM_PRE_THROW = 25.0;
+        public static final double ARM_POST_THROW = 160.0;
 
         public static final double ARM_KP = 0.03;
         public static final double ARM_KI = 0.0;
