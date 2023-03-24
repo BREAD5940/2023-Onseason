@@ -68,6 +68,7 @@ public class Robot extends LoggedRobot {
   public static PathPlannerTrajectory throwB;
   public static PathPlannerTrajectory throwC;
   public static PathPlannerTrajectory throwD;
+  public static PathPlannerTrajectory throwE;
 
   public static Alliance alliance = DriverStation.Alliance.Red;
 
@@ -95,10 +96,11 @@ public class Robot extends LoggedRobot {
 
     RobotContainer.superstructure.zeroSensors();
 
-    throwA = PathPlanner.loadPath("Throw A", new PathConstraints(3.0, 2.0));
-    throwB = PathPlanner.loadPath("Throw B", new PathConstraints(3.0, 2.0));
-    throwC = PathPlanner.loadPath("Throw C", new PathConstraints(3.0, 2.0));
-    throwD = PathPlanner.loadPath("Throw D", new PathConstraints(3.0, 2.0));
+    throwA = PathPlanner.loadPath("Throw A", new PathConstraints(3.5, 2.5));
+    throwB = PathPlanner.loadPath("Throw B", new PathConstraints(3.5, 2.5));
+    throwC = PathPlanner.loadPath("Throw C", new PathConstraints(3.5, 2.5));
+    throwD = PathPlanner.loadPath("Throw D", new PathConstraints(3.5, 2.5));
+    throwE= PathPlanner.loadPath("Throw E", new PathConstraints(3.5, 2.5));
 
     threePieceA = PathPlanner.loadPath("Three Piece A", new PathConstraints(4.0, 3.0));
     threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(4.0, 3.0));
@@ -240,7 +242,7 @@ public class Robot extends LoggedRobot {
 
     
     if (RobotContainer.operator.getRawButtonPressed(XboxController.Button.kStart.value)) {
-      RobotContainer.superstructure.requestThrow();
+      RobotContainer.superstructure.requestPreScore(Level.LOW, GamePiece.CUBE);
     }
 
     if (RobotContainer.operator.getRightBumper() && RobotContainer.operator.getLeftBumper()) {
@@ -256,6 +258,10 @@ public class Robot extends LoggedRobot {
       } else {
         RobotContainer.climber.requestRun(0.0);
       }
+    }
+
+    if (RobotContainer.operator.getRightBumperPressed()) {
+      RobotContainer.superstructure.requestThrow();
     }
 
     AprilTagVision.setTrustLevel(RobotContainer.operator.getPOV() == 135 || RobotContainer.operator.getPOV() == 180 || RobotContainer.operator.getPOV() == 225);

@@ -182,28 +182,32 @@ public class AutoPlaceCommand extends CommandBase {
         if (!isCubeNode) {
             if (poseError.getTranslation().getNorm() < Units.inchesToMeters(1.0) && Math.abs(poseError.getRotation().getDegrees()) < 1.0 && !linedUp) {
                 linedUp = true;
-            } 
+            } else {
+                // linedUp = false;
+            }
         } else {
             if (poseError.getTranslation().getNorm() < Units.inchesToMeters(4.0) && Math.abs(poseError.getRotation().getDegrees()) < 4.0 && !linedUp) {
                 linedUp = true;
-            }   
+            } else {
+                // linedUp = false;
+            } 
         }
        
 
         if (!scored) {
             if (level == Level.LOW) {
                 if (superstructure.atElevatorSetpoint(Superstructure.preLowHeight.get()) && linedUp) {
-                    superstructure.requestScore();
+                    // superstructure.requestScore();
                     scored = true;
                 }
             } else if (isCubeNode) {
                 if (superstructure.atElevatorSetpoint(level == Level.HIGH ? Superstructure.preCubeHighHeight.get() : Superstructure.preCubeHighHeight.get() - Superstructure.cubeOffset.get()) && linedUp) {
-                    superstructure.requestScore();
+                    // superstructure.requestScore();
                     scored = true;
                 }
             } else if (!isCubeNode) {
                 if (superstructure.atElevatorSetpoint(level == Level.HIGH ? Superstructure.preConeHighHeight.get() : Superstructure.preConeHighHeight.get() - Superstructure.coneOffset.get()) && linedUp) {
-                    superstructure.requestScore();
+                    // superstructure.requestScore();
                     scored = true;
                 }
             }
@@ -212,7 +216,8 @@ public class AutoPlaceCommand extends CommandBase {
         if (!linedUp) {
             swerve.requestVelocity(new ChassisSpeeds(xFeedback, yFeedback, thetaFeedback), true, false);
         } else {
-            swerve.requestVelocity(new ChassisSpeeds(0, 0, 0), true, false);
+            swerve.requestVelocity(new ChassisSpeeds(xFeedback, yFeedback, thetaFeedback), true, false);
+            // swerve.requestVelocity(new ChassisSpeeds(0, 0, 0), true, false);
         }
 
         Logger.getInstance().recordOutput("AutoPlace/RealGoal", realGoal);

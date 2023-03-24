@@ -27,23 +27,30 @@ public class ThrowBalanceMode extends SequentialCommandGroup {
             new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_CONE_PULL_OUT_HIGH)),
             new WaitCommand(0.4),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0)),
-            new TrajectoryFollowerCommand(Robot.throwA, () -> Robot.throwA.getInitialHolonomicPose().getRotation(), swerve, true),
-            new WaitCommand(0.05),
+            new TrajectoryFollowerCommand(Robot.throwA, () -> Robot.throwA.getInitialHolonomicPose().getRotation(), swerve, true).raceWith(
+                new RunCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0))
+            ),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
             new TrajectoryFollowerCommand(Robot.throwB, swerve, true).alongWith(new SequentialCommandGroup(
-                new WaitCommand(Robot.throwB.getTotalTimeSeconds() - 0.25),
+                new WaitCommand(Robot.throwB.getTotalTimeSeconds() - 0.85),
                 new InstantCommand(() -> superstructure.requestThrow())
             )),
-            new WaitCommand(0.5),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0)),
-            new TrajectoryFollowerCommand(Robot.throwC, swerve, false).alongWith(new SequentialCommandGroup(
-                new WaitCommand(Robot.throwC.getTotalTimeSeconds() - 0.25),
+            new TrajectoryFollowerCommand(Robot.throwC, swerve, true).alongWith(new SequentialCommandGroup(
+                new WaitCommand(Robot.throwC.getTotalTimeSeconds() - 1.5),
+                new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
+                new WaitCommand(Robot.throwC.getTotalTimeSeconds() - 1.5 - 0.85),
                 new InstantCommand(() -> superstructure.requestThrow())
             )),
-            new WaitCommand(0.5),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0)),
-            new TrajectoryFollowerCommand(Robot.throwD, swerve, false),
-            new InstantCommand(() -> superstructure.requestThrow()),
+            new TrajectoryFollowerCommand(Robot.throwD, swerve, true).alongWith(new SequentialCommandGroup(
+                new WaitCommand(Robot.throwC.getTotalTimeSeconds() - 1.5),
+                new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
+                new WaitCommand(Robot.throwC.getTotalTimeSeconds() - 1.5 - 0.85),
+                new InstantCommand(() -> superstructure.requestThrow())
+            )),
+            new InstantCommand(() -> superstructure.requestIdle()),
+            new TrajectoryFollowerCommand(Robot.throwE, swerve, false),
             new RunCommand(() -> swerve.requestPercent(new ChassisSpeeds(0, 0, 0), false))
         );
     }
