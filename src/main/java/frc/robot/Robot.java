@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.subsystems.climber.Climber.ClimberStates;
+import frc.robot.subsystems.vision.limelight.LimelightDetectionsClassifier;
 import frc.robot.subsystems.vision.northstar.AprilTagVision;
 
 public class Robot extends LoggedRobot {
@@ -127,6 +128,7 @@ public class Robot extends LoggedRobot {
     onePieceBalanceB = PathPlanner.loadPath("One Piece Balance B", new PathConstraints(2.0, 2.0));
     RobotContainer.swerve.resetAllToAbsolute();
     m_robotContainer.configureAutonomousSelector(); // Needed down here so auto paths exist when the selector is created
+    RobotContainer.limelightVision.enableLeds(false);
   }
 
   @Override
@@ -142,6 +144,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledPeriodic() {
+    RobotContainer.limelightVision.enableLeds(false);
   }
 
   @Override
@@ -162,6 +165,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousPeriodic() {
+    RobotContainer.limelightVision.enableLeds(true);
   }
 
   @Override
@@ -186,6 +190,7 @@ public class Robot extends LoggedRobot {
     } else {
       coneIntakeTriggered = false;
     }
+    RobotContainer.limelightVision.enableLeds(true);
 
     if (RobotContainer.driver.getRightTriggerAxis() > 0.05 && !intakeTriggered) {
       Supplier<Double> pressure = () -> {

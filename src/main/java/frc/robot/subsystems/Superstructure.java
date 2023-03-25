@@ -73,6 +73,7 @@ public class Superstructure extends SubsystemBase {
     public static LoggedTunableNumber floorIntakeCubeAngle = new LoggedTunableNumber("Arm/ArmFloorIntakeCube", ARM_FLOOR_INTAKE_CUBE);
     public static LoggedTunableNumber doubleSubstationConeAngle = new LoggedTunableNumber("Arm/ArmDoubleSubstationConeAngle", ARM_DOUBLE_SUBSTATION_CONE);
     public static LoggedTunableNumber singleSubstationConeAngle = new LoggedTunableNumber("Arm/ArmDoubleSubstationCubeAngle", ARM_SINGLE_SUBSTATION_CONE);
+    public static LoggedTunableNumber spitAngle = new LoggedTunableNumber("Arm/spitAngle", 100.0);
     // TunableNumber floorIntakeOutput = new TunableNumber("FloorIntake/Output", 0.0);
 
     double lastFPGATimestamp = 0.0;
@@ -186,21 +187,21 @@ public class Superstructure extends SubsystemBase {
             }
         } else if (systemState == SuperstructureState.PREPARE_TO_THROW) {
             // Outputs
-            elevatorArmLowLevel.requestDesiredState(ELEVATOR_THROW_POSE, ARM_PRE_THROW, goSlow);
-            floorIntake.requestClosedLoop(0.0, INTAKE_IDLE_POSITION);
+            elevatorArmLowLevel.requestDesiredState(ELEVATOR_IDLE_POSE, ARM_IDLE_POSE, goSlow);
+            floorIntake.requestClosedLoop(0.0, INTAKE_IDLE_POSITION + 20.0);
             endEffector.holdGamePiece();
 
             // Transitions
             if (!requestThrow) {
                 nextSystemState = SuperstructureState.IDLE;
-            } else if (elevatorArmLowLevel.atArmSetpoint(ARM_PRE_THROW) && elevatorArmLowLevel.atElevatorSetpoint(ELEVATOR_THROW_POSE)) {
+            } else if (elevatorArmLowLevel.atArmSetpoint(ARM_IDLE_POSE) && elevatorArmLowLevel.atElevatorSetpoint(ELEVATOR_IDLE_POSE)) {
                 nextSystemState = SuperstructureState.THROWING;
             }
         } else if (systemState == SuperstructureState.THROWING) {
             // Outputs
             elevatorArmLowLevel.requestDesiredState(ELEVATOR_THROW_POSE + Units.inchesToMeters(18.0), ARM_POST_THROW, goSlow);
-            floorIntake.requestClosedLoop(0.0, INTAKE_IDLE_POSITION);
-            if (elevatorArmLowLevel.getState()[1] > 35.0) {
+            floorIntake.requestClosedLoop(0.0, INTAKE_IDLE_POSITION + 20.0);
+            if (elevatorArmLowLevel.getState()[1] > 100.0) {
                 endEffector.throwCube();
             } else {
                 endEffector.holdGamePiece();

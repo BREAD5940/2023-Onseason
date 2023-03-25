@@ -25,7 +25,7 @@ import static frc.robot.FieldConstants.*;
 // All Constants
 public final class Constants {
 
-    public static boolean tuningMode = false;
+    public static boolean tuningMode = true;
     
     // Constants pertaining to the drive subsystem go here
     public static class Drive {
@@ -142,8 +142,8 @@ public final class Constants {
         public static final double ELEVATOR_IDLE_POSE = 0.18;
         public static final double ELEVATOR_THROW_POSE = 0.25;
         public static final double ELEVATOR_PRE_CUBE_HIGH = 0.85;
-        public static final double ELEVATOR_PRE_CONE_HIGH = 1.21;
-        public static final double ELEVATOR_CONE_SLAM_HIGH = 1.21;
+        public static final double ELEVATOR_PRE_CONE_HIGH = 1.23;
+        public static final double ELEVATOR_CONE_SLAM_HIGH = 1.23;
         public static final double ELEVATOR_CONE_PULL_OUT_HIGH = 1.2;
         public static final double ELEVATOR_CUBE_OFFSET = 0.509856;
         public static final double ELEVATOR_CONE_OFFSET = 0.54;
@@ -257,7 +257,7 @@ public final class Constants {
                         new Rotation3d(Units.degreesToRadians(0.0), Units.degreesToRadians(-23.5), 0.0)); //Units.degreesToRadians(1.6593493)));
         public static final double HIGH_TAPE_OFF_GROUND = 1.12;
         public static final double MID_TAPE_OFF_GROUND = 0.61;
-        public static final double X_SCORING_POSITION = 1.85;
+        public static final double X_SCORING_POSITION = 1.83;
 
     }
 

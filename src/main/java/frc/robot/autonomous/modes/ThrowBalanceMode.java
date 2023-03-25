@@ -32,21 +32,21 @@ public class ThrowBalanceMode extends SequentialCommandGroup {
             ),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
             new TrajectoryFollowerCommand(Robot.throwB, swerve, true).alongWith(new SequentialCommandGroup(
-                new WaitCommand(Robot.throwB.getTotalTimeSeconds() - 0.85),
+                new WaitCommand(Robot.throwB.getTotalTimeSeconds() - 0.9),
                 new InstantCommand(() -> superstructure.requestThrow())
             )),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0)),
             new TrajectoryFollowerCommand(Robot.throwC, swerve, true).alongWith(new SequentialCommandGroup(
                 new WaitCommand(Robot.throwC.getTotalTimeSeconds() - 1.5),
                 new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
-                new WaitCommand(Robot.throwC.getTotalTimeSeconds() - 1.5 - 0.85),
+                new WaitCommand(Robot.throwC.getTotalTimeSeconds() - 1.5 - 0.9),
                 new InstantCommand(() -> superstructure.requestThrow())
             )),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0)),
             new TrajectoryFollowerCommand(Robot.throwD, swerve, true).alongWith(new SequentialCommandGroup(
                 new WaitCommand(Robot.throwC.getTotalTimeSeconds() - 1.5),
                 new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
-                new WaitCommand(Robot.throwC.getTotalTimeSeconds() - 1.5 - 0.85),
+                new WaitCommand(Robot.throwC.getTotalTimeSeconds() - 1.5 - 0.9),
                 new InstantCommand(() -> superstructure.requestThrow())
             )),
             new InstantCommand(() -> superstructure.requestIdle()),

@@ -79,7 +79,7 @@ public class ModuleIOTalonFX implements ModuleIO {
 
         CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
         currentLimitsConfigs.StatorCurrentLimitEnable = true;
-        currentLimitsConfigs.StatorCurrentLimit = 150.0;
+        currentLimitsConfigs.StatorCurrentLimit = 120.0;
 
         configurator.apply(feedbackConfigs);
         configurator.apply(slot0Configs);
