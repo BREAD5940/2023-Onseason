@@ -23,6 +23,8 @@ import frc.robot.commons.PoseEstimator;
 import frc.robot.drivers.LEDs;
 import frc.robot.FaultChecker.FaultChecker;
 import frc.robot.autonomous.AutonomousSelector;
+import frc.robot.autonomous.modes.TwoPieceBalanceBumpMode;
+import frc.robot.autonomous.modes.TwoPieceBalanceMode;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIOTalonFX;
@@ -88,25 +90,14 @@ public class RobotContainer {
 
       // Movement Outputs
       double scale = RobotContainer.driver.getLeftBumper() ? 0.25 : 1.0;
-      double dx;
-      double dy;
-      if (Robot.alliance == DriverStation.Alliance.Blue) {
-        dx = Math.abs(x) > 0.05 ? Math.pow(-x, 1) * scale : 0.0;
-        dy = Math.abs(y) > 0.05 ? Math.pow(-y, 1) * scale : 0.0;
-      } else {
-        dx = Math.abs(x) > 0.05 ? Math.pow(-x, 1) * scale * -1 : 0.0;
-        dy = Math.abs(y) > 0.05 ? Math.pow(-y, 1) * scale * -1 : 0.0;
-      }
-      double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.75 * scale : 0.0;
+      double dx = Math.abs(x) > 0.075 ? Math.pow(-x, 1) * scale : 0.0;
+      double dy = Math.abs(y) > 0.075 ? Math.pow(-y, 1) * scale : 0.0;
+      double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.75  * scale: 0.0;
       swerve.requestPercent(new ChassisSpeeds(dx, dy, rot), true);
 
       // Sets the 0 of the robot
-      if (driver.getRawButtonPressed(XboxController.Button.kStart.value)) {
-        if (DriverStation.getAlliance() == Alliance.Blue) {
-          poseEstimator.resetPose(new Pose2d());
-        } else {
-          poseEstimator.resetPose(new Pose2d(new Translation2d(), new Rotation2d(Math.PI)));
-        }
+      if (driver.getAButtonPressed()) {
+        poseEstimator.resetPose(new Pose2d());
       }
     }, swerve));
 
