@@ -4,7 +4,7 @@ import org.littletonrobotics.junction.AutoLog;
 
 import com.ctre.phoenix.ErrorCode;
 
-/* Elevator subsystem hardware interface */
+/** Elevator subsystem hardware interface */
 public interface ElevatorIO {
     @AutoLog
     public static class ElevatorIOInputs {
@@ -20,10 +20,10 @@ public interface ElevatorIO {
         public String lastFollowerError = ErrorCode.OK.toString();
     }
 
-    /* Updates the set of loggable inputs */
+    /** Updates the set of loggable inputs */
     public default void updateInputs(ElevatorIOInputs inputs) {}
 
-    /* Sets the climber to a height setpoint via motion magic */
+    /** Sets the climber to a height setpoint via motion magic */
     public default void setHeight(double heightMeters) {}
 
     /** Sets the climber to a specified percent output */
@@ -32,13 +32,13 @@ public interface ElevatorIO {
     /** Resets the climber to a specified position */
     public default void resetHeight(double newHeightMeters) {}
 
-    /* Sets the climber's neutral mode */
+    /** Sets the climber's neutral mode */
     public default void enableBrakeMode(boolean enable) {}
 
-    /* Updates tunable numbers if neccesary */
+    /** Updates tunable numbers if neccesary */
     public default void updateTunableNumbers() {}
 
-    /* resets sticky faults to allow error to change from anything back to "ok" */
+    /** resets sticky faults to allow error to change from anything back to "ok" */
     public default void clearFault(){}
 
 }

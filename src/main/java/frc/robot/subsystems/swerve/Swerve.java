@@ -273,22 +273,22 @@ public class Swerve extends SubsystemBase {
         return poseRaw;
     }
 
-    /* Returns the error concentration for the drive motor */
+    /** Returns the error concentration for the drive motor */
     public double getSteerErrorConc(int i){
         return(steerErrCount[i]/errCheckNum);
     }
 
-    /* Returns the error concentration for the drive motor */
+    /** Returns the error concentration for the drive motor */
     public double getDriveErrorConc(int i){
         return(driveErrCount[i]/errCheckNum);
     }
 
-    /* Returns the error concentration for the encoder */
+    /** Returns the error concentration for the encoder */
     public double getAzimuthErrorConc(int i){
         return(azimuthErrCount[i]/errCheckNum);
     }
 
-    /* Resets error counters */
+    /** Resets error counters */
     public void resetError(){
         int i = 0;
         while(i<4){
@@ -399,5 +399,4 @@ public class Swerve extends SubsystemBase {
             moduleIOs[i].resetToAbsolute();
         }
     }
-
 }

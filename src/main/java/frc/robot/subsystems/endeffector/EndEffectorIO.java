@@ -26,13 +26,19 @@ public interface EndEffectorIO {
     /** Enables or disables brake mode for the end effector */
     public default void enableBrakeMode(boolean enable) {}
 
-    /* Sets current limit of end-effector */
+    /** Sets current limit of end-effector */
     public default void setCurrentLimit(double currentLimit, double triggerThreshhold) {}
 
-    /* Updates filters */
+    /** Updates filters */
     public default void updateFilter() {}
 
-    /* resets sticky faults to allow error to change from anything back to "ok" */
+    /** resets sticky faults to allow error to change from anything back to "ok" */
     public default void clearFault(){}
     
+	/**
+	 * used to check if the end effector is holding a cone
+	 * @return
+	 * returns true if the end effector is holding a cone
+	 */
+	public default boolean isHoldingCone() {return false;}
 }

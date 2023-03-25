@@ -41,6 +41,6 @@ public interface ArmIO {
     /** Updates tunable numbers */
     public default void updateTunableNumbers() {}
 
-    /* resets sticky faults to allow error to change from anything back to "ok" */
+    /** resets sticky faults to allow error to change from anything back to "ok" */
     public default void clearFault(){}
 }

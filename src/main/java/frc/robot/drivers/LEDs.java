@@ -19,7 +19,7 @@ public class LEDs extends SubsystemBase {
         NA, PURPLE, YELLOW
     }
     
-    /* Constructs the LEDs object */
+    /** Constructs the LEDs object */
     public LEDs(int port, int bufferLen) {
         // Construct the LEDs
         mLeds = new AddressableLED(port);
@@ -33,7 +33,7 @@ public class LEDs extends SubsystemBase {
         mLeds.start();
     }
 
-    /* Sets the color of the LEDs */
+    /** Sets the color of the LEDs */
     private void setColor(int r, int g, int b) { 
         for (int i = 0; i < mBuffer.getLength(); i++) {
             mBuffer.setRGB(i, r, g, b);
@@ -41,7 +41,7 @@ public class LEDs extends SubsystemBase {
         mLeds.setData(mBuffer);
     }
 
-    /* Set the colors depending on the operators last selected scoring location */
+    /** Set the colors depending on the operators last selected scoring location */
     @Override
     public void periodic() {
         int scoringLocation = RobotContainer.operatorControls.getLastSelectedScoringLocation();

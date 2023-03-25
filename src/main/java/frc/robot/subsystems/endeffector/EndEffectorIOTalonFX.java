@@ -18,6 +18,7 @@ import static frc.robot.Constants.Electrical.*;
 
 public class EndEffectorIOTalonFX implements EndEffectorIO {
     private TalonFX motor;
+	private BeamBreakIO beamBreakIO;
     private AveragingFilter filter = new AveragingFilter(13);
     private double mCurrentLimit = 0.0;
 
@@ -36,6 +37,8 @@ public class EndEffectorIOTalonFX implements EndEffectorIO {
         motor.enableVoltageCompensation(true);
         motor.configAllSettings(config);
         motor.setInverted(INVERSION);
+
+		beamBreakIO = new BeamBreakIOTalonFX(motor);
     }
 
     @Override
@@ -72,6 +75,11 @@ public class EndEffectorIOTalonFX implements EndEffectorIO {
     public void updateFilter() {
         filter.addSample(Math.abs(motor.getStatorCurrent()));
     }
+
+	@Override
+	public boolean isHoldingCone() {
+		return beamBreakIO.isDetecting();
+	}
 
     public void clearFault(){
         motor.clearStickyFaults();
