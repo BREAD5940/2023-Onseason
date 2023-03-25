@@ -44,167 +44,167 @@ import frc.robot.subsystems.vision.visionTest.CameraPoseTester;
 
 public class RobotContainer {
 
-	public static final XboxController driver = new XboxController(0);
-	public static final XboxController operator = new XboxController(1);
-	public static final GenericHID keyboard = new GenericHID(2);
-	public static final OperatorControls operatorControls = new OperatorControls(keyboard);
+    public static final XboxController driver = new XboxController(0);
+    public static final XboxController operator = new XboxController(1);
+    public static final GenericHID keyboard = new GenericHID(2);
+    public static final OperatorControls operatorControls = new OperatorControls(keyboard);
 
-	public static final Swerve swerve = new Swerve();
-	public static final ElevatorIO elevatorIO = new ElevatorIOTalonFX();
-	public static final ArmIO armIO = new ArmIOTalonFX();
-	public static final EndEffectorIO endEffectorIO = new EndEffectorIOTalonFX();
-	public static final FloorIntakeIO floorIntakeIO = new FloorIntakeIOTalonFX();
-	public static final Superstructure superstructure = new Superstructure(elevatorIO, armIO, endEffectorIO,
-			floorIntakeIO);
-	public static final LimelightDetectionsClassifier limelightVision = new LimelightDetectionsClassifier("limelight");
-	public static final AprilTagVisionIO leftCamera = new AprilTagVisionIONorthstar("northstar-left");
-	public static final AprilTagVisionIO rightCamera = new AprilTagVisionIONorthstar("northstar-right");
-	public static final AprilTagVisionIO centerCamera = new AprilTagVisionIONorthstar("northstar-center");
-	public static final AprilTagVision northstarVision = new AprilTagVision(leftCamera, rightCamera, centerCamera);
-	public static final PoseEstimator poseEstimator = new PoseEstimator(VecBuilder.fill(0.005, 0.005, 0.0005));
-	public static final CameraPoseTester cameraPoseTester = new CameraPoseTester(northstarVision);
+    public static final Swerve swerve = new Swerve();
+    public static final ElevatorIO elevatorIO = new ElevatorIOTalonFX();
+    public static final ArmIO armIO = new ArmIOTalonFX();
+    public static final EndEffectorIO endEffectorIO = new EndEffectorIOTalonFX();
+    public static final FloorIntakeIO floorIntakeIO = new FloorIntakeIOTalonFX();
+    public static final Superstructure superstructure = new Superstructure(elevatorIO, armIO, endEffectorIO,
+            floorIntakeIO);
+    public static final LimelightDetectionsClassifier limelightVision = new LimelightDetectionsClassifier("limelight");
+    public static final AprilTagVisionIO leftCamera = new AprilTagVisionIONorthstar("northstar-left");
+    public static final AprilTagVisionIO rightCamera = new AprilTagVisionIONorthstar("northstar-right");
+    public static final AprilTagVisionIO centerCamera = new AprilTagVisionIONorthstar("northstar-center");
+    public static final AprilTagVision northstarVision = new AprilTagVision(leftCamera, rightCamera, centerCamera);
+    public static final PoseEstimator poseEstimator = new PoseEstimator(VecBuilder.fill(0.005, 0.005, 0.0005));
+    public static final CameraPoseTester cameraPoseTester = new CameraPoseTester(northstarVision);
 
-	public static final ClimberIOTalonFX climberIO = new ClimberIOTalonFX();
-	public static final Climber climber = new Climber(climberIO);
-	public static final LEDs leds = new LEDs(0, 74);
+    public static final ClimberIOTalonFX climberIO = new ClimberIOTalonFX();
+    public static final Climber climber = new Climber(climberIO);
+    public static final LEDs leds = new LEDs(0, 74);
 
-	private static AutonomousSelector autonomousSelector;
+    private static AutonomousSelector autonomousSelector;
 
-	private int cameraTestingId = 0;
+    private int cameraTestingId = 0;
 
-	public RobotContainer() {
-		configureControls();
-		configureNorthstarVision();
-	}
+    public RobotContainer() {
+        configureControls();
+        configureNorthstarVision();
+    }
 
-	/** Configures the controls for the robot */
-	private void configureControls() {
-		swerve.setDefaultCommand(new RunCommand(() -> {
-			double x = driver.getRightY();
-			double y = driver.getRightX();
-			double omega = driver.getLeftX();
+    /** Configures the controls for the robot */
+    private void configureControls() {
+        swerve.setDefaultCommand(new RunCommand(() -> {
+            double x = driver.getRightY();
+            double y = driver.getRightX();
+            double omega = driver.getLeftX();
 
-			// Movement Outputs
-			double scale = RobotContainer.driver.getLeftBumper() ? 0.25 : 1.0;
-			double dx;
-			double dy;
-			if (Robot.alliance == DriverStation.Alliance.Blue) {
-				dx = Math.abs(x) > 0.05 ? Math.pow(-x, 1) * scale : 0.0;
-				dy = Math.abs(y) > 0.05 ? Math.pow(-y, 1) * scale : 0.0;
-			} else {
-				dx = Math.abs(x) > 0.05 ? Math.pow(-x, 1) * scale * -1 : 0.0;
-				dy = Math.abs(y) > 0.05 ? Math.pow(-y, 1) * scale * -1 : 0.0;
-			}
-			double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.75 * scale : 0.0;
-			swerve.requestPercent(new ChassisSpeeds(dx, dy, rot), true);
+            // Movement Outputs
+            double scale = RobotContainer.driver.getLeftBumper() ? 0.25 : 1.0;
+            double dx;
+            double dy;
+            if (Robot.alliance == DriverStation.Alliance.Blue) {
+                dx = Math.abs(x) > 0.05 ? Math.pow(-x, 1) * scale : 0.0;
+                dy = Math.abs(y) > 0.05 ? Math.pow(-y, 1) * scale : 0.0;
+            } else {
+                dx = Math.abs(x) > 0.05 ? Math.pow(-x, 1) * scale * -1 : 0.0;
+                dy = Math.abs(y) > 0.05 ? Math.pow(-y, 1) * scale * -1 : 0.0;
+            }
+            double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 0.75 * scale : 0.0;
+            swerve.requestPercent(new ChassisSpeeds(dx, dy, rot), true);
 
-			// Sets the 0 of the robot
-			if (driver.getRawButtonPressed(XboxController.Button.kStart.value)) {
-				if (DriverStation.getAlliance() == Alliance.Blue) {
-					poseEstimator.resetPose(new Pose2d());
-				} else {
-					poseEstimator.resetPose(new Pose2d(new Translation2d(), new Rotation2d(Math.PI)));
-				}
-			}
-		}, swerve));
+            // Sets the 0 of the robot
+            if (driver.getRawButtonPressed(XboxController.Button.kStart.value)) {
+                if (DriverStation.getAlliance() == Alliance.Blue) {
+                    poseEstimator.resetPose(new Pose2d());
+                } else {
+                    poseEstimator.resetPose(new Pose2d(new Translation2d(), new Rotation2d(Math.PI)));
+                }
+            }
+        }, swerve));
 
-		new JoystickButton(operator, XboxController.Button.kBack.value)
-				.onTrue(new InstantCommand(() -> superstructure.requestHome()));
+        new JoystickButton(operator, XboxController.Button.kBack.value)
+                .onTrue(new InstantCommand(() -> superstructure.requestHome()));
 
-		// superstructure.setDefaultCommand(new RunCommand(() -> {
-		// if (RobotContainer.operator.getRightBumperPressed()) {
-		// RobotContainer.superstructure.requestFloorIntakeCone();
-		// }
+        // superstructure.setDefaultCommand(new RunCommand(() -> {
+        // if (RobotContainer.operator.getRightBumperPressed()) {
+        // RobotContainer.superstructure.requestFloorIntakeCone();
+        // }
 
-		// if (RobotContainer.operator.getLeftBumperPressed()) {
-		// RobotContainer.superstructure.requestFloorIntakeCube();
-		// }
+        // if (RobotContainer.operator.getLeftBumperPressed()) {
+        // RobotContainer.superstructure.requestFloorIntakeCube();
+        // }
 
-		// if (RobotContainer.operator.getAButtonPressed()) {
-		// RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
-		// }
+        // if (RobotContainer.operator.getAButtonPressed()) {
+        // RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
+        // }
 
-		// if (RobotContainer.operator.getBButtonPressed()) {
-		// RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
-		// }
+        // if (RobotContainer.operator.getBButtonPressed()) {
+        // RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
+        // }
 
-		// if (RobotContainer.operator.getXButtonPressed()) {
-		// RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
-		// }
+        // if (RobotContainer.operator.getXButtonPressed()) {
+        // RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
+        // }
 
-		// if (RobotContainer.operator.getYButtonPressed()) {
-		// RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
-		// }
+        // if (RobotContainer.operator.getYButtonPressed()) {
+        // RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
+        // }
 
-		// if (RobotContainer.operator.getRightStickButtonPressed()) {
-		// RobotContainer.superstructure.requestScore();
-		// }
+        // if (RobotContainer.operator.getRightStickButtonPressed()) {
+        // RobotContainer.superstructure.requestScore();
+        // }
 
-		// if (RobotContainer.operator.getLeftStickButtonPressed()) {
-		// RobotContainer.superstructure.requestIdle();
-		// }
-		// }, superstructure));
+        // if (RobotContainer.operator.getLeftStickButtonPressed()) {
+        // RobotContainer.superstructure.requestIdle();
+        // }
+        // }, superstructure));
 
-		// new JoystickButton(operator,
-		// XboxController.Button.kRightBumper.value).onTrue(
-		// new InstantCommand(() -> superstructure.requestFloorIntakeCone())
-		// );
+        // new JoystickButton(operator,
+        // XboxController.Button.kRightBumper.value).onTrue(
+        // new InstantCommand(() -> superstructure.requestFloorIntakeCone())
+        // );
 
-		new JoystickButton(driver, XboxController.Button.kX.value)
-				.whileTrue(new AutoPlaceCommand(swerve, superstructure,
-						() -> operatorControls.getLastSelectedScoringLocation(),
-						() -> operatorControls.getLastSelectedLevel()));
+        new JoystickButton(driver, XboxController.Button.kX.value)
+                .whileTrue(new AutoPlaceCommand(swerve, superstructure,
+                        () -> operatorControls.getLastSelectedScoringLocation(),
+                        () -> operatorControls.getLastSelectedLevel()));
 
-		new JoystickButton(driver, XboxController.Button.kA.value)
-				.whileTrue(new AutoPickupRoutine(driver::getAButton, driver::getBButton, swerve, superstructure));
+        new JoystickButton(driver, XboxController.Button.kA.value)
+                .whileTrue(new AutoPickupRoutine(driver::getAButton, driver::getBButton, swerve, superstructure));
 
-		new JoystickButton(driver, XboxController.Button.kB.value)
-				.whileTrue(new AutoPickupRoutine(driver::getAButton, driver::getBButton, swerve, superstructure));
-	}
+        new JoystickButton(driver, XboxController.Button.kB.value)
+                .whileTrue(new AutoPickupRoutine(driver::getAButton, driver::getBButton, swerve, superstructure));
+    }
 
-	/** Configures the northstar class (runs at robot init) */
-	private void configureNorthstarVision() {
-		northstarVision.setDataInterfaces(poseEstimator::getLatestPose, poseEstimator::addVisionData);
-	}
+    /** Configures the northstar class (runs at robot init) */
+    private void configureNorthstarVision() {
+        northstarVision.setDataInterfaces(poseEstimator::getLatestPose, poseEstimator::addVisionData);
+    }
 
-	/**
-	 * Gets the autonomous commands (runs at the start of auto)
-	 * 
-	 * @return
-	 */
-	public Command getAutonomousCommand() {
-		return Commands.waitUntil(superstructure::homedOnce).andThen(autonomousSelector.get());
-	}
+    /**
+     * Gets the autonomous commands (runs at the start of auto)
+     * 
+     * @return
+     */
+    public Command getAutonomousCommand() {
+        return Commands.waitUntil(superstructure::homedOnce).andThen(autonomousSelector.get());
+    }
 
-	/** configures the autonomousSelector for auto (runs at robot init) */
-	public void configureAutonomousSelector() {
-		autonomousSelector = new AutonomousSelector(swerve, superstructure);
-	}
+    /** configures the autonomousSelector for auto (runs at robot init) */
+    public void configureAutonomousSelector() {
+        autonomousSelector = new AutonomousSelector(swerve, superstructure);
+    }
 
-	/**
-	 * Used to start the camera tester
-	 * 
-	 * @param tagId
-	 */
-	public void setupCameraTester(int tagId) {
-		cameraTestingId = tagId;
-		cameraPoseTester.startAlignmentCheck(leftCamera.getIdentifier(), centerCamera.getIdentifier(), cameraTestingId);
-		cameraPoseTester.startAlignmentCheck(rightCamera.getIdentifier(), centerCamera.getIdentifier(),
-				cameraTestingId);
-	}
+    /**
+     * Used to start the camera tester
+     * 
+     * @param tagId
+     */
+    public void setupCameraTester(int tagId) {
+        cameraTestingId = tagId;
+        cameraPoseTester.startAlignmentCheck(leftCamera.getIdentifier(), centerCamera.getIdentifier(), cameraTestingId);
+        cameraPoseTester.startAlignmentCheck(rightCamera.getIdentifier(), centerCamera.getIdentifier(),
+                cameraTestingId);
+    }
 
-	/**
-	 * Used to update and retrive results form the camera tester
-	 *
-	 * @return a pair with the left vs center in the first and the right vs center
-	 *         in the second
-	 */
-	public Pair<CameraPoseTester.AlignmentTypes, CameraPoseTester.AlignmentTypes> updateCameraTester() {
-		cameraPoseTester.update();
-		return new Pair<CameraPoseTester.AlignmentTypes, CameraPoseTester.AlignmentTypes>(
-				cameraPoseTester.updateAlignmentCheck(leftCamera.getIdentifier(), centerCamera.getIdentifier(),
-						cameraTestingId),
-				cameraPoseTester.updateAlignmentCheck(rightCamera.getIdentifier(), centerCamera.getIdentifier(),
-						cameraTestingId));
-	}
+    /**
+     * Used to update and retrive results form the camera tester
+     *
+     * @return a pair with the left vs center in the first and the right vs center
+     *         in the second
+     */
+    public Pair<CameraPoseTester.AlignmentTypes, CameraPoseTester.AlignmentTypes> updateCameraTester() {
+        cameraPoseTester.update();
+        return new Pair<CameraPoseTester.AlignmentTypes, CameraPoseTester.AlignmentTypes>(
+                cameraPoseTester.updateAlignmentCheck(leftCamera.getIdentifier(), centerCamera.getIdentifier(),
+                        cameraTestingId),
+                cameraPoseTester.updateAlignmentCheck(rightCamera.getIdentifier(), centerCamera.getIdentifier(),
+                        cameraTestingId));
+    }
 }
