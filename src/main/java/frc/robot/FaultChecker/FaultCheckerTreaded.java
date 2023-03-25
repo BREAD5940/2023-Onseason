@@ -24,8 +24,11 @@ public class FaultCheckerTreaded extends Thread {
 	public int orangepi1ErrCount = 0;
 	public int orangepi2ErrCount = 0;
 
-	List<Double> deviceErrorsDabus = Arrays.asList(new Double[17]); // 18 can devices on dabus
-	List<Double> deviceErrorsRio = Arrays.asList(new Double[3]); // 4 can devices on rio can
+	double allowableCANerror = 0.01;
+
+	String priorityCANerror = "OK";
+    String priorityETHerror = "OK";
+    String priorityTEMPerror = "OK";
 
 	InetAddress radio;
 	InetAddress limelight;
@@ -46,18 +49,15 @@ public class FaultCheckerTreaded extends Thread {
 		}
 
 		while (true) {
+			priorityCANerror = "OK";
+    		priorityETHerror = "OK";
+
 			loopCounter++;
 			try {
-				if (!radio.isReachable(20)) {
-					radioErrCount++;
-					Logger.getInstance().recordOutput("Ethernet/Radio", false);
-				} else {
-					Logger.getInstance().recordOutput("Ethernet/Radio", true);
-				}
-
 				if (!limelight.isReachable(20)) {
 					limelightErrCount++;
 					Logger.getInstance().recordOutput("Ethernet/Limelight", false);
+					priorityETHerror = "Limelight NC";
 				} else {
 					Logger.getInstance().recordOutput("Ethernet/Limelight", true);
 				}
@@ -65,6 +65,7 @@ public class FaultCheckerTreaded extends Thread {
 				if (!orangepi1.isReachable(20)) {
 					orangepi1ErrCount++;
 					Logger.getInstance().recordOutput("Ethernet/Orangepi1", false);
+					priorityETHerror = "OPI1 NC";
 				} else {
 					Logger.getInstance().recordOutput("Ethernet/Orangepi1", true);
 				}
@@ -72,49 +73,42 @@ public class FaultCheckerTreaded extends Thread {
 				if (!orangepi2.isReachable(20)) {
 					orangepi2ErrCount++;
 					Logger.getInstance().recordOutput("Ethernet/Orangepi2", false);
+					priorityETHerror = "OPI2 NC";
 				} else {
 					Logger.getInstance().recordOutput("Ethernet/Orangepi2", true);
 				}
-
+				if (!radio.isReachable(40)) {
+					radioErrCount++;
+					Logger.getInstance().recordOutput("Ethernet/Radio", false);
+					priorityETHerror = "Radio NC";
+				} else {
+					Logger.getInstance().recordOutput("Ethernet/Radio", true);
+				}
 			} catch (Exception e) {
 				System.out.println(e);
 			}
 
+			if(RobotContainer.climber.getClimberErrorConc()>allowableCANerror){priorityCANerror="CLMB NC";}
+
+			if(RobotContainer.superstructure.getDeployErrorConc()>allowableCANerror){priorityCANerror="INTK DPLY NC";}
+			if(RobotContainer.superstructure.getRollerErrorConc()>allowableCANerror){priorityCANerror="INTK RLLR NC";}
+
+			if(RobotContainer.superstructure.getFollowerErrorConc()>allowableCANerror){priorityCANerror="ELEV FLLWR NC";}
+			if(RobotContainer.superstructure.getLeaderErrorConc()>allowableCANerror){priorityCANerror="ELEV LDR NC";}
+
+			if(RobotContainer.superstructure.getArmAzimuthErrorConc()>allowableCANerror){priorityCANerror="ARM ENC NC";}
+			if(RobotContainer.superstructure.getArmErrorConc()>allowableCANerror){priorityCANerror="ARM NC";}
+
+			if(RobotContainer.superstructure.getEndEffectorErrorConc()>allowableCANerror){priorityCANerror="END EFFCTR NC";}
+
 			int i = 0;
-			deviceErrorsDabus.set(1, RobotContainer.swerve.getSteerErrorConc(i));
-			deviceErrorsDabus.set(2, RobotContainer.swerve.getAzimuthErrorConc(i));
-			deviceErrorsDabus.set(3, RobotContainer.swerve.getDriveErrorConc(i));
+			while(i<4){
+				if(RobotContainer.swerve.getSteerErrorConc(i)>0.01){priorityCANerror="MOD "+ i + " STR NC";}
+				if(RobotContainer.swerve.getAzimuthErrorConc(i)>0.01){priorityCANerror="MOD "+ i + " ENC NC";}
+				if(RobotContainer.swerve.getDriveErrorConc(i)>0.01){priorityCANerror="MOD "+ i + " DRV NC";}
+				i++;
+			}
 
-			deviceErrorsDabus.set(4, RobotContainer.superstructure.getFollowerErrorConc());
-
-			i = 2;
-			deviceErrorsDabus.set(5, RobotContainer.swerve.getSteerErrorConc(i));
-			deviceErrorsDabus.set(6, RobotContainer.swerve.getAzimuthErrorConc(i));
-
-			deviceErrorsDabus.set(7, RobotContainer.superstructure.getDeployErrorConc());
-			deviceErrorsDabus.set(8, RobotContainer.superstructure.getRollerErrorConc());
-
-			deviceErrorsDabus.set(9, RobotContainer.swerve.getDriveErrorConc(i));
-
-			i = 2;
-			deviceErrorsDabus.set(10, RobotContainer.swerve.getSteerErrorConc(i));
-			deviceErrorsDabus.set(11, RobotContainer.swerve.getAzimuthErrorConc(i));
-			deviceErrorsDabus.set(12, RobotContainer.swerve.getDriveErrorConc(i));
-
-			deviceErrorsDabus.set(13, RobotContainer.climber.getClimberErrorConc());
-
-			deviceErrorsDabus.set(14, RobotContainer.superstructure.getLeaderErrorConc());
-
-			i = 1;
-			deviceErrorsDabus.set(15, RobotContainer.swerve.getSteerErrorConc(i));
-			deviceErrorsDabus.set(16, RobotContainer.swerve.getAzimuthErrorConc(i));
-			deviceErrorsDabus.set(17, RobotContainer.swerve.getDriveErrorConc(i));
-
-			RobotContainer.swerve.resetError();
-
-			System.out.println("Arm Motor: " + RobotContainer.superstructure.getArmErrorConc() * 100 + "%");
-			System.out.println("Arm Encoder: " + RobotContainer.superstructure.getArmAzimuthErrorConc() * 100 + "%");
-			RobotContainer.climber.resetError();
 
 			System.out.println("----------- Ethernet Total Failed Packet Counts (20ms timeout) -----------");
 			System.out.println("Radio: " + radioErrCount);
@@ -122,10 +116,11 @@ public class FaultCheckerTreaded extends Thread {
 			System.out.println("Orangepi1: " + orangepi1ErrCount);
 			System.out.println("Orangepi2: " + orangepi2ErrCount);
 
-			if (loopCounter % 1000 == 0) {
+			if (loopCounter % 100 == 0) {
 				CANStatus status = new CANStatus();
 				CANJNI.getCANStatus(status);
-				serialMXP.writeString("<" + "?" + "," + status.percentBusUtilization + "," + "OK" + "," + "?");
+				//serialMXP.writeString("<0,0,0,0>");
+				serialMXP.writeString("<" + "?," + ((int)(status.percentBusUtilization*100)) + "," + priorityCANerror + "_" + priorityETHerror + "," + "?>");
 			}
 		}
 	}

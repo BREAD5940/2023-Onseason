@@ -95,12 +95,14 @@ public class Robot extends LoggedRobot {
 			Logger.getInstance().addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
 			// Save outputs to a new log
 		}
-		ethernetLogger = new FaultCheckerTreaded();
-		ethernetLogger.start();
-
 		Logger.getInstance().start(); // Start logging! No more data receivers, replay sources, or metadata values may
 										// be added.
 
+
+		ethernetLogger = new FaultCheckerTreaded();
+		ethernetLogger.start();
+
+										
 		RobotContainer.superstructure.zeroSensors();
 
 		threePieceA = PathPlanner.loadPath("Three Piece A", new PathConstraints(4.0, 3.0));
