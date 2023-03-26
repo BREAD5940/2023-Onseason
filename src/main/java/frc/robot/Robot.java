@@ -125,9 +125,6 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotPeriodic() {
-        Logger.getInstance()
-                                .recordOutput(
-                                    "AprilTagVision/LatestPose", RobotContainer.poseEstimator.getLatestPose());
         CommandScheduler.getInstance().run();
     }
 
