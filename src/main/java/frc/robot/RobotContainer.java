@@ -21,6 +21,8 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commons.PoseEstimator;
 import frc.robot.drivers.LEDs;
 import frc.robot.autonomous.AutonomousSelector;
+import frc.robot.autonomous.modes.TwoPieceBalanceBumpMode;
+import frc.robot.autonomous.modes.TwoPieceBalanceMode;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIO;
