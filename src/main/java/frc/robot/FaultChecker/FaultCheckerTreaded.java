@@ -3,17 +3,13 @@
 package frc.robot.FaultChecker;
 
 import java.net.InetAddress;
-import java.util.Arrays;
-import java.util.List;
 
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
-import frc.robot.Constants.Network;
 import edu.wpi.first.hal.can.CANJNI;
 import edu.wpi.first.hal.can.CANStatus;
 
 import edu.wpi.first.wpilibj.SerialPort;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -110,17 +106,22 @@ public class FaultCheckerTreaded extends Thread {
 			}
 
 
-			System.out.println("----------- Ethernet Total Failed Packet Counts (20ms timeout) -----------");
-			System.out.println("Radio: " + radioErrCount);
-			System.out.println("Limelight: " + limelightErrCount);
-			System.out.println("Orangepi1: " + orangepi1ErrCount);
-			System.out.println("Orangepi2: " + orangepi2ErrCount);
+			// System.out.println("----------- Ethernet Total Failed Packet Counts (20ms timeout) -----------");
+			// System.out.println("Radio: " + radioErrCount);
+			// System.out.println("Limelight: " + limelightErrCount);
+			// System.out.println("Orangepi1: " + orangepi1ErrCount);
+			// System.out.println("Orangepi2: " + orangepi2ErrCount);
 
 			if (loopCounter % 100 == 0) {
 				CANStatus status = new CANStatus();
 				CANJNI.getCANStatus(status);
 				//serialMXP.writeString("<0,0,0,0>");
 				serialMXP.writeString("<" + "?," + ((int)(status.percentBusUtilization*100)) + "," + priorityCANerror + "_" + priorityETHerror + "," + "?>");
+			}
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
 	}

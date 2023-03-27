@@ -20,10 +20,8 @@ public class EndEffectorIOTalonFX implements EndEffectorIO {
     private TalonFX motor;
 	private BeamBreakIO beamBreakIO;
     private AveragingFilter filter = new AveragingFilter(13);
-    private double mCurrentLimit = 0.0;
-
-    
-
+    private double mCurrentLimit = 0.0;    
+	private int moterErrorWaitI = 0;
 
     public EndEffectorIOTalonFX() {
         motor = new TalonFX(MOTOR_ID);
@@ -49,8 +47,11 @@ public class EndEffectorIOTalonFX implements EndEffectorIO {
         inputs.avgStatorCurrentAmps = filter.getAverage();
         inputs.tempCelcius = motor.getTemperature();
         inputs.motorSpeed = Conversions.falconToRPM(motor.getSelectedSensorVelocity(), 1.0);
-
-        inputs.lastError = motor.getLastError().toString();
+		moterErrorWaitI++;
+		if (moterErrorWaitI >= 50) {
+			moterErrorWaitI = 0;
+        	inputs.lastError = motor.getLastError().toString();
+		}
     }
 
     @Override

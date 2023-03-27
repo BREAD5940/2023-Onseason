@@ -32,6 +32,10 @@ public class ModuleIOTalonFX implements ModuleIO {
     private final double offset;
     public final CANCoder azimuth;
     public double[] desiredState = {0, 0};
+	private int errorGetterIndex = 0;
+	private String lastSteerError;
+	private String lastDriveError;
+	private String lastAzimuthError;
 
      public ModuleIOTalonFX(int driveID, int steerID, int azimuthID, Rotation2d offset, TalonFXInvertType driveDirection, TalonFXInvertType steerReversed, boolean azimuthReversed, String moduleIdentifier) {
         this.offset = offset.getDegrees();
@@ -107,10 +111,16 @@ public class ModuleIOTalonFX implements ModuleIO {
         inputs.turnAppliedVolts = steer.getMotorOutputVoltage();
         inputs.turnCurrentAmps = steer.getStatorCurrent();
         inputs.turnTempCelcius = steer.getTemperature();
-
-        inputs.lastSteerError = steer.getLastError().toString();
-        inputs.lastDriveError = drive.getLastError().toString();
-        inputs.lastAzimuthError = azimuth.getLastError().toString();
+		errorGetterIndex ++;
+		if (errorGetterIndex >= 50) {
+			errorGetterIndex = 0;
+			inputs.lastSteerError = steer.getLastError().toString();
+			lastSteerError = inputs.lastSteerError;
+			inputs.lastDriveError = drive.getLastError().toString();
+			lastDriveError = inputs.lastDriveError;
+			inputs.lastAzimuthError = azimuth.getLastError().toString();
+			lastAzimuthError = inputs.lastAzimuthError;
+		}
     }
 
     @Override
@@ -184,9 +194,15 @@ public class ModuleIOTalonFX implements ModuleIO {
     /** resets sticky faults to allow error to change from anything back to "ok" */
     @Override
     public void clearFault(){
-        steer.clearStickyFaults();
-        drive.clearStickyFaults();
-        azimuth.clearStickyFaults();
+		if(lastAzimuthError != "OK"){
+			azimuth.clearStickyFaults();
+		}
+		if(lastSteerError != "OK"){
+			steer.clearStickyFaults();
+		}
+		if(lastDriveError != "OK"){
+			drive.clearStickyFaults();
+		} 
     }
     
 }

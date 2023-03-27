@@ -60,7 +60,7 @@ public class RobotContainer {
     public static final AprilTagVisionIO leftCamera = new AprilTagVisionIONorthstar("northstar-left");
     public static final AprilTagVisionIO rightCamera = new AprilTagVisionIONorthstar("northstar-right");
     public static final AprilTagVisionIO centerCamera = new AprilTagVisionIONorthstar("northstar-center");
-    public static final AprilTagVision northstarVision = new AprilTagVision(leftCamera, rightCamera, centerCamera);
+    public static final AprilTagVision northstarVision = new AprilTagVision();
     public static final PoseEstimator poseEstimator = new PoseEstimator(VecBuilder.fill(0.005, 0.005, 0.0005));
     public static final CameraPoseTester cameraPoseTester = new CameraPoseTester(northstarVision);
 

@@ -68,7 +68,7 @@ public class Robot extends LoggedRobot {
     FaultCheckerTreaded faultChecker;
 
     public static Alliance alliance = DriverStation.Alliance.Red;
-
+	
     @Override
     public void robotInit() {
         m_robotContainer = new RobotContainer();
@@ -122,12 +122,12 @@ public class Robot extends LoggedRobot {
         RobotContainer.swerve.resetAllToAbsolute();
         m_robotContainer.configureAutonomousSelector(); // Needed down here so auto paths e
     }
-
+	
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
     }
-
+	/*
     @Override
     public void disabledInit() {
     }
@@ -224,5 +224,5 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void simulationPeriodic() {
-    }
+    }*/
 }
