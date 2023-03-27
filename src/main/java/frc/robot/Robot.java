@@ -125,9 +125,14 @@ public class Robot extends LoggedRobot {
 	
     @Override
     public void robotPeriodic() {
+        long start = Logger.getInstance().getRealTimestamp();
+        
         CommandScheduler.getInstance().run();
+
+        double end = Logger.getInstance().getRealTimestamp();
+        Logger.getInstance().recordOutput("LoggedRobot/MainPeriodicMs", (end-start)/1000);
     }
-	/*
+	
     @Override
     public void disabledInit() {
     }
@@ -224,5 +229,5 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void simulationPeriodic() {
-    }*/
+    }
 }

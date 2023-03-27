@@ -117,6 +117,7 @@ public class Superstructure extends SubsystemBase {
 
     @Override
     public void periodic() {
+        long start = Logger.getInstance().getRealTimestamp();
 
         /* Logs */
         Logger.getInstance().recordOutput("SuperstructureState", systemState.toString());
@@ -454,8 +455,8 @@ public class Superstructure extends SubsystemBase {
             systemState = nextSystemState;
             mStateStartTime = BreadUtil.getFPGATimeSeconds();
         }
-
-
+        double end = Logger.getInstance().getRealTimestamp();
+        Logger.getInstance().recordOutput("LoggedRobot/SuperstructurePeriodicMs", (end-start)/1000);
     } 
 
     /** Requests the entire system to home */

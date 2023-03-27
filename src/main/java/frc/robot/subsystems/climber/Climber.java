@@ -43,6 +43,8 @@ public class Climber extends SubsystemBase {
     /** Periodic method */
     @Override
     public void periodic() {
+        long start = Logger.getInstance().getRealTimestamp();
+
         climberIO.updateInputs(climberInputs);
         Logger.getInstance().processInputs("Climber", climberInputs);
         Logger.getInstance().recordOutput("ClimberState", systemState.toString());
@@ -94,6 +96,8 @@ public class Climber extends SubsystemBase {
             mStateStartTime = BreadUtil.getFPGATimeSeconds();
             systemState = nextSystemState;
         }
+        double end = Logger.getInstance().getRealTimestamp();
+        Logger.getInstance().recordOutput("LoggedRobot/ClimberPeriodicMs", (end-start)/1000);
     }    
 
     /** Requests the climber to deploy */

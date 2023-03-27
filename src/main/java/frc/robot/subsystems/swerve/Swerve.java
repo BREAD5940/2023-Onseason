@@ -92,6 +92,8 @@ public class Swerve extends SubsystemBase {
 
     @Override
     public void periodic() {
+        long start = Logger.getInstance().getRealTimestamp();
+
         /** Update inputs */
         gyroIO.updateInputs(gyroInputs);
         Logger.getInstance().processInputs("Swerve/Gyro", gyroInputs);
@@ -202,6 +204,8 @@ public class Swerve extends SubsystemBase {
                 getVelocity().getAngle().getDegrees());
         Logger.getInstance().recordOutput("Odometry/PoseRaw", poseRaw);
 
+        double end = Logger.getInstance().getRealTimestamp();
+        Logger.getInstance().recordOutput("LoggedRobot/SwervePeriodicMs", (end-start)/1000);
     }
 
     /** Requests a provided percent output to the swerve drive */

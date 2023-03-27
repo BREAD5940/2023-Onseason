@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Superstructure.Level;
 
+import org.littletonrobotics.junction.Logger;
+
 import static frc.robot.Constants.LEDs.*;
 
 public class LEDs extends SubsystemBase {
@@ -44,6 +46,8 @@ public class LEDs extends SubsystemBase {
     /** Set the colors depending on the operators last selected scoring location */
     @Override
     public void periodic() {
+        long start = Logger.getInstance().getRealTimestamp();
+        
         int scoringLocation = RobotContainer.operatorControls.getLastSelectedScoringLocation();
         Level level = RobotContainer.operatorControls.getLastSelectedLevel();
         boolean isCubeNode = scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8;
@@ -61,5 +65,7 @@ public class LEDs extends SubsystemBase {
             setColor(PURPLE[0], PURPLE[1], PURPLE[2]);
             selectedColor = Color.PURPLE;
         }
+        double end = Logger.getInstance().getRealTimestamp();
+        Logger.getInstance().recordOutput("LoggedRobot/LedPeriodicMs", (end-start)/1000);
     }
 }

@@ -76,6 +76,8 @@ public class LimelightDetectionsClassifier extends SubsystemBase {
 
     @Override
     public void periodic() {
+        long start = Logger.getInstance().getRealTimestamp();
+
         LimelightResults results = LimelightHelpers.getLatestResults(cameraName);
         rawDetections = results.targetingResults.targets_Retro;
 
@@ -87,6 +89,9 @@ public class LimelightDetectionsClassifier extends SubsystemBase {
         }
 
         Logger.getInstance().recordOutput("VisionAdjustedTimestamp", timestamp);
+
+        double end = Logger.getInstance().getRealTimestamp();
+        Logger.getInstance().recordOutput("LoggedRobot/LimeLightDetectionsPeriodicMs", (end-start)/1000);
     }
 
 	/**
