@@ -4,15 +4,33 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.Pair;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.vision.northstar.AprilTagVisionIO;
 import frc.robot.subsystems.vision.visionTest.CameraPoseTester;
 
 public class FaultChecker {
-	public CameraPoseTester cameraPoseTester;
-	public int cameraTestingId = 5;
+	private int cameraTestingId = 5;
+	private CameraPoseTester cameraPoseTester;
+	private AprilTagVisionIO leftCamera;
+	private AprilTagVisionIO centerCamera;
+	private AprilTagVisionIO rightCamera;
 
-	public FaultChecker(CameraPoseTester cameraPoseTester) {
+	public FaultChecker(CameraPoseTester cameraPoseTester, AprilTagVisionIO leftCamera , AprilTagVisionIO centerCamera, AprilTagVisionIO rightCamera) {
 		this.cameraPoseTester = cameraPoseTester;
+		this.leftCamera = leftCamera;
+		this.centerCamera = centerCamera;
+		this.rightCamera = rightCamera;
+		setupCameraTester();
 	}
+
+	/**
+     * Used to start the camera tester
+     * 
+     * @param tagId
+     */
+    public void setupCameraTester() {
+        cameraPoseTester.startAlignmentCheck(leftCamera.getIdentifier(), centerCamera.getIdentifier(), cameraTestingId);
+        cameraPoseTester.startAlignmentCheck(rightCamera.getIdentifier(), centerCamera.getIdentifier(), cameraTestingId);
+    }
 
 	/**
 	 * Used to update and retrive results form the camera tester
