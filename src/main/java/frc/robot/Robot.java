@@ -26,6 +26,7 @@ import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.subsystems.climber.Climber.ClimberStates;
 import frc.robot.subsystems.vision.northstar.AprilTagVision;
+import frc.robot.FaultChecker.FaultChecker;
 import frc.robot.FaultChecker.FaultCheckerTreaded;
 
 public class Robot extends LoggedRobot {
@@ -283,6 +284,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void testPeriodic() {
+	RobotContainer.faultChecker.update();
   }
 
   @Override
