@@ -141,8 +141,18 @@ public class ModuleIOTalonFX implements ModuleIO {
 			errorGetterIndex = 0;
 			inputs.lastSteerError = steer.getLastError().toString();
 			lastSteerError = inputs.lastSteerError;
-			inputs.lastDriveError = drive.getLastError().toString();
+
+            if(drive.isAlive()){
+                inputs.lastDriveError = "OK";
+            } else {
+                inputs.lastDriveError = "Not Alive";
+            }
+
+            // Intended for Pheonix 5
+			// inputs.lastDriveError = drive.getLastError().toString();
+            
 			lastDriveError = inputs.lastDriveError;
+
 			inputs.lastAzimuthError = azimuth.getLastError().toString();
 			lastAzimuthError = inputs.lastAzimuthError;
 		}
