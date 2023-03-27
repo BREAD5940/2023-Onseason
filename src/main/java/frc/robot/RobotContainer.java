@@ -160,7 +160,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return Commands.waitUntil(superstructure::homedOnce).andThen(autonomousSelector.get());
+    return autonomousSelector.get();
   }
 
   public void configureAutonomousSelector() {

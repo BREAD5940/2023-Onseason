@@ -141,15 +141,15 @@ public class Superstructure extends SubsystemBase {
             // Transitions
             if (requestHome) {
                 elevatorArmLowLevel.requestHome();
-                floorIntake.requestHome();
                 nextSystemState = SuperstructureState.HOMING;
             }
         } else if (systemState == SuperstructureState.HOMING) {
             // Outputs
             endEffector.idling();
+            floorIntake.requestClosedLoop(0.0, INTAKE_IDLE_POSITION);
 
             // Transitions 
-            if (elevatorArmLowLevel.getSystemState() == ElevatorArmSystemStates.IDLE && floorIntake.getSystemState() == FloorIntakeStates.IDLE) {
+            if (elevatorArmLowLevel.getSystemState() == ElevatorArmSystemStates.IDLE) {
                 nextSystemState = SuperstructureState.IDLE;
                 requestHome = false;
                 homedOnce = true;
@@ -283,12 +283,13 @@ public class Superstructure extends SubsystemBase {
             floorIntake.requestClosedLoop(-1.0, INTAKE_UNJAM_POSITION);
 
             // Transitions
-            if (!requestSpit) {
+            if (!requestSpit || BreadUtil.getFPGATimeSeconds() - mStateStartTime >= 1.5) {
                 nextSystemState = SuperstructureState.EXIT_SPIT;
+                requestSpit = false;
             }
         } else if (systemState == SuperstructureState.PREPARE_TO_SPIT) {
             // Outputs
-            elevatorArmLowLevel.requestDesiredState(ELEVATOR_IDLE_POSE, ARM_UNJAM_POSITION, goSlow);
+            elevatorArmLowLevel.requestDesiredState(ELEVATOR_SPIT_POSE, ARM_UNJAM_POSITION, goSlow);
             endEffector.idling();
             floorIntake.requestClosedLoop(-1.0, INTAKE_UNJAM_POSITION);
 
@@ -424,42 +425,42 @@ public class Superstructure extends SubsystemBase {
         } else if (systemState == SuperstructureState.FLOOR_INTAKE_CONE_A) {
             // Outputs
             endEffector.idling();
-            if (floorIntake.getRollerCurrent() > 49.0) {
-                floorIntake.requestClosedLoop(-0.75, 7.0);
+            if (floorIntake.getRollerCurrent() > 55.0) {
+                floorIntake.requestClosedLoop(-0.75, -2.373046875);
             } else {
-                floorIntake.requestClosedLoop(-0.75, 155.0);
+                floorIntake.requestClosedLoop(-0.75, 157.0);
             }
             elevatorArmLowLevel.requestDesiredState(ELEVATOR_IDLE_POSE, ARM_IDLE_POSE, goSlow);
 
             // Transitions
             if (!requestFloorIntakeCone) {
                 nextSystemState = SuperstructureState.IDLE;
-            } else if (floorIntake.getAngle() < 120.0 && floorIntake.getRollerCurrent() > 49.0) {
+            } else if (floorIntake.getAngle() < 120.0 && floorIntake.getRollerCurrent() > 55.0 && BreadUtil.getFPGATimeSeconds() - mStateStartTime >= 0.25) {
                 nextSystemState = SuperstructureState.FLOOR_INTAKE_CONE_B;
             }
         } else if (systemState == SuperstructureState.FLOOR_INTAKE_CONE_B) {
             // Outputs
             if (elevatorArmLowLevel.getState()[0] > 0.4) {
-                elevatorArmLowLevel.requestDesiredState(0.5, 2.0, goSlow);
+                elevatorArmLowLevel.requestDesiredState(0.5, 29.67578125, goSlow);
             } else {
                 elevatorArmLowLevel.requestDesiredState(0.5, 90.0, goSlow);
             }
-            floorIntake.requestClosedLoop(-0.75, 7.0);
+            floorIntake.requestClosedLoop(-0.75, -2.373046875);
             endEffector.intakeCone();
 
             // Transitions
-            if (elevatorArmLowLevel.atArmSetpoint(9.0) && elevatorArmLowLevel.atElevatorSetpoint(0.5)) {
+            if (elevatorArmLowLevel.atArmSetpoint(29.67578125) && elevatorArmLowLevel.atElevatorSetpoint(0.5)) {
                 nextSystemState = SuperstructureState.FLOOR_INTAKE_CONE_C;
             } else if (!requestFloorIntakeCone) {
                 nextSystemState = SuperstructureState.IDLE;
             }
         } else if (systemState == SuperstructureState.FLOOR_INTAKE_CONE_C) {
             // Outputs
-            elevatorArmLowLevel.requestDesiredState(0.25, 9.0, goSlow);
-            if (elevatorArmLowLevel.atElevatorSetpoint(0.25)) {
-                floorIntake.requestClosedLoop(0.25, 0.0);
+            elevatorArmLowLevel.requestDesiredState(0.15, 29.67578125, goSlow);
+            if (elevatorArmLowLevel.atElevatorSetpoint(0.15)) {
+                floorIntake.requestClosedLoop(0.15, 0.0);
             } else {
-                floorIntake.requestClosedLoop(-0.75, 7.0);
+                floorIntake.requestClosedLoop(-0.75, -2.373046875);
             }
             endEffector.intakeCone();
 
@@ -576,6 +577,7 @@ public class Superstructure extends SubsystemBase {
     /** Zeroes all sensors */
     public void zeroSensors() {
         elevatorArmLowLevel.zeroSensors();
+        floorIntake.zeroSensors();
     }
 
     /** Returns the system state */

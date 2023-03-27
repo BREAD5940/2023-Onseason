@@ -65,7 +65,7 @@ public class Robot extends LoggedRobot {
   public static PathPlannerTrajectory onePieceBalanceA;
   public static PathPlannerTrajectory onePieceBalanceB;
 
-  public static PathPlannerTrajectory throwA; 
+  public static PathPlannerTrajectory throwA;
   public static PathPlannerTrajectory throwB;
   public static PathPlannerTrajectory throwC;
   public static PathPlannerTrajectory throwD;
@@ -101,7 +101,7 @@ public class Robot extends LoggedRobot {
     throwB = PathPlanner.loadPath("Throw B", new PathConstraints(3.5, 2.5));
     throwC = PathPlanner.loadPath("Throw C", new PathConstraints(3.5, 2.5));
     throwD = PathPlanner.loadPath("Throw D", new PathConstraints(3.5, 2.5));
-    throwE= PathPlanner.loadPath("Throw E", new PathConstraints(3.5, 2.5));
+    throwE = PathPlanner.loadPath("Throw E", new PathConstraints(3.5, 2.5));
 
     threePieceA = PathPlanner.loadPath("Three Piece A", new PathConstraints(4.0, 3.0));
     threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(4.0, 3.0));
@@ -150,7 +150,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-    
+
     if (!requestedHome) {
       RobotContainer.superstructure.requestHome();
       requestedHome = true;
@@ -194,7 +194,7 @@ public class Robot extends LoggedRobot {
 
     if (RobotContainer.driver.getRightTriggerAxis() > 0.05 && !intakeTriggered) {
       Supplier<Double> pressure = () -> {
-        if (RobotContainer.driver.getYButton() && RobotContainer.driver.getRightTriggerAxis() > 0.95 ) {
+        if (RobotContainer.driver.getYButton() && RobotContainer.driver.getRightTriggerAxis() > 0.95) {
           return (RobotContainer.driver.getRightTriggerAxis() - 0.95) * (1.0 / 0.05);
         } else {
           return 0.0;
@@ -241,11 +241,11 @@ public class Robot extends LoggedRobot {
       RobotContainer.superstructure.requestIdle();
     }
 
-    if (RobotContainer.operator.getPOV() == 0 || RobotContainer.operator.getPOV() == 45 || RobotContainer.operator.getPOV() == 315) {
+    if (RobotContainer.operator.getPOV() == 0 || RobotContainer.operator.getPOV() == 45
+        || RobotContainer.operator.getPOV() == 315) {
       RobotContainer.superstructure.requestSpit();
     }
 
-    
     if (RobotContainer.operator.getRawButtonPressed(XboxController.Button.kStart.value)) {
       RobotContainer.superstructure.requestPreScore(Level.LOW, GamePiece.CUBE);
     }
@@ -254,8 +254,8 @@ public class Robot extends LoggedRobot {
       RobotContainer.climber.requestDeploy();
     }
 
-
-    if (RobotContainer.climber.getSystemState() != ClimberStates.RETRACTED && RobotContainer.climber.getSystemState() != ClimberStates.DEPLOYING) {
+    if (RobotContainer.climber.getSystemState() != ClimberStates.RETRACTED
+        && RobotContainer.climber.getSystemState() != ClimberStates.DEPLOYING) {
       if (RobotContainer.operator.getRightTriggerAxis() > 0.1) {
         RobotContainer.climber.requestRun(RobotContainer.operator.getRightTriggerAxis());
       } else if (RobotContainer.operator.getLeftTriggerAxis() > 0.1) {
@@ -265,11 +265,12 @@ public class Robot extends LoggedRobot {
       }
     }
 
-    if (RobotContainer.operator.getRightBumperPressed()) {
+    if (RobotContainer.driver.getRightStickButtonPressed()) {
       RobotContainer.superstructure.requestThrow();
     }
 
-    AprilTagVision.setTrustLevel(RobotContainer.operator.getPOV() == 135 || RobotContainer.operator.getPOV() == 180 || RobotContainer.operator.getPOV() == 225);
+    AprilTagVision.setTrustLevel(RobotContainer.operator.getPOV() == 135 || RobotContainer.operator.getPOV() == 180
+        || RobotContainer.operator.getPOV() == 225);
   }
 
   @Override

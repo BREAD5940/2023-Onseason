@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
 import frc.robot.commons.GeomUtil;
+import frc.robot.commons.LoggedTunableNumber;
 import frc.robot.commons.PolynomialRegression;
 import frc.robot.commons.PoseEstimator.TimestampedVisionUpdate;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIO.AprilTagVisionIOInputs;
@@ -32,7 +33,7 @@ import org.littletonrobotics.junction.Logger;
 public class AprilTagVision extends SubsystemBase {
         private static final double ambiguityThreshold = 0.15;
         private static final double targetLogTimeSecs = 0.1;
-        public static  double mStdDevScalar;
+        public static LoggedTunableNumber mStdDevScalar = new LoggedTunableNumber("AprilTagVision/StdDevScalar", 2.0);
         private static final Pose3d[] cameraPoses;
         private static final PolynomialRegression xyStdDevModel;
         private static final PolynomialRegression thetaStdDevModel;
@@ -112,7 +113,7 @@ public class AprilTagVision extends SubsystemBase {
 
         public void periodic() {
 
-                Logger.getInstance().recordOutput("AprilTagVision/StdDevScalar", mStdDevScalar);
+                Logger.getInstance().recordOutput("AprilTagVision/StdDevScalar", mStdDevScalar.get());
 
                 for (int i = 0; i < io.length; i++) {
                         io[i].updateInputs(inputs[i]);
@@ -225,8 +226,8 @@ public class AprilTagVision extends SubsystemBase {
 
                                         // Add to vision updates
                                         double tagDistance = tagPose.getTranslation().getNorm();
-                                        double xyStdDev = xyStdDevModel.predict(tagDistance) * mStdDevScalar;
-                                        double thetaStdDev = thetaStdDevModel.predict(tagDistance) * mStdDevScalar;
+                                        double xyStdDev = xyStdDevModel.predict(tagDistance) * mStdDevScalar.get();
+                                        double thetaStdDev = thetaStdDevModel.predict(tagDistance) * mStdDevScalar.get();
                                         visionUpdates.add(
                                                         new TimestampedVisionUpdate(
                                                                         timestamp, robotPose, VecBuilder.fill(xyStdDev,
@@ -296,6 +297,7 @@ public class AprilTagVision extends SubsystemBase {
         }
 
         public static void setTrustLevel(boolean isTrustHigh) {
-                mStdDevScalar = isTrustHigh ? 0.2 : 2.0;
+                // mStdDevScalar = isTrustHigh ? 0.2 : 2.0;
         }
+
 }

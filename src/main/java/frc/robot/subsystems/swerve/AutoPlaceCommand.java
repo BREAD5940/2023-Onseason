@@ -177,7 +177,7 @@ public class AutoPlaceCommand extends CommandBase {
                 superstructure.requestPreScore(level, isCubeNode ? GamePiece.CUBE : GamePiece.CONE);
             } 
         } else {
-            if (poseError.getTranslation().getNorm() < Units.inchesToMeters(1.0) && Math.abs(poseError.getRotation().getDegrees()) < 1.0 && !linedUp) {
+            if (poseError.getTranslation().getNorm() < Units.inchesToMeters(5.0) && Math.abs(poseError.getRotation().getDegrees()) < 2.0 && !linedUp) {
                 linedUp = true;
                 superstructure.requestPreScore(level, isCubeNode ? GamePiece.CUBE : GamePiece.CONE);
             } 

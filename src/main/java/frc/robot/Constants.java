@@ -25,7 +25,7 @@ import static frc.robot.FieldConstants.*;
 // All Constants
 public final class Constants {
 
-    public static boolean tuningMode = true;
+    public static boolean tuningMode = false;
     
     // Constants pertaining to the drive subsystem go here
     public static class Drive {
@@ -142,8 +142,8 @@ public final class Constants {
         public static final double ELEVATOR_IDLE_POSE = 0.18;
         public static final double ELEVATOR_THROW_POSE = 0.25;
         public static final double ELEVATOR_PRE_CUBE_HIGH = 0.85;
-        public static final double ELEVATOR_PRE_CONE_HIGH = 1.23;
-        public static final double ELEVATOR_CONE_SLAM_HIGH = 1.23;
+        public static final double ELEVATOR_PRE_CONE_HIGH = 1.21;
+        public static final double ELEVATOR_CONE_SLAM_HIGH = 1.21;
         public static final double ELEVATOR_CONE_PULL_OUT_HIGH = 1.2;
         public static final double ELEVATOR_CUBE_OFFSET = 0.509856;
         public static final double ELEVATOR_CONE_OFFSET = 0.54;
@@ -152,6 +152,7 @@ public final class Constants {
         public static final double ELEVATOR_DOUBLE_SUBSTATION_CONE = 1.15;
         // public static final double ELEVATOR_DOUBLE_SUBSTATION_CUBE = 1.115;
         public static final double ELEVATOR_SINGLE_SUBSTATION_CONE = 0.184;
+        public static final double ELEVATOR_SPIT_POSE = 0.5;
 
         public static final TalonFXInvertType ELEVATOR_LEFT_INVERT_TYPE = TalonFXInvertType.CounterClockwise;
         public static final TalonFXInvertType ELEVATOR_RIGHT_INVERT_TYPE = TalonFXInvertType.CounterClockwise;
@@ -181,7 +182,7 @@ public final class Constants {
         public static final double ARM_PRE_SCORE_CONE = 118.076;
         public static final double ARM_SLAM_CONE = 187.3828;
         public static final double ARM_PRE_SCORE_LOW = 230.0;
-        public static final double ARM_FLOOR_INTAKE_CUBE = 1.0;
+        public static final double ARM_FLOOR_INTAKE_CUBE = 3.0;
         public static final double ARM_DOUBLE_SUBSTATION_CONE = 178.4;
         // public static final double ARM_DOUBLE_SUBSTATION_CUBE = 211.6;
         public static final double ARM_SINGLE_SUBSTATION_CONE = 126;
@@ -221,15 +222,21 @@ public final class Constants {
         public static final double DEPLOY_MAX_SPEED = (6380.0 * DEPLOY_GEAR_RATIO * 360.0)/60.0;
         public static final double INTAKE_MIN_POSITION = 0.0;
         public static final double INTAKE_MAX_POSITION = 190.75;
-        public static final double INTAKE_IDLE_POSITION = 28.04046224348974;
+        public static final double INTAKE_IDLE_POSITION = 17.04046224348974;
         public static final double INTAKE_UNJAM_POSITION = 42.0;
 
-        public static final double FLOOR_INTAKE_KP = 0.0;
-        public static final double FLOOR_INTAKE_KD = 0.0;
+        public static final double FLOOR_INTAKE_KP = 0.0001;
+        public static final double FLOOR_INTAKE_KD = 0.00001;
         public static final double FLOOR_INTAKE_KF = 0.0;
         public static final double FLOOR_INTAKE_KG = 0.0;
 
         public static final double FLOOR_INTAKE_ZERO = -5.0;
+
+        public static final int FLOOR_INTAKE_AZIMUTH_ID = 32;
+        public static final boolean FLOOR_INTAKE_AZIMUTH_INVERTED = true;
+        public static final double FLOOR_INTAKE_AZIMUTH_DEGREE_OFFSET = 130.605 + 5.0;
+        public static final double FLOOR_INTAKE_NULL_RANGE = 300.0;
+        public static final boolean FLOOR_INTAKE_PHASE_INVERTED = true;
     }
 
     // Constants pertaining to the climber subsystem

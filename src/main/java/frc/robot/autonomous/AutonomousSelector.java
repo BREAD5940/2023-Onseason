@@ -2,6 +2,7 @@ package frc.robot.autonomous;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.autonomous.modes.OnePieceBalanceMode;
 import frc.robot.autonomous.modes.PreloadMode;
@@ -23,43 +24,43 @@ public class AutonomousSelector {
     public AutonomousSelector(Swerve swerve, Superstructure superstructure) {
         autonomusSelector.setDefaultOption(
             "PRELOAD", 
-            new PreloadMode(swerve, superstructure)
+            Commands.waitUntil(superstructure::homedOnce).andThen(new PreloadMode(swerve, superstructure))
         );
         autonomusSelector.addOption(
             "ONE_PIECE_BALANCE", 
-            new OnePieceBalanceMode(swerve, superstructure)
+            Commands.waitUntil(superstructure::homedOnce).andThen(new OnePieceBalanceMode(swerve, superstructure))
         );
         autonomusSelector.addOption(
             "TWO_PIECE_BALANCE", 
-            new TwoPieceBalanceMode(superstructure, swerve)
+            Commands.waitUntil(superstructure::homedOnce).andThen(new TwoPieceBalanceMode(superstructure, swerve))
         );
         autonomusSelector.addOption(
             "TWO_PIECE_BALANCE_BUMP", 
-            new TwoPieceBalanceBumpMode(superstructure, swerve)
+            Commands.waitUntil(superstructure::homedOnce).andThen(new TwoPieceBalanceBumpMode(superstructure, swerve))
         );
         autonomusSelector.addOption(
             "TWO_PIECE", 
-            new TwoPieceMode(superstructure, swerve)
+            Commands.waitUntil(superstructure::homedOnce).andThen(new TwoPieceMode(superstructure, swerve))
         );
         autonomusSelector.addOption(
             "TWO_PIECE_BUMP", 
-            new TwoPieceBumpMode(superstructure, swerve)
+            Commands.waitUntil(superstructure::homedOnce).andThen(new TwoPieceBumpMode(superstructure, swerve))
         );
         autonomusSelector.addOption(
             "THREE_PIECE", 
-            new ThreePieceMode(superstructure, swerve)
+            Commands.waitUntil(superstructure::homedOnce).andThen(new ThreePieceMode(superstructure, swerve))
         );
         autonomusSelector.addOption(
             "THREE_PIECE_BALANCE",
-            new ThreePieceBalanceMode(superstructure, swerve)
+            Commands.waitUntil(superstructure::homedOnce).andThen(new ThreePieceBalanceMode(superstructure, swerve))
         );
         autonomusSelector.addOption(
             "THREE_PIECE_BUMP",
-            new ThreePieceBumpMode(superstructure, swerve)
+            Commands.waitUntil(superstructure::homedOnce).andThen(new ThreePieceBumpMode(superstructure, swerve))
         );
         autonomusSelector.addOption(
             "THROW_BALANCE",
-            new ThrowBalanceMode(superstructure, swerve)
+            Commands.waitUntil(superstructure::homedOnce).andThen(new ThrowBalanceMode(superstructure, swerve))
         );
         SmartDashboard.putData("Autonomus Selector", autonomusSelector);
     }

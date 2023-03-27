@@ -93,15 +93,8 @@ public class ElevatorArmLowLevel {
                 requestHome = false;
             }
         } else if (systemState == ElevatorArmSystemStates.IDLE) {
-            RobotContainer.armIO.setAngle(90.0);
-
-            if (RobotContainer.driver.getRightTriggerAxis() > 0.1) {
-                RobotContainer.elevatorIO.setPercent(RobotContainer.driver.getRightTriggerAxis() * 0.3);
-            } else if (RobotContainer.driver.getLeftTriggerAxis() > 0.1) {
-                RobotContainer.elevatorIO.setPercent(-RobotContainer.driver.getLeftTriggerAxis() * 0.3);
-            } else {    
-                RobotContainer.elevatorIO.setPercent(0.0);
-            }
+            RobotContainer.armIO.setAngle(90.0);   
+            RobotContainer.elevatorIO.setPercent(0.0);
 
             if (requestHome) {
                 nextSystemState = ElevatorArmSystemStates.NEUTRALIZING_ARM;

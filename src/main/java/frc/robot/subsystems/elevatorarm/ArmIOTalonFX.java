@@ -1,6 +1,5 @@
 package frc.robot.subsystems.elevatorarm;
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
@@ -12,12 +11,7 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import frc.robot.commons.LoggedTunableNumber;
-
 import static frc.robot.Constants.Arm.*;
-import static frc.robot.Constants.Electrical.*;
-
 public class ArmIOTalonFX implements ArmIO {
 
     TalonFX arm = new TalonFX(ARM_ID);
