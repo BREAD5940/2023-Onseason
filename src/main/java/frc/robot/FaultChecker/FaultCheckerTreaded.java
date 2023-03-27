@@ -3,17 +3,13 @@
 package frc.robot.FaultChecker;
 
 import java.net.InetAddress;
-import java.util.Arrays;
-import java.util.List;
 
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
-import frc.robot.Constants.Network;
 import edu.wpi.first.hal.can.CANJNI;
 import edu.wpi.first.hal.can.CANStatus;
 
 import edu.wpi.first.wpilibj.SerialPort;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 import org.littletonrobotics.junction.Logger;
 import java.util.GregorianCalendar;
@@ -131,12 +127,12 @@ public class FaultCheckerTreaded extends Thread {
 				//serialMXP.writeString("<0,0,0,0>");
 				serialMXP.writeString("<" + "?," + ((int)(status.percentBusUtilization*100)) + "," + priorityCANerror + "_" + priorityETHerror + "," + "?>");
 			}
-            try {
-                Thread.sleep(300);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
 		}
 	}
 }

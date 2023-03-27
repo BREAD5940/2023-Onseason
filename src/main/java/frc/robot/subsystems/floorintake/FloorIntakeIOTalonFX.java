@@ -23,6 +23,7 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
     private double mCurrentLimit = 0.0;
     private double mCurrentLimitTriggerThreshhold = 0.0;
     private double mcurrentLimitThresholdTime = 0.0;
+	private int moterErrorWaitI = 0;
     
     LoggedTunableNumber kP = new LoggedTunableNumber("Elevator/kP", FLOOR_INTAKE_KP);
     LoggedTunableNumber kD = new LoggedTunableNumber("Elevator/kD", FLOOR_INTAKE_KD);
@@ -72,9 +73,12 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
         inputs.deployPositionTarget = integratedSensorUnitsToDegrees(deploy.getActiveTrajectoryPosition());
         inputs.deployVelocityTarget = integratedSensorUnitsToDegreesPerSecond(deploy.getActiveTrajectoryVelocity());
         inputs.deployDutyCycle = deploy.getMotorOutputPercent();
-
-        inputs.lastDeployError = deploy.getLastError().toString();
-        inputs.lastRollerError = deploy.getLastError().toString();
+		moterErrorWaitI++;
+		if (moterErrorWaitI >= 50) {
+			moterErrorWaitI = 0;
+        	inputs.lastDeployError = deploy.getLastError().toString();
+        	inputs.lastRollerError = deploy.getLastError().toString();
+		}
     }
 
     @Override

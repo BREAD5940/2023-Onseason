@@ -30,6 +30,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     double lastVelocityTarget = 0.0;
     double mLastCommandedPosition = 0.0;
+	private int moterErrorWaitI = 0;
 
     public ElevatorIOTalonFX() {
         /* configurations for the leader motor */
@@ -73,9 +74,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.appliedVoltage = leader.getMotorOutputVoltage();
         inputs.currentAmps = new double[] {leader.getStatorCurrent(), follower.getStatorCurrent()};
         inputs.tempCelcius = new double[] {leader.getTemperature(), follower.getTemperature()};
-
-        inputs.lastFollowerError = follower.getLastError().toString();
-        inputs.lastLeaderError = leader.getLastError().toString();
+		moterErrorWaitI++;
+		if (moterErrorWaitI >= 50) {
+			moterErrorWaitI = 0;
+			inputs.lastFollowerError = follower.getLastError().toString();
+			inputs.lastLeaderError = leader.getLastError().toString();
+		}
     }
 
     @Override
