@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 import org.littletonrobotics.junction.Logger;
+import java.util.GregorianCalendar;
 
 public class FaultCheckerTreaded extends Thread {
 	int loopCounter = 0;
@@ -77,16 +78,24 @@ public class FaultCheckerTreaded extends Thread {
 				} else {
 					Logger.getInstance().recordOutput("Ethernet/Orangepi2", true);
 				}
-				if (!radio.isReachable(40)) {
+
+                long finish = 0;
+                long start = new GregorianCalendar().getTimeInMillis();
+
+				if (!radio.isReachable(5000)) {
 					radioErrCount++;
 					Logger.getInstance().recordOutput("Ethernet/Radio", false);
 					priorityETHerror = "Radio NC";
+                    Logger.getInstance().recordOutput("Ethernet/RadioTime", 5000);
 				} else {
 					Logger.getInstance().recordOutput("Ethernet/Radio", true);
+                    finish = new GregorianCalendar().getTimeInMillis();
+                    Logger.getInstance().recordOutput("Ethernet/RadioTime", finish-start);
 				}
 			} catch (Exception e) {
 				System.out.println(e);
 			}
+
 
 			if(RobotContainer.climber.getClimberErrorConc()>allowableCANerror){priorityCANerror="CLMB NC";}
 
@@ -110,11 +119,11 @@ public class FaultCheckerTreaded extends Thread {
 			}
 
 
-			System.out.println("----------- Ethernet Total Failed Packet Counts (20ms timeout) -----------");
-			System.out.println("Radio: " + radioErrCount);
-			System.out.println("Limelight: " + limelightErrCount);
-			System.out.println("Orangepi1: " + orangepi1ErrCount);
-			System.out.println("Orangepi2: " + orangepi2ErrCount);
+			// System.out.println("----------- Ethernet Total Failed Packet Counts (20ms timeout) -----------");
+			// System.out.println("Radio: " + radioErrCount);
+			// System.out.println("Limelight: " + limelightErrCount);
+			// System.out.println("Orangepi1: " + orangepi1ErrCount);
+			// System.out.println("Orangepi2: " + orangepi2ErrCount);
 
 			if (loopCounter % 100 == 0) {
 				CANStatus status = new CANStatus();
@@ -122,6 +131,12 @@ public class FaultCheckerTreaded extends Thread {
 				//serialMXP.writeString("<0,0,0,0>");
 				serialMXP.writeString("<" + "?," + ((int)(status.percentBusUtilization*100)) + "," + priorityCANerror + "_" + priorityETHerror + "," + "?>");
 			}
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 		}
 	}
 }
