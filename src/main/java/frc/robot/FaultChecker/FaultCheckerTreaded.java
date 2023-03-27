@@ -12,6 +12,7 @@ import edu.wpi.first.hal.can.CANStatus;
 import edu.wpi.first.wpilibj.SerialPort;
 
 import org.littletonrobotics.junction.Logger;
+import java.util.GregorianCalendar;
 
 public class FaultCheckerTreaded extends Thread {
 	int loopCounter = 0;
@@ -73,16 +74,24 @@ public class FaultCheckerTreaded extends Thread {
 				} else {
 					Logger.getInstance().recordOutput("Ethernet/Orangepi2", true);
 				}
-				if (!radio.isReachable(40)) {
+
+                long finish = 0;
+                long start = new GregorianCalendar().getTimeInMillis();
+
+				if (!radio.isReachable(5000)) {
 					radioErrCount++;
 					Logger.getInstance().recordOutput("Ethernet/Radio", false);
 					priorityETHerror = "Radio NC";
+                    Logger.getInstance().recordOutput("Ethernet/RadioTime", 5000);
 				} else {
 					Logger.getInstance().recordOutput("Ethernet/Radio", true);
+                    finish = new GregorianCalendar().getTimeInMillis();
+                    Logger.getInstance().recordOutput("Ethernet/RadioTime", finish-start);
 				}
 			} catch (Exception e) {
 				System.out.println(e);
 			}
+
 
 			if(RobotContainer.climber.getClimberErrorConc()>allowableCANerror){priorityCANerror="CLMB NC";}
 
@@ -123,6 +132,7 @@ public class FaultCheckerTreaded extends Thread {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+
 		}
 	}
 }
