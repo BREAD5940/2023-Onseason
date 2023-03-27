@@ -29,6 +29,7 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
     private double mCurrentLimit = 0.0;
     private double mCurrentLimitTriggerThreshhold = 0.0;
     private double mcurrentLimitThresholdTime = 0.0;
+	private int moterErrorWaitI = 0;
     
     LoggedTunableNumber kP = new LoggedTunableNumber("FloorIntake/kP", FLOOR_INTAKE_KP);
     LoggedTunableNumber kD = new LoggedTunableNumber("FloorIntake/kD", FLOOR_INTAKE_KD);
@@ -87,6 +88,12 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
         inputs.deployPositionTarget = CANCoderSensorUnitsToDegrees(deploy.getActiveTrajectoryPosition());
         inputs.deployVelocityTarget = CANCoderSensorUnitsToDegreesPerSecond(deploy.getActiveTrajectoryVelocity());
         inputs.deployDutyCycle = deploy.getMotorOutputPercent();
+		moterErrorWaitI++;
+		if (moterErrorWaitI >= 50) {
+			moterErrorWaitI = 0;
+        	inputs.lastDeployError = deploy.getLastError().toString();
+        	inputs.lastRollerError = deploy.getLastError().toString();
+		}
     }
 
     @Override
@@ -176,9 +183,14 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
         return degrees * (4096.0/(360.0 * 10.0));
     }
 
-    /* Returns the angle of the intake */
+    /** Returns the angle of the intake */
     private double getAngle() {
         return CANCoderSensorUnitsToDegrees(deploy.getSelectedSensorPosition());
     }
- 
+
+    /** resets sticky faults to allow error to change from anything back to "ok" */
+    public void clearFault(){
+        deploy.clearStickyFaults();
+        roller.clearStickyFaults();
+    }
 }

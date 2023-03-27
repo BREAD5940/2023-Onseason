@@ -7,6 +7,9 @@ import frc.robot.commons.BreadUtil;
 
 import static frc.robot.Constants.Climber.*;
 
+import com.ctre.phoenix.ErrorCode;
+
+/** a class that is used to mannage a ClimberIO */
 public class Climber extends SubsystemBase {
 
     /* IO and inputs classes */
@@ -21,6 +24,10 @@ public class Climber extends SubsystemBase {
     private double openLoopRunPercent = 0.0;
     private ClimberStates systemState = ClimberStates.RETRACTED;
 
+    // For fault detection
+    private int climberErrCount = 0;
+    private int errCheckNum = 1;
+
     public enum ClimberStates {
         RETRACTED,
         DEPLOYING,
@@ -28,17 +35,26 @@ public class Climber extends SubsystemBase {
         RUNNING
     }
 
-    /* Instantiate IO class in the constructor */
+    /** Instantiate IO class in the constructor */
     public Climber(ClimberIO climberIO) {
         this.climberIO = climberIO;
     }
 
-    /* Periodic method */
+    /** Periodic method */
     @Override
     public void periodic() {
+        long start = Logger.getInstance().getRealTimestamp();
+
         climberIO.updateInputs(climberInputs);
         Logger.getInstance().processInputs("Climber", climberInputs);
         Logger.getInstance().recordOutput("ClimberState", systemState.toString());
+
+        /* Fault Handling stuffs */
+        if(climberInputs.lastClimberError != ErrorCode.OK.toString()){
+            climberErrCount++;
+        }
+        climberIO.clearFault();
+        errCheckNum++;
 
         ClimberStates nextSystemState = systemState;
 
@@ -80,6 +96,8 @@ public class Climber extends SubsystemBase {
             mStateStartTime = BreadUtil.getFPGATimeSeconds();
             systemState = nextSystemState;
         }
+        double end = Logger.getInstance().getRealTimestamp();
+        Logger.getInstance().recordOutput("LoggedRobot/ClimberPeriodicMs", (end-start)/1000);
     }    
 
     /** Requests the climber to deploy */
@@ -112,5 +130,16 @@ public class Climber extends SubsystemBase {
     public boolean atSetpoint(double setpoint) {
         return BreadUtil.atReference(climberInputs.heightMeters, setpoint, CLIMBER_SETPOINT_TOLERANCE, true);
     }
+
+    /** Returns the Error concentration for the following elevator motor */
+    public double getClimberErrorConc(){
+        return(climberErrCount/errCheckNum);
+    }
+
+    /** Resets error counters */
+    public void resetError(){
+        climberErrCount = 0;
+        errCheckNum = 1;
+    }  
     
 }

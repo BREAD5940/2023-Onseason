@@ -2,7 +2,9 @@ package frc.robot.subsystems.elevatorarm;
 
 import org.littletonrobotics.junction.AutoLog;
 
-/* Elevator subsystem hardware interface */
+import com.ctre.phoenix.ErrorCode;
+
+/** Elevator subsystem hardware interface */
 public interface ElevatorIO {
     @AutoLog
     public static class ElevatorIOInputs {
@@ -13,9 +15,12 @@ public interface ElevatorIO {
         public double appliedVoltage = 0.0;
         public double[] currentAmps = new double[] {}; // {leader, follower}
         public double[] tempCelcius = new double[] {}; // {leader, follower}
+
+        public String lastLeaderError = ErrorCode.OK.toString();
+        public String lastFollowerError = ErrorCode.OK.toString();
     }
 
-    /* Updates the set of loggable inputs */
+    /** Updates the set of loggable inputs */
     public default void updateInputs(ElevatorIOInputs inputs) {}
 
     /* Sets the climber to a height setpoint via motion magic */
@@ -27,10 +32,13 @@ public interface ElevatorIO {
     /** Resets the climber to a specified position */
     public default void resetHeight(double newHeightMeters) {}
 
-    /* Sets the climber's neutral mode */
+    /** Sets the climber's neutral mode */
     public default void enableBrakeMode(boolean enable) {}
 
-    /* Updates tunable numbers if neccesary */
+    /** Updates tunable numbers if neccesary */
     public default void updateTunableNumbers() {}
+
+    /** resets sticky faults to allow error to change from anything back to "ok" */
+    public default void clearFault(){}
 
 }

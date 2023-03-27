@@ -13,6 +13,7 @@ import frc.robot.subsystems.elevatorarm.ArmIO;
 import frc.robot.subsystems.elevatorarm.ElevatorArmLowLevel;
 import frc.robot.subsystems.elevatorarm.ElevatorArmLowLevel.ElevatorArmSystemStates;
 import frc.robot.subsystems.elevatorarm.ElevatorIO;
+import frc.robot.subsystems.endeffector.BeamBreakIO;
 import frc.robot.subsystems.endeffector.EndEffector;
 import frc.robot.subsystems.endeffector.EndEffectorIO;
 import frc.robot.subsystems.floorintake.FloorIntake;
@@ -112,7 +113,7 @@ public class Superstructure extends SubsystemBase {
         CONE, CUBE
     }
 
-    /* Set IO and subsystems to what they should be equal to  */
+    /** Set IO and subsystems to what they should be equal to */
     public Superstructure(ElevatorIO elevatorIO, ArmIO armIO, EndEffectorIO endEffectorIO, FloorIntakeIO floorIntakeIO) {
         elevatorArmLowLevel = new ElevatorArmLowLevel(armIO, elevatorIO);
         endEffector = new EndEffector(endEffectorIO);
@@ -121,6 +122,7 @@ public class Superstructure extends SubsystemBase {
 
     @Override
     public void periodic() {
+        long start = Logger.getInstance().getRealTimestamp();
 
         /* Logs */
         Logger.getInstance().recordOutput("SuperstructureState", systemState.toString());
@@ -464,13 +466,13 @@ public class Superstructure extends SubsystemBase {
             }
             endEffector.intakeCone();
 
-            if (endEffector.getStatorCurrent() > INTAKE_CONE_CURR_LIMIT && !currentTriggerTimerStarted) {
+            if (endEffector.isHoldingCone() && !currentTriggerTimerStarted) { //TODO: check if we still need currentTriggerTimer
                 currentTriggerTimerStarted = true;
                 currentTriggerTimer.reset();
                 currentTriggerTimer.start();
             } 
 
-            if (endEffector.getStatorCurrent() < INTAKE_CONE_CURR_LIMIT) {
+            if (!endEffector.isHoldingCone()) {
                 currentTriggerTimer.reset();
                 currentTriggerTimer.stop();
                 currentTriggerTimerStarted = false;
@@ -489,35 +491,35 @@ public class Superstructure extends SubsystemBase {
             systemState = nextSystemState;
             mStateStartTime = BreadUtil.getFPGATimeSeconds();
         }
-
-
+        double end = Logger.getInstance().getRealTimestamp();
+        Logger.getInstance().recordOutput("LoggedRobot/SuperstructurePeriodicMs", (end-start)/1000);
     } 
 
-    /* Requests the entire system to home */
+    /** Requests the entire system to home */
     public void requestHome() {
         requestHome = true;
         unsetAllRequests();
     } 
 
-    /* Requests the entire system to go into its idling mode */
+    /** Requests the entire system to go into its idling mode */
     public void requestIdle() {
         unsetAllRequests();
     }
 
-    /* Requests the system to floor intake a cube */
+    /** Requests the system to floor intake a cube */
     public void requestFloorIntakeCube(Supplier<Double> floorIntakePressure) {
         unsetAllRequests();
         requestFloorIntakeCube = true;
         this.floorIntakePressure = floorIntakePressure;
     }
 
-    /* Requests the system to spit */
+    /** Requests the system to spit */
     public void requestSpit() {
         unsetAllRequests();
         requestSpit = true;
     }
 
-    /* Requests the sytem to intake a cone from the double substation */
+    /** Requests the sytem to intake a cone from the double substation */
     public void requestIntakeConeDoubleSubstation() {
         unsetAllRequests();
         requestHPIntakeCone = true;
@@ -543,13 +545,13 @@ public class Superstructure extends SubsystemBase {
         requestPreScore(level, piece, false);
     }
 
-    /* Requests the system to score */
+    /** Requests the system to score */
     public void requestScore() {
         unsetAllRequests();
         requestScore = true;
     }
 
-    /* Requests the system to floor intake a cone */
+    /** Requests the system to floor intake a cone */
     public void requestFloorIntakeCone() {
         unsetAllRequests();
         requestFloorIntakeCone = true;
@@ -561,7 +563,7 @@ public class Superstructure extends SubsystemBase {
         requestThrow = true;
     }
     
-    /* Sets all of the requests to false */
+    /** Sets all of the requests to false */
     private void unsetAllRequests() {
         requestFloorIntakeCube = false;
         requestSingleSubstationCone = false;
@@ -598,6 +600,48 @@ public class Superstructure extends SubsystemBase {
     /** Returns whether or not the superstructure has homed once */
     public boolean homedOnce() {
         return homedOnce;
+    }
+
+     /** Returns the error concentration for the arm motor */
+     public double getArmErrorConc(){
+        return(elevatorArmLowLevel.getArmErrorConc());
+    }
+
+    /** Returns the error concentration for the arm encoder */
+    public double getArmAzimuthErrorConc(){
+        return(elevatorArmLowLevel.getArmAzimuthErrorConc());
+    }
+
+    /** Returns the error concentration for the leading elevator motor */
+    public double getLeaderErrorConc(){
+        return(elevatorArmLowLevel.getLeaderErrorConc());
+    }
+
+    /** Returns the Error concentration for the following elevator motor */
+    public double getFollowerErrorConc(){
+        return(elevatorArmLowLevel.getFollowerErrorConc());
+    }
+
+    /** Returns the Error concentration for the intake roller motor */
+    public double getRollerErrorConc(){
+        return(floorIntake.getRollerErrorConc());
+    }
+
+    /** Returns the Error concentration for the intake deploy motor */
+    public double getDeployErrorConc(){
+        return(floorIntake.getDeployErrorConc());
+    }
+
+    /** Returns the Error concentration for the end effector motor */
+    public double getEndEffectorErrorConc(){
+        return(endEffector.getEndEffectorErrorConc());
+    }
+
+    /** Resets error counters */
+    public void resetError(){
+        elevatorArmLowLevel.resetError();
+        floorIntake.resetError();
+        endEffector.resetError();
     }
 
 }

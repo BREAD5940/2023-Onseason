@@ -11,6 +11,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -28,10 +29,10 @@ import frc.robot.subsystems.vision.northstar.AprilTagVision;
 
 public class TrajectoryFollowerCommand extends CommandBase {
 
-    private final PathPlannerTrajectory trajectory;
+    protected final PathPlannerTrajectory trajectory;
     private final Supplier<Rotation2d> startHeading;
-    private final Swerve swerve;
-    private final Timer timer = new Timer();
+    protected final Swerve swerve;
+    protected final Timer timer = new Timer();
     private final Timer balanceTimer = new Timer();
     private boolean balanceStarted = false;
     private final boolean dontBalanceAtEnd;

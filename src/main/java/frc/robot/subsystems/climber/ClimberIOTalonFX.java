@@ -24,6 +24,7 @@ public class ClimberIOTalonFX implements ClimberIO {
     private double mCurrentLimit = 0.0;
     private double mCurrentLimitTriggerThreshhold = 0.0;
     private double mcurrentLimitThresholdTime = 0.0;
+	private int moterErrorWaitI = 0;
 
     public ClimberIOTalonFX() {
         /* Climber configs */
@@ -52,6 +53,11 @@ public class ClimberIOTalonFX implements ClimberIO {
         inputs.forksDeployed = false;
         inputs.heightMeters = integratedSensorUnitsToMeters(climber.getSelectedSensorPosition());
         inputs.tempCelcius = climber.getTemperature();
+		moterErrorWaitI++;
+		if (moterErrorWaitI >= 50) {
+			moterErrorWaitI = 0;
+        	inputs.lastClimberError = climber.getLastError().toString();
+		}
     }
 
     @Override
@@ -85,6 +91,11 @@ public class ClimberIOTalonFX implements ClimberIO {
 
     private double metersToIntegratedSensorUnits(double meters) {
         return meters * (2048.0/(CLIMBER_GEARING * Math.PI * CLIMBER_PULLEY_DIAMETER));
+    }
+
+    /** resets sticky faults to allow error to change from anything back to "ok" */
+    public void clearFault(){
+        climber.clearStickyFaults();
     }
     
 }

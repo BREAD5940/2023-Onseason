@@ -19,6 +19,8 @@ public class ArmIOTalonFX implements ArmIO {
 
     double lastVelocityTarget = 0.0;
 
+	private int moterErrorWaitI = 0;
+	
     public static void main(String[] args) {        
         
     }
@@ -68,6 +70,12 @@ public class ArmIOTalonFX implements ArmIO {
         inputs.tempCelcius = arm.getTemperature();
         inputs.armTargetPosition = CANCoderSensorUnitsToDegrees(arm.getActiveTrajectoryPosition());
         inputs.armTargetVelocity = CANCoderSensorUnitsToDegreesPerSecond(arm.getActiveTrajectoryVelocity());
+		moterErrorWaitI++;
+		if (moterErrorWaitI >= 50) {
+			moterErrorWaitI = 0;
+			inputs.lastArmAzimuthError = armAzimuth.getLastError().toString();
+			inputs.lastArmError = arm.getLastError().toString();
+		}
     }
 
     @Override
@@ -132,4 +140,9 @@ public class ArmIOTalonFX implements ArmIO {
         return CANCoderSensorUnitsToDegrees(arm.getSelectedSensorPosition());
     }
 
+    /* resets sticky faults to allow error to change from anything back to "ok" */
+    public void clearFault(){
+        arm.clearStickyFaults();
+        armAzimuth.clearStickyFaults();
+    }
 }
