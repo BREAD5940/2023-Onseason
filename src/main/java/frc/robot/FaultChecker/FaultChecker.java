@@ -42,9 +42,12 @@ public class FaultChecker {
 	}
 
 	public void update() {
+        System.out.println("---------- CAMERA ERRORS ----------");
 		Pair<CameraPoseTester.AlignmentTypes, CameraPoseTester.AlignmentTypes> cameraAlignments = updateCameraTester();
-		Logger.getInstance().recordOutput("FaultChecker/IsUpdating", true);
 		Logger.getInstance().recordOutput("FaultChecker/LeftVsCenter", cameraAlignments.getFirst().toString());
-		//Logger.getInstance().recordOutput("FaultChecker/RightVsCenter", cameraAlignments.getSecond().toString());
+		Logger.getInstance().recordOutput("FaultChecker/RightVsCenter", cameraAlignments.getSecond().toString());
+        System.out.println("FaultChecker/LeftVsCenter: " + cameraAlignments.getFirst().toString());
+        System.out.println("FaultChecker/RightVsCenter: " + cameraAlignments.getSecond().toString());
+        System.out.println("---------- END OF CAMERA ERRORS ---------- ");
 	}
 }

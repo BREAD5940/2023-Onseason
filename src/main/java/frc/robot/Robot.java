@@ -27,7 +27,6 @@ import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.subsystems.climber.Climber.ClimberStates;
 import frc.robot.subsystems.vision.northstar.AprilTagVision;
 import frc.robot.FaultChecker.FaultChecker;
-import frc.robot.FaultChecker.FaultCheckerTreaded;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -130,9 +129,6 @@ public class Robot extends LoggedRobot {
     RobotContainer.swerve.resetAllToAbsolute();
     m_robotContainer.configureAutonomousSelector(); // Needed down here so auto paths exist when the selector is created
     RobotContainer.limelightVision.enableLeds(false);
-
-    FaultCheckerTreaded faultChecker = new FaultCheckerTreaded();
-    faultChecker.start();
   }
 
   @Override
@@ -144,6 +140,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledInit() {
+    RobotContainer.isInTestMode = false;
   }
 
   @Override
@@ -153,6 +150,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
+    RobotContainer.isInTestMode = false;
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     if (!requestedHome) {
@@ -174,6 +172,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
+    RobotContainer.isInTestMode = false;
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
@@ -279,6 +278,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void testInit() {
+    RobotContainer.isInTestMode = true;
     CommandScheduler.getInstance().cancelAll();
   }
 
@@ -286,10 +286,12 @@ public class Robot extends LoggedRobot {
   public void testPeriodic() {
 	RobotContainer.northstarVision.periodic();
 	RobotContainer.faultChecker.update();
+    RobotContainer.faultCheckerOther.update();
   }
 
   @Override
   public void simulationInit() {
+    RobotContainer.isInTestMode = false;
   }
 
   @Override

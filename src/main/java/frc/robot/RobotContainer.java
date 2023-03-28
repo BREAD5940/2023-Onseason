@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commons.PoseEstimator;
 import frc.robot.drivers.LEDs;
 import frc.robot.FaultChecker.FaultChecker;
+import frc.robot.FaultChecker.FaultCheckerOTHER;
 import frc.robot.autonomous.AutonomousSelector;
 import frc.robot.autonomous.modes.TwoPieceBalanceBumpMode;
 import frc.robot.autonomous.modes.TwoPieceBalanceMode;
@@ -66,10 +67,12 @@ public class RobotContainer {
 	public static final PoseEstimator poseEstimator = new PoseEstimator(VecBuilder.fill(0.005, 0.005, 0.0005));
 	public static final CameraPoseTester cameraPoseTester = new CameraPoseTester(northstarVision);
 	public static final FaultChecker faultChecker = new FaultChecker(cameraPoseTester);
+    public static final FaultCheckerOTHER faultCheckerOther = new FaultCheckerOTHER();
 
 	public static final ClimberIOTalonFX climberIO = new ClimberIOTalonFX();
 	public static final Climber climber = new Climber(climberIO);
 	public static final LEDs leds = new LEDs(0, 74);
+    public static boolean isInTestMode = false;
 
 	private static AutonomousSelector autonomousSelector;
 
