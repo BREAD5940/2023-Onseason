@@ -239,9 +239,6 @@ public class ModuleIOTalonFX implements ModuleIO {
 		if(lastSteerError != "OK"){
 			steer.clearStickyFaults();
 		}
-		if(lastDriveError != "OK"){
-			drive.clearStickyFaults();
-		} 
     }
     
 }

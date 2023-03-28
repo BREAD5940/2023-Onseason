@@ -128,7 +128,7 @@ public class FaultCheckerTreaded extends Thread {
 				serialMXP.writeString("<" + "?," + ((int)(status.percentBusUtilization*100)) + "," + priorityCANerror + "_" + priorityETHerror + "," + "?>");
 			}
 			try {
-				Thread.sleep(100);
+				Thread.sleep(200);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
