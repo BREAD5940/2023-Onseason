@@ -11,10 +11,8 @@ public interface FloorIntakeIO {
         public double rollerAppliedVoltage = 0.0;
         public double rollerTempCelcius = 0.0;
 
-        public double angleDegrees = 0.0;
-        public double angleDegreesCC = 0.0;
-        public double velDegreesPerSecond = 0.0;
-        public double velDegreesPerSecondCC = 0.0;
+        public double deployVelDegreesPerSecond = 0.0;
+        public double deployAngleDegrees = 0.0;
         public double deployCurrentAmps = 0.0;
         public double deployAppliedVoltage = 0.0;
         public double deployTempCelcius = 0.0;
@@ -35,8 +33,14 @@ public interface FloorIntakeIO {
     /** Sets desired deploy angle */  
     public default void setDeployAngle(double angle) {}
 
-    /** Resets the angle of the floor intake */
-    public default void resetAngle() {}
+    /** Resets the deploy angle to a new angle */
+    public default void resetDeployAngle(double newAngleDegrees) {}
+
+    /** Sets percent for deploy motor  */
+    public default void setDeployPercent(double percent) {}
+
+    /** Sets velocity for deploy motor */
+    public default void setDeployVelocity(double velocityDegreesPerSecond) {}
 
     /** Sets current limit for deploy motor */
     public default void setCurrentLimit(double currentLimit, double currentLimitTriggerThreshold, double currentLimitThresholdTime) {}
@@ -47,9 +51,6 @@ public interface FloorIntakeIO {
     /** Enables or disables brake mode for the deploy motor */
     public default void enableDeployBrakeMode(boolean enable) {}
 
-    /** Updates the tunable numbers */
-    public default void updateTunableNumbers() {}
-    
     /** resets sticky faults to allow error to change from anything back to "ok" */
     public default void clearFault(){}
 

@@ -16,7 +16,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -24,8 +23,6 @@ import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.commons.AllianceFlipUtil;
 import frc.robot.commons.BreadHolonomicDriveController;
-import frc.robot.commons.LoggedTunableNumber;
-import frc.robot.subsystems.vision.northstar.AprilTagVision;
 
 public class TrajectoryFollowerCommand extends CommandBase {
 
@@ -35,30 +32,24 @@ public class TrajectoryFollowerCommand extends CommandBase {
     protected final Timer timer = new Timer();
     private final Timer balanceTimer = new Timer();
     private boolean balanceStarted = false;
-    private final boolean dontBalanceAtEnd;
-    private final LoggedTunableNumber xControllerP = new LoggedTunableNumber("BalanceTunes/xControllerP", 8.0);
-    private final LoggedTunableNumber xControllerD = new LoggedTunableNumber("BalanceTunes/xControllerD", 0.0);
-    private final LoggedTunableNumber yControllerP = new LoggedTunableNumber("BalanceTunes/yControllerP", 8.0);
-    private final LoggedTunableNumber yControllerD = new LoggedTunableNumber("BalanceTunes/yControllerD", 0.0);
-    private final LoggedTunableNumber thetaControllerP = new LoggedTunableNumber("BalanceTunes/thetaControllerP", 4.0);
-    private final LoggedTunableNumber thetaControllerD = new LoggedTunableNumber("BalanceTunes/thetaControllerD", 0.0);
-
+    private final boolean stop;
     public final BreadHolonomicDriveController autonomusController = new BreadHolonomicDriveController(
         new PIDController(8.0, 0, 0), 
         new PIDController(8.0, 0, 0), 
         new PIDController(4.0, 0, 0)
     );
 
-    public TrajectoryFollowerCommand(PathPlannerTrajectory trajectory, Supplier<Rotation2d> startHeading, Swerve swerve, boolean dontBalanceAtEnd) {
+
+    public TrajectoryFollowerCommand(PathPlannerTrajectory trajectory, Supplier<Rotation2d> startHeading, Swerve swerve, boolean stop) {
         this.trajectory = trajectory;
         this.startHeading = startHeading;
         this.swerve = swerve;
-        this.dontBalanceAtEnd = dontBalanceAtEnd;
+        this.stop = stop;
         addRequirements(swerve);
     }
 
-    public TrajectoryFollowerCommand(PathPlannerTrajectory trajectory, Swerve swerve, boolean dontBalanceAtEnd) {
-        this(trajectory, null, swerve, dontBalanceAtEnd);
+    public TrajectoryFollowerCommand(PathPlannerTrajectory trajectory, Swerve swerve, boolean stop) {
+        this(trajectory, null, swerve, stop);
     }
 
     @Override
@@ -92,48 +83,27 @@ public class TrajectoryFollowerCommand extends CommandBase {
         swerve.requestVelocity(
             adjustedSpeeds, false, true
         );
-        Pose2d poseError = wpilibGoal.poseMeters.relativeTo(RobotContainer.poseEstimator.getLatestPose());
-        Logger.getInstance().recordOutput("TrajectoryFollowerController/Goal", trajectory.getEndState().poseMeters);
-        if (!dontBalanceAtEnd && poseError.getTranslation().getNorm() < Units.inchesToMeters(12.0)) {
-            autonomusController.setXController_P(1.0);
-            autonomusController.setXController_D(0.0);
-            autonomusController.setYController_P(0.0);
-            autonomusController.setYController_D(0.0);
-            autonomusController.setThetaController_P(1.0);
-            autonomusController.setThetaController_D(0.0);
-            Logger.getInstance().recordOutput("TrajectoryFollowerController/UsingBalancePIDs", true);
-        } else {
-            autonomusController.setXController_P(8.0);
-            autonomusController.setXController_D(0.0);
-            autonomusController.setYController_P(8.0);
-            autonomusController.setYController_D(0.0);
-            autonomusController.setThetaController_P(4.0);
-            autonomusController.setThetaController_D(0.0);
-            Logger.getInstance().recordOutput("TrajectoryFollowerController/UsingBalancePIDs", false);
-
-        }
+        Logger.getInstance().recordOutput("Trajectory Goal", new Pose2d(wpilibGoal.poseMeters.getTranslation(), swerveRot));
     }
 
     @Override
     public boolean isFinished() {
-        PathPlannerState goal = (PathPlannerState) trajectory.sample(timer.get());
-        Trajectory.State wpilibGoal = AllianceFlipUtil.apply(goal);
-        if (dontBalanceAtEnd) {
+        if (stop) {
             return timer.get() >= trajectory.getTotalTimeSeconds();
         } else {
-            Pose2d poseError = wpilibGoal.poseMeters.relativeTo(RobotContainer.poseEstimator.getLatestPose());
-            if (timer.get() >= trajectory.getTotalTimeSeconds() && Math.abs(swerve.getPitch()) < Units.degreesToRadians(4.0) && !balanceStarted && poseError.getTranslation().getNorm() < 0.07) {
+            Pose2d poseError = trajectory.getEndState().poseMeters.relativeTo(RobotContainer.poseEstimator.getLatestPose());
+            if (timer.get() >= trajectory.getTotalTimeSeconds() && Math.abs(swerve.getRoll()) < 0.15 && !balanceStarted && poseError.getTranslation().getNorm() < 0.07) {
                 balanceStarted  = true;
                 balanceTimer.start();
             } 
 
-            if (timer.get() >= trajectory.getTotalTimeSeconds() && Math.abs(swerve.getPitch()) > Units.degreesToRadians(4.0)) {
+            if (timer.get() >= trajectory.getTotalTimeSeconds() && Math.abs(swerve.getRoll()) > 0.15) {
                 balanceStarted = false;
                 balanceTimer.stop();
                 balanceTimer.reset();
             }
 
-            return timer.get() >= trajectory.getTotalTimeSeconds() && balanceTimer.get() > 0.25;
+            return timer.get() >= trajectory.getTotalTimeSeconds() && balanceTimer.get() > 2.0;
         }
     }
 

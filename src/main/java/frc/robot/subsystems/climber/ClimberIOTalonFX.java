@@ -12,8 +12,6 @@ import frc.robot.commons.LoggedTunableNumber;
 
 
 import static frc.robot.Constants.Climber.*;
-import static frc.robot.Constants.FaultChecker.*;
-
 
 public class ClimberIOTalonFX implements ClimberIO {
 
@@ -56,7 +54,7 @@ public class ClimberIOTalonFX implements ClimberIO {
         inputs.heightMeters = integratedSensorUnitsToMeters(climber.getSelectedSensorPosition());
         inputs.tempCelcius = climber.getTemperature();
 		moterErrorWaitI++;
-		if (moterErrorWaitI >= LOOPS_PER_ERROR_CHECK) {
+		if (moterErrorWaitI >= 50) {
 			moterErrorWaitI = 0;
         	inputs.lastClimberError = climber.getLastError().toString();
 		}

@@ -1,13 +1,8 @@
 package frc.robot.subsystems.vision.limelight;
 
-import static frc.robot.Constants.Vision.HIGH_TAPE_OFF_GROUND;
-import static frc.robot.Constants.Vision.MID_TAPE_OFF_GROUND;
-import static frc.robot.Constants.Vision.ROBOT_TO_LL;
-
-import java.util.ArrayList;
-
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -15,14 +10,17 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.commons.BreadUtil;
 import frc.robot.commons.LimelightHelpers;
+import frc.robot.commons.LoggedTunableNumber;
 import frc.robot.commons.LimelightHelpers.LimelightResults;
 import frc.robot.commons.LimelightHelpers.LimelightTarget_Retro;
-import frc.robot.commons.LoggedTunableNumber;
+
+import static frc.robot.Constants.Vision.*;
+
+import java.util.ArrayList;
 
 public class LimelightDetectionsClassifier extends SubsystemBase {
 
@@ -143,10 +141,6 @@ public class LimelightDetectionsClassifier extends SubsystemBase {
         Pose3d estimatedRobotPose = cameraPose.transformBy(ROBOT_TO_LL.inverse());
 
         return estimatedRobotPose;
-    }
-
-    public void enableLeds(boolean enable) { 
-        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setDouble(enable ? 0.0 : 1.0);
     }
     
 }

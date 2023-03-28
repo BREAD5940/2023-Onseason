@@ -31,23 +31,22 @@ public class ThreePieceBumpMode extends SequentialCommandGroup {
             ),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
             new TrajectoryFollowerCommand(Robot.threePieceBumpB, swerve, true).alongWith(new SequentialCommandGroup(
-                new WaitCommand(1.5),
-                new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE))
+                new WaitCommand(1.0),
+                new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE)),
+                new WaitCommand(0.8),
+                new InstantCommand(() -> superstructure.requestScore())
             )),
-            new WaitCommand(0.4),
-            new InstantCommand(() -> superstructure.requestScore()), 
-            new WaitCommand(0.5),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0)),
             new WaitCommand(0.1),
             new TrajectoryFollowerCommand(Robot.threePieceBumpC, swerve, true),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
             new TrajectoryFollowerCommand(Robot.threePieceBumpD, swerve, true).alongWith(new SequentialCommandGroup(
                 new WaitCommand(1.0),
-                new InstantCommand(() -> superstructure.requestPreScore(Level.MID, GamePiece.CUBE))
+                new InstantCommand(() -> superstructure.requestPreScore(Level.MID, GamePiece.CUBE)),
+                new WaitCommand(1.0),
+                new InstantCommand(() -> superstructure.requestScore())
             )),
             new WaitCommand(0.1),
-            new InstantCommand(() -> superstructure.requestScore()),
-            new WaitCommand(0.5),
             new InstantCommand(() -> superstructure.requestIdle()),
             new WaitCommand(0.1),
             new TrajectoryFollowerCommand(Robot.threePieceBumpE, swerve, false),

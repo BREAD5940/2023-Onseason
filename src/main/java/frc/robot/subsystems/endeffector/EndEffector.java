@@ -78,13 +78,6 @@ public class EndEffector {
          endEffectorIO.setCurrentLimit(30, 40.0);
     }
 
-    /* For throwing cubes */
-    public void throwCube() {
-        endEffectorIO.setPercent(-1.0);
-        endEffectorIO.setCurrentLimit(140, 160.0);
-    }
-
-
     /** Enables/disables brake mode */
     public void enableBrakeMode(boolean enable) {
         endEffectorIO.enableBrakeMode(enable);

@@ -15,21 +15,14 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 
 /**
- * This holonomic drive controller can be used to follow trajectories using a
- * holonomic drivetrain
- * (i.e. swerve or mecanum). Holonomic trajectory following is a much simpler
- * problem to solve
- * compared to skid-steer style drivetrains because it is possible to
- * individually control forward,
+ * This holonomic drive controller can be used to follow trajectories using a holonomic drivetrain
+ * (i.e. swerve or mecanum). Holonomic trajectory following is a much simpler problem to solve
+ * compared to skid-steer style drivetrains because it is possible to individually control forward,
  * sideways, and angular velocity.
  *
- * <p>
- * The holonomic drive controller takes in one PID controller for each
- * direction, forward and
- * sideways, and one profiled PID controller for the angular direction. Because
- * the heading dynamics
- * are decoupled from translations, users can specify a custom heading that the
- * drivetrain should
+ * <p>The holonomic drive controller takes in one PID controller for each direction, forward and
+ * sideways, and one profiled PID controller for the angular direction. Because the heading dynamics
+ * are decoupled from translations, users can specify a custom heading that the drivetrain should
  * point toward. This heading reference is profiled for smoothness.
  */
 @SuppressWarnings("MemberName")
@@ -47,12 +40,9 @@ public class BreadHolonomicDriveController {
   /**
    * Constructs a holonomic drive controller.
    *
-   * @param xController     A PID Controller to respond to error in the
-   *                        field-relative x direction.
-   * @param yController     A PID Controller to respond to error in the
-   *                        field-relative y direction.
-   * @param thetaController A profiled PID controller to respond to error in
-   *                        angle.
+   * @param xController A PID Controller to respond to error in the field-relative x direction.
+   * @param yController A PID Controller to respond to error in the field-relative y direction.
+   * @param thetaController A profiled PID controller to respond to error in angle.
    */
   @SuppressWarnings("ParameterName")
   public BreadHolonomicDriveController(
@@ -60,7 +50,7 @@ public class BreadHolonomicDriveController {
     m_xController = xController;
     m_yController = yController;
     m_thetaController = thetaController;
-    m_thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        m_thetaController.enableContinuousInput(-Math.PI, Math.PI);
   }
 
   /**
@@ -90,27 +80,27 @@ public class BreadHolonomicDriveController {
   /**
    * Returns the next output of the holonomic drive controller.
    *
-   * @param currentPose             The current pose.
-   * @param poseRef                 The desired pose.
+   * @param currentPose The current pose.
+   * @param poseRef The desired pose.
    * @param linearVelocityRefMeters The linear velocity reference.
-   * @param angleRef                The angular reference.
+   * @param angleRef The angular reference.
    * @return The next output of the holonomic drive controller.
    */
   @SuppressWarnings("LocalVariableName")
   public ChassisSpeeds calculate(
       Pose2d currentPose, Pose2d poseRef, double linearVelocityRefMeters, Rotation2d angleRef) {
-    // If this is the first run, then we need to reset the theta controller to the
-    // current pose's
+    // If this is the first run, then we need to reset the theta controller to the current pose's
     // heading.
 
     // Calculate feedforward velocities (field-relative).
     double xFF = linearVelocityRefMeters * poseRef.getRotation().getCos();
     double yFF = linearVelocityRefMeters * poseRef.getRotation().getSin();
-    double clampAdd = 1 + Math.abs(angleRef.getRadians() - currentPose.getRotation().getRadians()) * (2 / Math.PI);
+    double clampAdd = 1 + Math.abs(angleRef.getRadians() - currentPose.getRotation().getRadians()) * (2/Math.PI);
     double thetaFF = MathUtil.clamp(
         m_thetaController.calculate(currentPose.getRotation().getRadians(), angleRef.getRadians()),
         -clampAdd,
-        clampAdd);
+        clampAdd
+    );
 
     Logger.getInstance().recordOutput("Trajectory Theta Feedback", thetaFF);
 
@@ -133,9 +123,9 @@ public class BreadHolonomicDriveController {
   /**
    * Returns the next output of the holonomic drive controller.
    *
-   * @param currentPose  The current pose.
+   * @param currentPose The current pose.
    * @param desiredState The desired trajectory state.
-   * @param angleRef     The desired end-angle.
+   * @param angleRef The desired end-angle.
    * @return The next output of the holonomic drive controller.
    */
   public ChassisSpeeds calculate(
@@ -145,43 +135,12 @@ public class BreadHolonomicDriveController {
   }
 
   /**
-   * Enables and disables the controller for troubleshooting problems. When
-   * calculate() is called on
+   * Enables and disables the controller for troubleshooting problems. When calculate() is called on
    * a disabled controller, only feedforward values are returned.
    *
    * @param enabled If the controller is enabled or not.
    */
   public void setEnabled(boolean enabled) {
     m_enabled = enabled;
-  }
-
-  /** Sets the P gain for the X controller */
-  public void setXController_P(double new_P) {
-    m_xController.setP(new_P);
-  }
-
-  /** Sets the D gain for the X controller */
-  public void setXController_D(double new_D) {
-    m_xController.setD(new_D);
-  }
-
-  /** Sets the P gain for the Y controller */
-  public void setYController_P(double new_P) {
-    m_yController.setP(new_P);
-  }
-
-  /** Sets the D gain for the Y controller */
-  public void setYController_D(double new_D) {
-    m_yController.setD(new_D);
-  }
-
-  /** Sets the P gain for the Theta controller */
-  public void setThetaController_P(double new_P) {
-    m_thetaController.setP(new_P);
-  }
-
-  /** Sets the D gain for the Theta controller */
-  public void setThetaController_D(double new_D) {
-    m_thetaController.setD(new_D);
   }
 }

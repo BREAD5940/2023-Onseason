@@ -14,38 +14,20 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
-import com.ctre.phoenixpro.configs.ClosedLoopGeneralConfigs;
-import com.ctre.phoenixpro.configs.ClosedLoopRampsConfigs;
-import com.ctre.phoenixpro.configs.CurrentLimitsConfigs;
-import com.ctre.phoenixpro.configs.FeedbackConfigs;
-import com.ctre.phoenixpro.configs.MotorOutputConfigs;
-import com.ctre.phoenixpro.configs.Slot0Configs;
-import com.ctre.phoenixpro.configs.Slot1Configs;
-import com.ctre.phoenixpro.configs.TalonFXConfigurator;
-import com.ctre.phoenixpro.configs.VoltageConfigs;
-import com.ctre.phoenixpro.controls.DutyCycleOut;
-import com.ctre.phoenixpro.controls.VelocityDutyCycle;
-import com.ctre.phoenixpro.controls.VelocityVoltage;
-import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenixpro.signals.InvertedValue;
-import com.ctre.phoenixpro.signals.NeutralModeValue;
 
 import edu.wpi.first.math.estimator.AngleStatistics;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DutyCycle;
-import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.commons.Alert;
 import frc.robot.commons.Conversions;
 import frc.robot.commons.Alert.AlertType;
 
 import static frc.robot.Constants.Drive.*;
 import static frc.robot.Constants.Electrical.*;
-import static frc.robot.Constants.FaultChecker.*;
 
 public class ModuleIOTalonFX implements ModuleIO {
 
-    private final com.ctre.phoenixpro.hardware.TalonFX drive;
+    private final TalonFX drive;
     private final TalonFX steer;
     private final double offset;
     public final CANCoder azimuth;
@@ -55,43 +37,35 @@ public class ModuleIOTalonFX implements ModuleIO {
 	private String lastDriveError;
 	private String lastAzimuthError;
 
-    private DutyCycleOut dutyCycleOut = new DutyCycleOut(0.0, true, false);
-    private VelocityVoltage velocityVoltageOut = new VelocityVoltage(0.0, true, 0.0, 0, false);
-
-    public ModuleIOTalonFX(int driveID, int steerID, int azimuthID, Rotation2d offset, InvertedValue driveDirection, TalonFXInvertType steerReversed, boolean azimuthReversed, String moduleIdentifier) {
+     public ModuleIOTalonFX(int driveID, int steerID, int azimuthID, Rotation2d offset, TalonFXInvertType driveDirection, TalonFXInvertType steerReversed, boolean azimuthReversed, String moduleIdentifier) {
         this.offset = offset.getDegrees();
 
         // Configure the driving motor
-        drive = new com.ctre.phoenixpro.hardware.TalonFX(driveID, CANIVORE_BUS_NAME);
-        TalonFXConfigurator configurator = drive.getConfigurator();
-
-        FeedbackConfigs feedbackConfigs = new FeedbackConfigs();
-        feedbackConfigs = new FeedbackConfigs();
-        feedbackConfigs.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-
-        Slot0Configs slot0Configs = new Slot0Configs();
-        slot0Configs.kP = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.35) * 10.0;
-        slot0Configs.kI = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.0) * 10.0;
-        slot0Configs.kD = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.0) * 10.0;
-        slot0Configs.kS = 0.6;
-        slot0Configs.kV = 10.7/wheelSpeedMetersPerSecondToIntegratedSensorUnits(ROBOT_MAX_SPEED);
-
-        MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
-        motorOutputConfigs.Inverted = driveDirection;
-        motorOutputConfigs.PeakForwardDutyCycle = 1.0;
-        motorOutputConfigs.PeakReverseDutyCycle = -1.0;
-        motorOutputConfigs.NeutralMode = NeutralModeValue.Brake;
-
-        CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
-        currentLimitsConfigs.StatorCurrentLimitEnable = true;
-        currentLimitsConfigs.StatorCurrentLimit = 120.0;
-
-        configurator.apply(feedbackConfigs);
-        configurator.apply(slot0Configs);
-        configurator.apply(motorOutputConfigs);
-        configurator.apply(currentLimitsConfigs);
-
-        drive.setRotorPosition(0.0);
+        drive = new TalonFX(driveID, CANIVORE_BUS_NAME);
+        TalonFXConfiguration driveConfig = new TalonFXConfiguration();
+        driveConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.IntegratedSensor;
+        driveConfig.slot0.kP = integratedSensorUnitsToWheelSpeedMetersPerSecond(10.0) * 1023.0; // TODO check this
+        driveConfig.slot0.kI = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.0);
+        driveConfig.slot0.kD = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.0);
+        driveConfig.slot0.kF = 1023.0/wheelSpeedMetersPerSecondToIntegratedSensorUnits(ROBOT_MAX_SPEED);
+        driveConfig.slot1.kP = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.35) * 1023.0;
+        driveConfig.slot1.kI = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.0);
+        driveConfig.slot1.kD = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.0);
+        driveConfig.slot1.kF = 1023.0/wheelSpeedMetersPerSecondToIntegratedSensorUnits(ROBOT_MAX_SPEED) * 1.0/0.86 * 1.0/0.86;
+        driveConfig.slot0.closedLoopPeakOutput = 1.0;
+        driveConfig.peakOutputForward = 1.0;
+        driveConfig.peakOutputReverse = -1.0;
+        driveConfig.voltageCompSaturation = 10.0;
+        driveConfig.statorCurrLimit = new StatorCurrentLimitConfiguration(true, 80.0, 80.0, 1.5);
+        drive.setInverted(driveDirection);
+        drive.setNeutralMode(NeutralMode.Coast); // TODO change back
+        drive.configAllSettings(driveConfig);
+        drive.set(ControlMode.Velocity, 0.0);
+        drive.enableVoltageCompensation(true);
+        drive.selectProfileSlot(1, 0);
+        drive.setStatusFramePeriod(StatusFrame.Status_1_General, 97);
+        drive.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 15);
+        drive.setSelectedSensorPosition(0.0);
 
         // Create CAN Coder object
         azimuth = new CANCoder(azimuthID, CANIVORE_BUS_NAME);
@@ -124,13 +98,13 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     @Override
     public void updateInputs(ModuleIOInputs inputs) {
-        inputs.driveVelocityMetersPerSec = integratedSensorUnitsToWheelSpeedMetersPerSecond(drive.getRotorVelocity().getValue());
-        inputs.driveAppliedVolts = drive.getDutyCycle().getValue() * drive.getSupplyVoltage().getValue();
-        inputs.driveCurrentAmps = drive.getStatorCurrent().getValue();
-        inputs.driveTempCelcius = drive.getDeviceTemp().getValue();
-        inputs.driveDistanceMeters = integratedSensorUnitsToWheelPositionMeters(drive.getRotorPosition().getValue());
-        inputs.driveOutputPercent = drive.get();
-        inputs.rawDriveRPM = drive.getRotorVelocity().getValue();
+        inputs.driveVelocityMetersPerSec = (DRIVE_GEARING * drive.getSelectedSensorVelocity() * (600.0/2048.0) * 2.0 * Math.PI * WHEEL_RADIUS) / 60.0;
+        inputs.driveAppliedVolts = drive.getMotorOutputVoltage();
+        inputs.driveCurrentAmps = drive.getStatorCurrent();
+        inputs.driveTempCelcius = drive.getTemperature();
+        inputs.driveDistanceMeters = (DRIVE_GEARING * drive.getSelectedSensorPosition() * 2.0 * Math.PI * WHEEL_RADIUS)/2048.0;
+        inputs.driveBusVoltage = drive.getBusVoltage();
+        inputs.driveOutputPercent = drive.getMotorOutputPercent();
 
         inputs.moduleAngleRads = Units.degreesToRadians(Conversions.falconToDegrees(steer.getSelectedSensorPosition(), STEER_GEARING));
         inputs.rawAbsolutePositionDegrees = azimuth.getAbsolutePosition();
@@ -138,22 +112,12 @@ public class ModuleIOTalonFX implements ModuleIO {
         inputs.turnCurrentAmps = steer.getStatorCurrent();
         inputs.turnTempCelcius = steer.getTemperature();
 		errorGetterIndex ++;
-		if (errorGetterIndex >= LOOPS_PER_ERROR_CHECK) {
+		if (errorGetterIndex >= 50) {
 			errorGetterIndex = 0;
 			inputs.lastSteerError = steer.getLastError().toString();
 			lastSteerError = inputs.lastSteerError;
-
-            if(drive.isAlive()){
-                inputs.lastDriveError = "OK";
-            } else {
-                inputs.lastDriveError = "Not Alive";
-            }
-
-            // Intended for Pheonix 5
-			// inputs.lastDriveError = drive.getLastError().toString();
-            
+			inputs.lastDriveError = drive.getLastError().toString();
 			lastDriveError = inputs.lastDriveError;
-
 			inputs.lastAzimuthError = azimuth.getLastError().toString();
 			lastAzimuthError = inputs.lastAzimuthError;
 		}
@@ -161,14 +125,21 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     @Override
     public void setDriveVelocity(double velocityMetersPerSecond, boolean auto) {
-        velocityVoltageOut.Velocity = wheelSpeedMetersPerSecondToIntegratedSensorUnits(velocityMetersPerSecond);
-        drive.setControl(velocityVoltageOut);
+        if (auto) {
+            double ff = 0.06;
+            if (velocityMetersPerSecond > 0.0) {
+                drive.set(TalonFXControlMode.Velocity, wheelSpeedMetersPerSecondToIntegratedSensorUnits(velocityMetersPerSecond), DemandType.ArbitraryFeedForward, ff);
+            } else {
+                drive.set(TalonFXControlMode.Velocity, wheelSpeedMetersPerSecondToIntegratedSensorUnits(velocityMetersPerSecond), DemandType.ArbitraryFeedForward, -ff);
+            }
+        } else {
+            drive.set(TalonFXControlMode.Velocity, wheelSpeedMetersPerSecondToIntegratedSensorUnits(velocityMetersPerSecond));
+        }
     }
 
     @Override
     public void setDrivePercent(double percent) {
-        dutyCycleOut.Output = percent;
-        drive.setControl(dutyCycleOut);
+        drive.set(TalonFXControlMode.PercentOutput, percent);
     }
 
     @Override
@@ -178,7 +149,7 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     @Override
     public void setDriveBrakeMode(boolean enable) {
-        // drive.setNeutralMode(enable ? NeutralMode.Brake : NeutralMode.Coast);
+        drive.setNeutralMode(enable ? NeutralMode.Brake : NeutralMode.Coast);
     }
 
     @Override
@@ -207,22 +178,12 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     /** Converts integrated sensor units to wheel speed meters per second */
     private final double integratedSensorUnitsToWheelSpeedMetersPerSecond(double integratedSensorUnits) {
-        return (DRIVE_GEARING * integratedSensorUnits * 2.0 * Math.PI * WHEEL_RADIUS);
+        return integratedSensorUnits * (DRIVE_GEARING * (600.0/2048.0) * 2.0 * Math.PI * WHEEL_RADIUS) / 60.0;
     }
 
     /** Converts wheel speed meters per second to integrated sensor units */
     private final double wheelSpeedMetersPerSecondToIntegratedSensorUnits(double wheelSpeed) {
-        return wheelSpeed/(DRIVE_GEARING * 2.0 * Math.PI * WHEEL_RADIUS);
-    }
-
-    /** Converts integrated sensor units to wheel speed meters per second */
-    private final double integratedSensorUnitsToWheelPositionMeters(double integratedSensorUnits) {
-        return integratedSensorUnitsToWheelSpeedMetersPerSecond(integratedSensorUnits);
-    }
-
-    /** Converts wheel speed meters per second to integrated sensor units */
-    private final double wheelPositionMetersToIntegratedSensorUnits(double wheelSpeed) {
-        return wheelSpeedMetersPerSecondToIntegratedSensorUnits(wheelSpeed);
+        return wheelSpeed * 60.0 / (DRIVE_GEARING * (600.0/2048.0) * 2.0 * Math.PI * WHEEL_RADIUS);
     }  
 
     /** Returns a rotation2d representing the angle of the CANCoder object */

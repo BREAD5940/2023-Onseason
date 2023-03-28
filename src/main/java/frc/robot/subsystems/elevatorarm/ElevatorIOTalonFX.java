@@ -14,7 +14,6 @@ import frc.robot.commons.LoggedTunableNumber;
 
 import static frc.robot.Constants.Elevator.*;
 import static frc.robot.Constants.Electrical.*;
-import static frc.robot.Constants.FaultChecker.*;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
 
@@ -76,7 +75,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.currentAmps = new double[] {leader.getStatorCurrent(), follower.getStatorCurrent()};
         inputs.tempCelcius = new double[] {leader.getTemperature(), follower.getTemperature()};
 		moterErrorWaitI++;
-		if (moterErrorWaitI >= LOOPS_PER_ERROR_CHECK) {
+		if (moterErrorWaitI >= 50) {
 			moterErrorWaitI = 0;
 			inputs.lastFollowerError = follower.getLastError().toString();
 			inputs.lastLeaderError = leader.getLastError().toString();
@@ -84,15 +83,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     }
 
     @Override
-    public void setHeight(double heightMeters, boolean goSlow) {
+    public void setHeight(double heightMeters) {
         if (mLastCommandedPosition != heightMeters) {
             mLastCommandedPosition = heightMeters;
             if (Math.abs(getHeight() - heightMeters) < 0.25) {
                 leader.configMotionAcceleration(metersPerSecondToIntegratedSensorUnits(3.0));
                 leader.configMotionCruiseVelocity(metersPerSecondToIntegratedSensorUnits(1.5));
-            } else if (goSlow) {
-                leader.configMotionAcceleration(metersPerSecondToIntegratedSensorUnits(6.0));
-                leader.configMotionCruiseVelocity(metersPerSecondToIntegratedSensorUnits(3.0));
             } else {
                 leader.configMotionAcceleration(metersPerSecondToIntegratedSensorUnits(12.0));
                 leader.configMotionCruiseVelocity(metersPerSecondToIntegratedSensorUnits(3.0));
