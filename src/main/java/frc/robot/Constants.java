@@ -289,4 +289,8 @@ public final class Constants {
         public static final String limelight = "10.59.40.11";
     }
   
+	/** Constants for the faultchecker */
+	public static class FaultChecker {
+		public static final double LOOPS_PER_ERROR_CHECK = 100;
+	}
 }

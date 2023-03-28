@@ -14,6 +14,7 @@ import frc.robot.commons.LoggedTunableNumber;
 
 import static frc.robot.Constants.Elevator.*;
 import static frc.robot.Constants.Electrical.*;
+import static frc.robot.Constants.FaultChecker.*;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
 
@@ -75,7 +76,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.currentAmps = new double[] {leader.getStatorCurrent(), follower.getStatorCurrent()};
         inputs.tempCelcius = new double[] {leader.getTemperature(), follower.getTemperature()};
 		moterErrorWaitI++;
-		if (moterErrorWaitI >= 50) {
+		if (moterErrorWaitI >= LOOPS_PER_ERROR_CHECK) {
 			moterErrorWaitI = 0;
 			inputs.lastFollowerError = follower.getLastError().toString();
 			inputs.lastLeaderError = leader.getLastError().toString();

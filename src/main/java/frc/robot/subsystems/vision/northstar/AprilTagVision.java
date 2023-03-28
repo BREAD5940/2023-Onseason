@@ -114,6 +114,7 @@ public class AprilTagVision extends SubsystemBase {
     }
 
     public void periodic() {
+		makeLatestTagsOld();
         long start = Logger.getInstance().getRealTimestamp();
 
         Logger.getInstance().recordOutput("AprilTagVision/StdDevScalar", mStdDevScalar.get());
@@ -224,7 +225,7 @@ public class AprilTagVision extends SubsystemBase {
                     // GeomUtil.transform3dToPose3d(robotToCam));
 
                     // Set latest tag pose per input
-                    if (!latestTagReadings.containsKey(tagId)) {
+                    /*if (!latestTagReadings.containsKey(tagId)) {
                         latestTagReadings.put(tagId, new HashMap<String, AprilTagResult>());
                     }
                     latestTagReadings.get(tagId).put(cameraIdentifier, new AprilTagResult(
@@ -232,7 +233,7 @@ public class AprilTagVision extends SubsystemBase {
                             cameraPoses[instanceIndex].transformBy(GeomUtil.pose3dToTransform3d(pose0)),
                             error1,
                             cameraPoses[instanceIndex].transformBy(GeomUtil.pose3dToTransform3d(pose1)),
-                            timestamp));
+                            timestamp));*/
 
                     // Log tag pose
                     tagPose3ds.add(tagPose);
@@ -323,7 +324,7 @@ public class AprilTagVision extends SubsystemBase {
         return latestTagReadings;
     }
 
-    private void makeLatestTagOld() {
+    private void makeLatestTagsOld() {
         for (Map<String, AprilTagResult> tagReading : latestTagReadings.values()) {
             for (AprilTagResult result : tagReading.values()) {
                 result.isOld = true;

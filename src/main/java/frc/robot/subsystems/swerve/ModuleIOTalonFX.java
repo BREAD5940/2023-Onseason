@@ -41,6 +41,7 @@ import frc.robot.commons.Alert.AlertType;
 
 import static frc.robot.Constants.Drive.*;
 import static frc.robot.Constants.Electrical.*;
+import static frc.robot.Constants.FaultChecker.*;
 
 public class ModuleIOTalonFX implements ModuleIO {
 
@@ -137,7 +138,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         inputs.turnCurrentAmps = steer.getStatorCurrent();
         inputs.turnTempCelcius = steer.getTemperature();
 		errorGetterIndex ++;
-		if (errorGetterIndex >= 50) {
+		if (errorGetterIndex >= LOOPS_PER_ERROR_CHECK) {
 			errorGetterIndex = 0;
 			inputs.lastSteerError = steer.getLastError().toString();
 			lastSteerError = inputs.lastSteerError;

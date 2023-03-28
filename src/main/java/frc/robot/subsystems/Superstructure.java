@@ -466,7 +466,7 @@ public class Superstructure extends SubsystemBase {
             }
             endEffector.intakeCone();
 
-            if (endEffector.isHoldingCone() && !currentTriggerTimerStarted) { //TODO: check if we still need currentTriggerTimer
+            if (endEffector.isHoldingCone() && !currentTriggerTimerStarted) { //TODO: check if we still need currentTriggerTimer also PLEASE MAKE SURE THAT BEAM BREAK IS CORRECT
                 currentTriggerTimerStarted = true;
                 currentTriggerTimer.reset();
                 currentTriggerTimer.start();

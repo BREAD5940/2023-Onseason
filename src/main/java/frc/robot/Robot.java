@@ -132,7 +132,7 @@ public class Robot extends LoggedRobot {
     RobotContainer.limelightVision.enableLeds(false);
 
     FaultCheckerTreaded faultChecker = new FaultCheckerTreaded();
-    faultChecker.run();
+    faultChecker.start();
   }
 
   @Override

@@ -12,6 +12,8 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
 import static frc.robot.Constants.Arm.*;
+import static frc.robot.Constants.FaultChecker.*;
+
 public class ArmIOTalonFX implements ArmIO {
 
     TalonFX arm = new TalonFX(ARM_ID);
@@ -71,7 +73,7 @@ public class ArmIOTalonFX implements ArmIO {
         inputs.armTargetPosition = CANCoderSensorUnitsToDegrees(arm.getActiveTrajectoryPosition());
         inputs.armTargetVelocity = CANCoderSensorUnitsToDegreesPerSecond(arm.getActiveTrajectoryVelocity());
 		moterErrorWaitI++;
-		if (moterErrorWaitI >= 50) {
+		if (moterErrorWaitI >= LOOPS_PER_ERROR_CHECK) {
 			moterErrorWaitI = 0;
 			inputs.lastArmAzimuthError = armAzimuth.getLastError().toString();
 			inputs.lastArmError = arm.getLastError().toString();
