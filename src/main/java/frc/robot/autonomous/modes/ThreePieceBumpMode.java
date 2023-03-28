@@ -14,6 +14,7 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.TrajectoryFollowerCommand;
 
 import static frc.robot.Constants.Elevator.*;
+import static frc.robot.Constants.Arm.*;
 
 public class ThreePieceBumpMode extends SequentialCommandGroup {
 
@@ -21,11 +22,10 @@ public class ThreePieceBumpMode extends SequentialCommandGroup {
         addRequirements(superstructure, swerve);
         addCommands(
             new InstantCommand(() -> swerve.requestPercent(new ChassisSpeeds(0, 0, 0), false)),
-            new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CONE)),
-            new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_PRE_CONE_HIGH)),
+            new InstantCommand(() -> superstructure.requestPreScore(Level.MID, GamePiece.CONE)),
+            new WaitUntilCommand(() -> superstructure.getElevatorHeight() > ELEVATOR_PRE_CONE_HIGH - ELEVATOR_CONE_OFFSET - 0.5),
             new InstantCommand(() -> superstructure.requestScore()),
-            new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_CONE_PULL_OUT_HIGH)),
-            new WaitCommand(0.4),
+            new WaitUntilCommand(() -> superstructure.getArmAngle() > ARM_SLAM_CONE - 10.0),
             new TrajectoryFollowerCommand(Robot.threePieceBumpA, () -> Robot.threePieceBumpA.getInitialHolonomicPose().getRotation(), swerve, true).raceWith(
                 new RunCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0))
             ),

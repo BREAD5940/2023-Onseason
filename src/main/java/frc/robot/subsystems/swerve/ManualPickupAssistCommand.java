@@ -17,10 +17,12 @@ public class ManualPickupAssistCommand extends CommandBase {
 
     private final Swerve swerve;
     private final Superstructure superstructure;
-    private final PIDController thetaController = new PIDController(5.0, 0.0, 0.0);
+    private final PIDController thetaController = new PIDController(2.0, 0.0, 0.0);
     private Rotation2d headingGoal;
+    private boolean deployed = false;
 
     public ManualPickupAssistCommand(Swerve swerve, Superstructure superstructure) {
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
         this.swerve = swerve;
         this.superstructure = superstructure;
         addRequirements(swerve, superstructure);
@@ -28,8 +30,8 @@ public class ManualPickupAssistCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        superstructure.requestIntakeConeDoubleSubstation();
         headingGoal = DriverStation.getAlliance() == Alliance.Blue ? new Rotation2d() : new Rotation2d(Math.PI);
+        deployed = false;
     }
 
     @Override
@@ -49,7 +51,13 @@ public class ManualPickupAssistCommand extends CommandBase {
         double thetaFeedback = thetaController.calculate(
             measurement.getRotation().getRadians(),
             headingGoal.getRadians());
-        thetaFeedback = MathUtil.clamp(thetaFeedback, -1.0, 1.0);
+        thetaFeedback = MathUtil.clamp(thetaFeedback, -5.0, 5.0);
+        Rotation2d error = headingGoal.minus(measurement.getRotation());
+        if (!deployed && Math.abs(error.getDegrees()) < 2.0) {
+            deployed = true;
+            superstructure.requestIntakeConeDoubleSubstation();
+        }
+
         swerve.requestVelocity(new ChassisSpeeds(dx, dy, thetaFeedback), true, false);
     }
     

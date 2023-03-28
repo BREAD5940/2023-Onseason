@@ -1,6 +1,8 @@
 package frc.robot.subsystems.endeffector;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
+import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -27,13 +29,17 @@ public class EndEffectorIOTalonFX implements EndEffectorIO {
 
         TalonFXConfiguration config = new TalonFXConfiguration();
         config.supplyCurrLimit.enable = true;
-        config.supplyCurrLimit.triggerThresholdCurrent = 40;
-        config.supplyCurrLimit.currentLimit = 40;
+        config.supplyCurrLimit.triggerThresholdCurrent = 200;
+        config.supplyCurrLimit.currentLimit = 200;
         config.supplyCurrLimit.triggerThresholdTime = 1.5;
         config.voltageCompSaturation = 9.0;
-        motor.enableVoltageCompensation(true);
+        motor.enableVoltageCompensation(false);
         motor.configAllSettings(config);
         motor.setInverted(INVERSION);
+        motor.configForwardSoftLimitEnable(false);
+        motor.configReverseSoftLimitEnable(false);
+        motor.configForwardLimitSwitchSource(LimitSwitchSource.Deactivated, LimitSwitchNormal.Disabled);
+        motor.configReverseLimitSwitchSource(LimitSwitchSource.Deactivated, LimitSwitchNormal.Disabled);
     }
 
     @Override
@@ -44,6 +50,7 @@ public class EndEffectorIOTalonFX implements EndEffectorIO {
         inputs.avgStatorCurrentAmps = filter.getAverage();
         inputs.tempCelcius = motor.getTemperature();
         inputs.motorSpeed = Conversions.falconToRPM(motor.getSelectedSensorVelocity(), 1.0);
+        inputs.beamBreakTriggered = motor.isFwdLimitSwitchClosed() == 1.0 ? true : false;
     }
 
     @Override

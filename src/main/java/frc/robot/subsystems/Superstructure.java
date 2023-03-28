@@ -45,6 +45,8 @@ public class Superstructure extends SubsystemBase {
     private boolean requestThrow = false;
     private Supplier<Double> floorIntakePressure = () -> 0.0;
     private Timer currentTriggerTimer = new Timer();
+    private Timer beamBreakTriggerTimer = new Timer();
+    private boolean beamBreakTriggerTimeStarted = false;
     private boolean currentTriggerTimerStarted = false;
     private boolean goSlow = false;
 
@@ -158,7 +160,11 @@ public class Superstructure extends SubsystemBase {
             // Outputs
             elevatorArmLowLevel.requestDesiredState(ELEVATOR_IDLE_POSE, ARM_IDLE_POSE, goSlow);
             if (elevatorArmLowLevel.atElevatorSetpoint(ELEVATOR_IDLE_POSE) && elevatorArmLowLevel.atArmSetpoint(ARM_IDLE_POSE)) {
-                endEffector.holdGamePiece();
+                if (endEffector.getBeamBreakTriggered()) {
+                    endEffector.holdCone();
+                } else {
+                    endEffector.holdCube();
+                }
             }
             floorIntake.requestClosedLoop(0.0, INTAKE_IDLE_POSITION);
             currentTriggerTimerStarted = false;
@@ -189,7 +195,7 @@ public class Superstructure extends SubsystemBase {
             // Outputs
             elevatorArmLowLevel.requestDesiredState(ELEVATOR_IDLE_POSE, ARM_IDLE_POSE, goSlow);
             floorIntake.requestClosedLoop(0.0, INTAKE_IDLE_POSITION + 20.0);
-            endEffector.holdGamePiece();
+            endEffector.holdCube();
 
             // Transitions
             if (!requestThrow) {
@@ -199,13 +205,18 @@ public class Superstructure extends SubsystemBase {
             }
         } else if (systemState == SuperstructureState.THROWING) {
             // Outputs
-            elevatorArmLowLevel.requestDesiredState(ELEVATOR_THROW_POSE + Units.inchesToMeters(18.0), ARM_POST_THROW, goSlow);
             floorIntake.requestClosedLoop(0.0, INTAKE_IDLE_POSITION + 20.0);
             if (elevatorArmLowLevel.getState()[1] > 100.0) {
+                elevatorArmLowLevel.requestDesiredState(ELEVATOR_THROW_POSE + Units.inchesToMeters(18.0), ARM_POST_THROW, goSlow);
+            } else {
+                elevatorArmLowLevel.requestDesiredState(ELEVATOR_IDLE_POSE, ARM_POST_THROW, goSlow);
+            }  
+
+            if (elevatorArmLowLevel.getState()[1] > 100.0 && elevatorArmLowLevel.getState()[0] > ELEVATOR_IDLE_POSE + Units.inchesToMeters(1.0)) {
                 endEffector.throwCube();
             } else {
-                endEffector.holdGamePiece();
-            }     
+                endEffector.holdCube();
+            }
                    
             // Transitions
             if (!requestThrow) {
@@ -244,12 +255,24 @@ public class Superstructure extends SubsystemBase {
             endEffector.intakeCone();
             floorIntake.requestClosedLoop(0.0, INTAKE_IDLE_POSITION);
 
+            if (endEffector.getBeamBreakTriggered() && !beamBreakTriggerTimeStarted) {
+                beamBreakTriggerTimeStarted = true;
+                beamBreakTriggerTimer.reset();
+                beamBreakTriggerTimer.start();
+            } 
+
+            if (!endEffector.getBeamBreakTriggered()) {
+                beamBreakTriggerTimer.reset();
+                beamBreakTriggerTimer.stop();
+                beamBreakTriggerTimeStarted = false;
+            }
+
             // Transitions
             if (requestHome) {
                 nextSystemState = SuperstructureState.PRE_HOME;
             } else if (!requestHPIntakeCone) {
                 nextSystemState = SuperstructureState.HP_INTAKE_CONE_INTER;
-            } else if (endEffector.getStatorCurrent() > INTAKE_CONE_CURR_LIMIT) {
+            } else if (beamBreakTriggerTimer.get() > 0.1) {
                 requestHPIntakeCone = false;
                 nextSystemState = SuperstructureState.HP_INTAKE_CONE_INTER;
             }
@@ -258,21 +281,31 @@ public class Superstructure extends SubsystemBase {
             endEffector.intakeCone();
             floorIntake.requestClosedLoop(0.0, INTAKE_IDLE_POSITION);
 
-            if (elevatorArmLowLevel.getState()[1] < 120.0) {
-                nextSystemState = SuperstructureState.IDLE;
-            }
+            nextSystemState = SuperstructureState.IDLE;
         } else if (systemState == SuperstructureState.SINGLE_SUBSTATION_CONE) {
             // Outputs
             elevatorArmLowLevel.requestDesiredState(singleSubstationConeHeight.get(), singleSubstationConeAngle.get(), goSlow);
             endEffector.intakeCone();
             floorIntake.requestClosedLoop(0.0, INTAKE_IDLE_POSITION);
 
+            if (endEffector.getBeamBreakTriggered() && !beamBreakTriggerTimeStarted) {
+                beamBreakTriggerTimeStarted = true;
+                beamBreakTriggerTimer.reset();
+                beamBreakTriggerTimer.start();
+            } 
+
+            if (!endEffector.getBeamBreakTriggered()) {
+                beamBreakTriggerTimer.reset();
+                beamBreakTriggerTimer.stop();
+                beamBreakTriggerTimeStarted = false;
+            }
+
             // Transitions
             if (requestHome) {
                 nextSystemState = SuperstructureState.PRE_HOME;
             } else if (!requestSingleSubstationCone) {
                 nextSystemState = SuperstructureState.IDLE;
-            } else if (endEffector.getStatorCurrent() > INTAKE_CONE_CURR_LIMIT) {
+            } else if (beamBreakTriggerTimer.get() > 0.1) {
                 requestSingleSubstationCone = false;
                 nextSystemState = SuperstructureState.IDLE;
             }
@@ -312,7 +345,11 @@ public class Superstructure extends SubsystemBase {
         } else if (systemState == SuperstructureState.PRE_PLACE_PIECE_LOW) {
             // Outputs
             elevatorArmLowLevel.requestDesiredState(preLowHeight.get(), lowAngle.get(), goSlow);
-            endEffector.holdGamePiece();
+            if (endEffector.getBeamBreakTriggered()) {
+                endEffector.holdCone();
+            } else {
+                endEffector.holdCube();
+            }
             floorIntake.requestClosedLoop(0.0, INTAKE_IDLE_POSITION);
 
             // Transitions
@@ -330,7 +367,7 @@ public class Superstructure extends SubsystemBase {
             } else {
                 elevatorArmLowLevel.requestDesiredState(preCubeHighHeight.get(), cubeAngle.get(), goSlow);
             }
-            endEffector.holdGamePiece();
+            endEffector.holdCube();
             floorIntake.requestClosedLoop(0.0, INTAKE_IDLE_POSITION);
 
             // Transitions
@@ -464,22 +501,23 @@ public class Superstructure extends SubsystemBase {
             }
             endEffector.intakeCone();
 
-            if (endEffector.getStatorCurrent() > INTAKE_CONE_CURR_LIMIT && !currentTriggerTimerStarted) {
-                currentTriggerTimerStarted = true;
-                currentTriggerTimer.reset();
-                currentTriggerTimer.start();
+ 
+            if (endEffector.getBeamBreakTriggered() && !beamBreakTriggerTimeStarted) {
+                beamBreakTriggerTimeStarted = true;
+                beamBreakTriggerTimer.reset();
+                beamBreakTriggerTimer.start();
             } 
 
-            if (endEffector.getStatorCurrent() < INTAKE_CONE_CURR_LIMIT) {
-                currentTriggerTimer.reset();
-                currentTriggerTimer.stop();
-                currentTriggerTimerStarted = false;
+            if (!endEffector.getBeamBreakTriggered()) {
+                beamBreakTriggerTimer.reset();
+                beamBreakTriggerTimer.stop();
+                beamBreakTriggerTimeStarted = false;
             }
 
             // Transitions
             if (!requestFloorIntakeCone) {
                 nextSystemState = SuperstructureState.IDLE;
-            } else if (currentTriggerTimer.get() > 0.25) {
+            } else if (beamBreakTriggerTimer.get() > 0.1) {
                 nextSystemState = SuperstructureState.IDLE;
                 requestFloorIntakeCone = false;
             }
@@ -589,10 +627,20 @@ public class Superstructure extends SubsystemBase {
     public boolean atElevatorSetpoint(double height) {
         return elevatorArmLowLevel.atElevatorSetpoint(height);
     }
+
+    /** Returns whether or not the arm is at a certain height */
+    public boolean atArmSetpoint(double angle) {
+        return elevatorArmLowLevel.atArmSetpoint(angle);
+    }
     
     /** Returns the height of the elevator */
     public double getElevatorHeight() {
         return elevatorArmLowLevel.elevatorInputs.posMeters;
+    }
+
+    /** Returns the angle of the arm */
+    public double getArmAngle() {
+        return elevatorArmLowLevel.armInputs.angleDegrees;
     }
 
     /** Returns whether or not the superstructure has homed once */

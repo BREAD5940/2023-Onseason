@@ -11,6 +11,7 @@ public interface EndEffectorIO {
         public double appliedVoltage = 0.0;
         public double tempCelcius = 0.0;
         public double motorSpeed = 0.0;
+        public boolean beamBreakTriggered = false;
     }
 
     /** Updates the set of loggable inputs */

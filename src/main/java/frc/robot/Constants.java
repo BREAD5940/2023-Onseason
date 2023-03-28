@@ -141,14 +141,14 @@ public final class Constants {
 
         public static final double ELEVATOR_IDLE_POSE = 0.18;
         public static final double ELEVATOR_THROW_POSE = 0.25;
-        public static final double ELEVATOR_PRE_CUBE_HIGH = 0.85;
+        public static final double ELEVATOR_PRE_CUBE_HIGH = 0.88;
         public static final double ELEVATOR_PRE_CONE_HIGH = 1.21;
         public static final double ELEVATOR_CONE_SLAM_HIGH = 1.21;
         public static final double ELEVATOR_CONE_PULL_OUT_HIGH = 1.2;
         public static final double ELEVATOR_CUBE_OFFSET = 0.509856;
         public static final double ELEVATOR_CONE_OFFSET = 0.54;
         public static final double ELEVATOR_PRE_LOW = 0.34;
-        public static final double ELEVATOR_FLOOR_INTAKE_CUBE = 0.15;
+        public static final double ELEVATOR_FLOOR_INTAKE_CUBE = 0.1;
         public static final double ELEVATOR_DOUBLE_SUBSTATION_CONE = 1.15;
         // public static final double ELEVATOR_DOUBLE_SUBSTATION_CUBE = 1.115;
         public static final double ELEVATOR_SINGLE_SUBSTATION_CONE = 0.184;
@@ -182,7 +182,7 @@ public final class Constants {
         public static final double ARM_PRE_SCORE_CONE = 118.076;
         public static final double ARM_SLAM_CONE = 187.3828;
         public static final double ARM_PRE_SCORE_LOW = 230.0;
-        public static final double ARM_FLOOR_INTAKE_CUBE = 3.0;
+        public static final double ARM_FLOOR_INTAKE_CUBE = 15.0;
         public static final double ARM_DOUBLE_SUBSTATION_CONE = 178.4;
         // public static final double ARM_DOUBLE_SUBSTATION_CUBE = 211.6;
         public static final double ARM_SINGLE_SUBSTATION_CONE = 126;
@@ -208,7 +208,7 @@ public final class Constants {
         public static final TalonFXInvertType INVERSION = TalonFXInvertType.Clockwise;
 
         public static final double INTAKE_CONE_CURR_LIMIT = 70.0;
-        public static final double INTAKE_CUBE_CURR_LIMIT = 25.0;
+        public static final double INTAKE_CUBE_CURR_LIMIT = 15.0;
     }
 
     // Constants pertaining to the floor intake subsystem
@@ -225,8 +225,8 @@ public final class Constants {
         public static final double INTAKE_IDLE_POSITION = 17.04046224348974;
         public static final double INTAKE_UNJAM_POSITION = 42.0;
 
-        public static final double FLOOR_INTAKE_KP = 0.0001;
-        public static final double FLOOR_INTAKE_KD = 0.00001;
+        public static final double FLOOR_INTAKE_KP = 0.000050;
+        public static final double FLOOR_INTAKE_KD = 0.000050;
         public static final double FLOOR_INTAKE_KF = 0.0;
         public static final double FLOOR_INTAKE_KG = 0.0;
 

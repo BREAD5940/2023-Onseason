@@ -35,6 +35,7 @@ import frc.robot.subsystems.floorintake.FloorIntakeIO;
 import frc.robot.subsystems.floorintake.FloorIntakeIOTalonFX;
 import frc.robot.subsystems.swerve.AutoPickupRoutine;
 import frc.robot.subsystems.swerve.AutoPlaceCommand;
+import frc.robot.subsystems.swerve.ManualPickupAssistCommand;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.vision.limelight.LimelightDetectionsClassifier;
 import frc.robot.subsystems.vision.northstar.AprilTagVision;
@@ -148,11 +149,15 @@ public class RobotContainer {
     new JoystickButton(driver, XboxController.Button.kX.value)
         .whileTrue(new AutoPlaceCommand(swerve, superstructure, () -> operatorControls.getLastSelectedScoringLocation(), () -> operatorControls.getLastSelectedLevel()));
 
-    new JoystickButton(driver, XboxController.Button.kA.value)
-        .whileTrue(new AutoPickupRoutine(driver::getAButton, driver::getBButton, swerve, superstructure));
+    // new JoystickButton(driver, XboxController.Button.kA.value)
+    //     .whileTrue(new AutoPickupRoutine(driver::getAButton, driver::getBButton, swerve, superstructure));
 
-    new JoystickButton(driver, XboxController.Button.kB.value)
-        .whileTrue(new AutoPickupRoutine(driver::getAButton, driver::getBButton, swerve, superstructure));
+    // new JoystickButton(driver, XboxController.Button.kB.value)
+    //     .whileTrue(new AutoPickupRoutine(driver::getAButton, driver::getBButton, swerve, superstructure));
+
+    new JoystickButton(driver, XboxController.Button.kA.value)
+    .whileTrue(new ManualPickupAssistCommand(swerve, superstructure));
+
   }
 
   private void configureNorthstarVision() {

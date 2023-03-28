@@ -92,25 +92,8 @@ public class TrajectoryFollowerCommand extends CommandBase {
             adjustedSpeeds, false, true
         );
         Pose2d poseError = wpilibGoal.poseMeters.relativeTo(RobotContainer.poseEstimator.getLatestPose());
-        Logger.getInstance().recordOutput("TrajectoryFollowerController/Goal", trajectory.getEndState().poseMeters);
-        if (!dontBalanceAtEnd && poseError.getTranslation().getNorm() < Units.inchesToMeters(12.0)) {
-            autonomusController.setXController_P(1.0);
-            autonomusController.setXController_D(0.0);
-            autonomusController.setYController_P(0.0);
-            autonomusController.setYController_D(0.0);
-            autonomusController.setThetaController_P(1.0);
-            autonomusController.setThetaController_D(0.0);
-            Logger.getInstance().recordOutput("TrajectoryFollowerController/UsingBalancePIDs", true);
-        } else {
-            autonomusController.setXController_P(8.0);
-            autonomusController.setXController_D(0.0);
-            autonomusController.setYController_P(8.0);
-            autonomusController.setYController_D(0.0);
-            autonomusController.setThetaController_P(4.0);
-            autonomusController.setThetaController_D(0.0);
-            Logger.getInstance().recordOutput("TrajectoryFollowerController/UsingBalancePIDs", false);
-
-        }
+        Pose2d loggedGoal = new Pose2d(wpilibGoal.poseMeters.getTranslation(), swerveRot);
+        Logger.getInstance().recordOutput("TrajectoryFollowerController/TrajectoryGoal", loggedGoal);
     }
 
     @Override
