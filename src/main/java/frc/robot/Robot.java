@@ -284,6 +284,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void testPeriodic() {
+	RobotContainer.northstarVision.periodic();
 	RobotContainer.faultChecker.update();
   }
 

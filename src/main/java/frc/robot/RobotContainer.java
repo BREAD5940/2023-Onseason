@@ -60,12 +60,12 @@ public class RobotContainer {
 	public static final Superstructure superstructure = new Superstructure(elevatorIO, armIO, endEffectorIO, floorIntakeIO);
 	public static final LimelightDetectionsClassifier limelightVision = new LimelightDetectionsClassifier("limelight");
 	public static final AprilTagVisionIO leftCamera = new AprilTagVisionIONorthstar("northstar-left");
-	public static final AprilTagVisionIO rightCamera = new AprilTagVisionIONorthstar("northstar-right");
-	public static final AprilTagVisionIO centerCamera = new AprilTagVisionIO(){}; // new AprilTagVisionIONorthstar("northstar-center");
-	public static final AprilTagVision northstarVision = new AprilTagVision();
+	public static final AprilTagVisionIO centerCamera = new AprilTagVisionIONorthstar("northstar-center");
+	public static final AprilTagVisionIO rightCamera = new AprilTagVisionIO(){}; // new AprilTagVisionIONorthstar("northstar-right");
+	public static final AprilTagVision northstarVision = new AprilTagVision(leftCamera, centerCamera);
 	public static final PoseEstimator poseEstimator = new PoseEstimator(VecBuilder.fill(0.005, 0.005, 0.0005));
 	public static final CameraPoseTester cameraPoseTester = new CameraPoseTester(northstarVision);
-	public static final FaultChecker faultChecker = new FaultChecker(cameraPoseTester, leftCamera, centerCamera, rightCamera);
+	public static final FaultChecker faultChecker = new FaultChecker(cameraPoseTester);
 
 	public static final ClimberIOTalonFX climberIO = new ClimberIOTalonFX();
 	public static final Climber climber = new Climber(climberIO);

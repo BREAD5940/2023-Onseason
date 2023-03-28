@@ -8,17 +8,11 @@ import frc.robot.subsystems.vision.northstar.AprilTagVisionIO;
 import frc.robot.subsystems.vision.visionTest.CameraPoseTester;
 
 public class FaultChecker {
-	private int cameraTestingId = 5;
+	private int cameraTestingId = 6;
 	private CameraPoseTester cameraPoseTester;
-	private AprilTagVisionIO leftCamera;
-	private AprilTagVisionIO centerCamera;
-	private AprilTagVisionIO rightCamera;
 
-	public FaultChecker(CameraPoseTester cameraPoseTester, AprilTagVisionIO leftCamera , AprilTagVisionIO centerCamera, AprilTagVisionIO rightCamera) {
+	public FaultChecker(CameraPoseTester cameraPoseTester) {
 		this.cameraPoseTester = cameraPoseTester;
-		this.leftCamera = leftCamera;
-		this.centerCamera = centerCamera;
-		this.rightCamera = rightCamera;
 		setupCameraTester();
 	}
 
@@ -28,8 +22,8 @@ public class FaultChecker {
      * @param tagId
      */
     public void setupCameraTester() {
-        cameraPoseTester.startAlignmentCheck(leftCamera.getIdentifier(), centerCamera.getIdentifier(), cameraTestingId);
-        cameraPoseTester.startAlignmentCheck(rightCamera.getIdentifier(), centerCamera.getIdentifier(), cameraTestingId);
+        cameraPoseTester.startAlignmentCheck(RobotContainer.leftCamera.getIdentifier(), RobotContainer.centerCamera.getIdentifier(), cameraTestingId);
+        cameraPoseTester.startAlignmentCheck(RobotContainer.rightCamera.getIdentifier(), RobotContainer.centerCamera.getIdentifier(), cameraTestingId);
     }
 
 	/**
@@ -42,14 +36,15 @@ public class FaultChecker {
 		cameraPoseTester.update();
 		return new Pair<CameraPoseTester.AlignmentTypes, CameraPoseTester.AlignmentTypes>(
 				cameraPoseTester.updateAlignmentCheck(RobotContainer.leftCamera.getIdentifier(),
-						RobotContainer.centerCamera.getIdentifier(), cameraTestingId),
-				cameraPoseTester.updateAlignmentCheck(RobotContainer.rightCamera.getIdentifier(),
-						RobotContainer.centerCamera.getIdentifier(), cameraTestingId));
+						RobotContainer.centerCamera.getIdentifier(), cameraTestingId), CameraPoseTester.AlignmentTypes.NO_RESULT);
+				/*cameraPoseTester.updateAlignmentCheck(RobotContainer.rightCamera.getIdentifier(),
+						RobotContainer.centerCamera.getIdentifier(), cameraTestingId));*/
 	}
 
 	public void update() {
 		Pair<CameraPoseTester.AlignmentTypes, CameraPoseTester.AlignmentTypes> cameraAlignments = updateCameraTester();
+		Logger.getInstance().recordOutput("FaultChecker/IsUpdating", true);
 		Logger.getInstance().recordOutput("FaultChecker/LeftVsCenter", cameraAlignments.getFirst().toString());
-		Logger.getInstance().recordOutput("FaultChecker/RightVsCenter", cameraAlignments.getSecond().toString());
+		//Logger.getInstance().recordOutput("FaultChecker/RightVsCenter", cameraAlignments.getSecond().toString());
 	}
 }
