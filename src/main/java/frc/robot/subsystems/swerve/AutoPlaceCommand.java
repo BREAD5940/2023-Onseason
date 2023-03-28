@@ -46,6 +46,7 @@ public class AutoPlaceCommand extends CommandBase {
     private boolean isCubeNode = false;
     private boolean linedUp = false;
     private boolean scored = false;
+    private boolean converged = false;
     private Level level;
 
     private Supplier<Integer> scoringLocationSup; 
@@ -73,6 +74,7 @@ public class AutoPlaceCommand extends CommandBase {
         isUsingLimelight = false;
         linedUp = false;
         scored = false;
+        converged = false;
         int scoringLocation = scoringLocationSup.get();
         if (DriverStation.getAlliance() == Alliance.Blue) {
             scoringLocation = 10 - scoringLocation;
@@ -134,7 +136,13 @@ public class AutoPlaceCommand extends CommandBase {
                 if (indexOfPoseClosestToTarget != -1) {
                     LimelightTarget_Retro detection = RobotContainer.limelightVision.getRawDetections()[indexOfPoseClosestToTarget];
                     Pose3d llRobotPose = LimelightDetectionsClassifier.targetPoseToRobotPose(nodeLocation.getTranslation(), new Pose3d(RobotContainer.poseEstimator.getLatestPose()), RobotContainer.limelightVision.getRawDetections()[indexOfPoseClosestToTarget]);
-                    // measurement = llRobotPose.toPose2d();
+
+                    Pose2d convergenceError = llRobotPose.toPose2d().relativeTo(RobotContainer.poseEstimator.getLatestPose());
+                    if (convergenceError.getTranslation().getNorm() < Units.inchesToMeters(1.0) && Math.abs(convergenceError.getRotation().getDegrees()) < 1.0) {
+                        converged = true;
+                    } else {
+                        converged = false;
+                    }
 
                     limelightUpdate.add(new TimestampedVisionUpdate(
                         RobotContainer.limelightVision.getAssociatedTimestamp(), 
@@ -146,6 +154,8 @@ public class AutoPlaceCommand extends CommandBase {
 
                     
                     RobotContainer.poseEstimator.addVisionData(limelightUpdate);
+                } else {
+                    converged = false;
                 }
             }
         }
@@ -161,10 +171,17 @@ public class AutoPlaceCommand extends CommandBase {
         yFeedback = MathUtil.clamp(yFeedback, -1, 1);
         thetaFeedback = MathUtil.clamp(thetaFeedback, -1.0, 1.0);
 
-        if (poseError.getTranslation().getNorm() < Units.inchesToMeters(1.0) && Math.abs(poseError.getRotation().getDegrees()) < 1.0 && !linedUp) {
-            linedUp = true;
-            superstructure.requestPreScore(level, isCubeNode ? GamePiece.CUBE : GamePiece.CONE);
-        } 
+        if (shouldUseLimelight) {
+            if (poseError.getTranslation().getNorm() < Units.inchesToMeters(1.0) && Math.abs(poseError.getRotation().getDegrees()) < 1.0 && !linedUp && converged) {
+                linedUp = true;
+                superstructure.requestPreScore(level, isCubeNode ? GamePiece.CUBE : GamePiece.CONE);
+            } 
+        } else {
+            if (poseError.getTranslation().getNorm() < Units.inchesToMeters(5.0) && Math.abs(poseError.getRotation().getDegrees()) < 2.0 && !linedUp) {
+                linedUp = true;
+                superstructure.requestPreScore(level, isCubeNode ? GamePiece.CUBE : GamePiece.CONE);
+            } 
+        }
 
         if (!scored) {
             if (level == Level.LOW) {
@@ -194,6 +211,7 @@ public class AutoPlaceCommand extends CommandBase {
         Logger.getInstance().recordOutput("AutoPlace/RealGoal", realGoal);
         Logger.getInstance().recordOutput("AutoPlace/TargetRobotPose", targetRobotPose);
         Logger.getInstance().recordOutput("AutoPlace/PreTargetRobotPose", preTargetRobotPose);
+        Logger.getInstance().recordOutput("AutoPlace/Converged", converged);
         
     }
 

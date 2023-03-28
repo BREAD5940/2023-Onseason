@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
+import com.ctre.phoenixpro.signals.InvertedValue;
 
 import Jama.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -40,11 +41,11 @@ public final class Constants {
         public static final int[] AZIMUTH_CHANNELS = {21, 22, 23, 24};
 
         // Reversed Constants
-        public static final TalonFXInvertType[] DRIVE_INVERT_TYPES = {
-            TalonFXInvertType.CounterClockwise, 
-            TalonFXInvertType.Clockwise, 
-            TalonFXInvertType.CounterClockwise, 
-            TalonFXInvertType.Clockwise
+        public static final InvertedValue[] DRIVE_INVERT_TYPES = {
+            InvertedValue.CounterClockwise_Positive, 
+            InvertedValue.Clockwise_Positive, 
+            InvertedValue.CounterClockwise_Positive, 
+            InvertedValue.Clockwise_Positive
         };
         // public static final boolean[] STEERS_ARE_REVERSED = {false, false, false, false};
         public static final TalonFXInvertType[] STEER_INVERT_TYPES = {
@@ -85,10 +86,10 @@ public final class Constants {
         // };
 
         public static final Rotation2d[] AZIMUTH_OFFSETS = {
-            Rotation2d.fromDegrees(67.5), // FL
-            Rotation2d.fromDegrees(259.1), // FR
-            Rotation2d.fromDegrees(57.56), // BL
-            Rotation2d.fromDegrees(65.478515625) //BR
+            Rotation2d.fromDegrees(100.9), // FL
+            Rotation2d.fromDegrees(36.3), // FR
+            Rotation2d.fromDegrees(112.1), // BL
+            Rotation2d.fromDegrees(239.4) //BR
         };
 
         // Drive-by shooting constants
@@ -96,8 +97,9 @@ public final class Constants {
         public static final double RADIAL_SHOT_SCALAR = 0.9;
 
         // Measurements/Gearings
-        public static final double DRIVE_GEARING = 1/6.75;
-        public static final double STEER_GEARING = (24.0/8) * (72.0/14);
+        public static final double DRIVE_GEARING = 1/5.5;
+        // public static final double STEER_GEARING = (24.0/8) * (72.0/14);
+        public static final double STEER_GEARING = (24.0/12) * (72.0/14);
         public static final double ROBOT_WIDTH = Units.inchesToMeters(27.0 - 2.625 * 2.0);
         public static final double ROBOT_LENGTH = Units.inchesToMeters(28.0 - 2.625 * 2.0);
         // Madtown field callibration constant factor is 0.97
@@ -105,7 +107,7 @@ public final class Constants {
         public static final Translation2d FIELD_TO_TARGET = new Translation2d(Units.feetToMeters(27), Units.feetToMeters(13.5));
         public static final double CAMERA_TO_SHOOTER_DISTANCE = Units.inchesToMeters(15.0);
         public static final double UPPER_HUB_RADIUS = Units.inchesToMeters(53.38)/2;
-        public static final double ROBOT_MAX_SPEED = (6380.0 * DRIVE_GEARING * 2.0 * Math.PI * WHEEL_RADIUS) / 60.0;
+        public static final double ROBOT_MAX_SPEED = 4.95;
         public static final Translation2d FL_LOCATION = new Translation2d(ROBOT_LENGTH/2, ROBOT_WIDTH/2);
         public static final Translation2d FR_LOCATION = new Translation2d(ROBOT_LENGTH/2, -ROBOT_WIDTH/2);
         public static final Translation2d BL_LOCATION = new Translation2d(-ROBOT_LENGTH/2, ROBOT_WIDTH/2);
@@ -138,6 +140,7 @@ public final class Constants {
         public static final double ELEVATOR_MAX_VELOCITY = (6380.0 * (10.5/12.0) * ELEVATOR_GEARING * ELEVATOR_PULLEY_PITCH_DIAMETER * Math.PI)/60.0;
 
         public static final double ELEVATOR_IDLE_POSE = 0.18;
+        public static final double ELEVATOR_THROW_POSE = 0.25;
         public static final double ELEVATOR_PRE_CUBE_HIGH = 0.85;
         public static final double ELEVATOR_PRE_CONE_HIGH = 1.21;
         public static final double ELEVATOR_CONE_SLAM_HIGH = 1.21;
@@ -148,7 +151,8 @@ public final class Constants {
         public static final double ELEVATOR_FLOOR_INTAKE_CUBE = 0.15;
         public static final double ELEVATOR_DOUBLE_SUBSTATION_CONE = 1.15;
         // public static final double ELEVATOR_DOUBLE_SUBSTATION_CUBE = 1.115;
-        public static final double ELEVATOR_DOUBLE_SUBSTATION_CUBE = 0.19550697818942656;
+        public static final double ELEVATOR_SINGLE_SUBSTATION_CONE = 0.184;
+        public static final double ELEVATOR_SPIT_POSE = 0.5;
 
         public static final TalonFXInvertType ELEVATOR_LEFT_INVERT_TYPE = TalonFXInvertType.CounterClockwise;
         public static final TalonFXInvertType ELEVATOR_RIGHT_INVERT_TYPE = TalonFXInvertType.CounterClockwise;
@@ -178,11 +182,13 @@ public final class Constants {
         public static final double ARM_PRE_SCORE_CONE = 118.076;
         public static final double ARM_SLAM_CONE = 187.3828;
         public static final double ARM_PRE_SCORE_LOW = 230.0;
-        public static final double ARM_FLOOR_INTAKE_CUBE = 1.0;
+        public static final double ARM_FLOOR_INTAKE_CUBE = 3.0;
         public static final double ARM_DOUBLE_SUBSTATION_CONE = 178.4;
         // public static final double ARM_DOUBLE_SUBSTATION_CUBE = 211.6;
-        public static final double ARM_DOUBLE_SUBSTATION_CUBE = 155.478515625;
+        public static final double ARM_SINGLE_SUBSTATION_CONE = 126;
         public static final double ARM_UNJAM_POSITION = 26.0;
+        public static final double ARM_PRE_THROW = 25.0;
+        public static final double ARM_POST_THROW = 160.0;
 
         public static final double ARM_KP = 0.03;
         public static final double ARM_KI = 0.0;
@@ -216,15 +222,21 @@ public final class Constants {
         public static final double DEPLOY_MAX_SPEED = (6380.0 * DEPLOY_GEAR_RATIO * 360.0)/60.0;
         public static final double INTAKE_MIN_POSITION = 0.0;
         public static final double INTAKE_MAX_POSITION = 190.75;
-        public static final double INTAKE_IDLE_POSITION = 28.04046224348974;
+        public static final double INTAKE_IDLE_POSITION = 17.04046224348974;
         public static final double INTAKE_UNJAM_POSITION = 42.0;
 
-        public static final double FLOOR_INTAKE_KP = 0.0;
-        public static final double FLOOR_INTAKE_KD = 0.0;
+        public static final double FLOOR_INTAKE_KP = 0.0001;
+        public static final double FLOOR_INTAKE_KD = 0.00001;
         public static final double FLOOR_INTAKE_KF = 0.0;
         public static final double FLOOR_INTAKE_KG = 0.0;
 
         public static final double FLOOR_INTAKE_ZERO = -5.0;
+
+        public static final int FLOOR_INTAKE_AZIMUTH_ID = 32;
+        public static final boolean FLOOR_INTAKE_AZIMUTH_INVERTED = true;
+        public static final double FLOOR_INTAKE_AZIMUTH_DEGREE_OFFSET = 130.605 + 5.0;
+        public static final double FLOOR_INTAKE_NULL_RANGE = 300.0;
+        public static final boolean FLOOR_INTAKE_PHASE_INVERTED = true;
     }
 
     /** Constants pertaining to the climber subsystem */
@@ -252,9 +264,8 @@ public final class Constants {
                         new Rotation3d(Units.degreesToRadians(0.0), Units.degreesToRadians(-23.5), 0.0)); //Units.degreesToRadians(1.6593493)));
         public static final double HIGH_TAPE_OFF_GROUND = 1.12;
         public static final double MID_TAPE_OFF_GROUND = 0.61;
-        public static final double X_SCORING_POSITION = 1.85;
+        public static final double X_SCORING_POSITION = 1.83;
         public static final double AMBIGUITY_THRESHOLD = 0.15;
-
     }
 
     /** Constants pertaining to the LEDs */
@@ -278,4 +289,8 @@ public final class Constants {
         public static final String limelight = "10.59.40.11";
     }
   
+	/** Constants for the faultchecker */
+	public static class FaultChecker {
+		public static final double LOOPS_PER_ERROR_CHECK = 100;
+	}
 }

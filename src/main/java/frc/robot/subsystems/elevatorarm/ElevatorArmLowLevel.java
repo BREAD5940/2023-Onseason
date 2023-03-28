@@ -22,6 +22,7 @@ public class ElevatorArmLowLevel {
     private boolean requestHome = false;
     private boolean requestSetpointFollower = false;
     private boolean requestIdle = false;
+    private boolean moveElevatorSlowly = false;
     private double heightSetpoint = 0.0;
     private double angleSetpoint = 0.0;
 
@@ -120,15 +121,8 @@ public class ElevatorArmLowLevel {
                 requestHome = false;
             }
         } else if (systemState == ElevatorArmSystemStates.IDLE) {
-            RobotContainer.armIO.setAngle(90.0);
-
-            if (RobotContainer.driver.getRightTriggerAxis() > 0.1) {
-                RobotContainer.elevatorIO.setPercent(RobotContainer.driver.getRightTriggerAxis() * 0.3);
-            } else if (RobotContainer.driver.getLeftTriggerAxis() > 0.1) {
-                RobotContainer.elevatorIO.setPercent(-RobotContainer.driver.getLeftTriggerAxis() * 0.3);
-            } else {    
-                RobotContainer.elevatorIO.setPercent(0.0);
-            }
+            RobotContainer.armIO.setAngle(90.0);   
+            RobotContainer.elevatorIO.setPercent(0.0);
 
             if (requestHome) {
                 nextSystemState = ElevatorArmSystemStates.NEUTRALIZING_ARM;
@@ -136,7 +130,7 @@ public class ElevatorArmLowLevel {
                 nextSystemState = ElevatorArmSystemStates.FOLLOWING_SETPOINT;
             }
         } else if (systemState == ElevatorArmSystemStates.FOLLOWING_SETPOINT) {
-            elevatorIO.setHeight(desiredState[0]);
+            elevatorIO.setHeight(desiredState[0], moveElevatorSlowly);
             armIO.setAngle(desiredState[1]);
 
             if (requestHome) {
@@ -154,11 +148,12 @@ public class ElevatorArmLowLevel {
     }    
 
     /** Requests a desired state for the elevator + arm and clamps it if it's not valid */
-    public void requestDesiredState(double elevatorHeight, double armAngle) {
+    public void requestDesiredState(double elevatorHeight, double armAngle, boolean goSlow) {
         requestSetpointFollower = true;
         requestIdle = false;
         heightSetpoint = elevatorHeight;
         angleSetpoint = armAngle;
+        moveElevatorSlowly = goSlow;
     }
 
     /** Requests the elevator + arm to go into idle mode */

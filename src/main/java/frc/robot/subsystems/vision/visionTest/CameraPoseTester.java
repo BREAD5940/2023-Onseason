@@ -93,6 +93,7 @@ public class CameraPoseTester {
      */
     private Map<Integer, Map<String, Pose3d>> getTagData() {
         Map<Integer, Map<String, AprilTagResult>> allTagReadings = visionSupplier.getLatestTagReadings();
+		System.out.println(allTagReadings);
         Map<Integer, Map<String, Pose3d>> allPoseReadings = new HashMap<Integer, Map<String, Pose3d>>();
         for (Integer tagId : allTagReadings.keySet()) {
             Map<String, AprilTagResult> tagReadings = allTagReadings.get(tagId);
@@ -101,14 +102,17 @@ public class CameraPoseTester {
             for (String cameraIdentifier : tagReadings.keySet()) {
                 AprilTagResult tagResult = tagReadings.get(cameraIdentifier);
                 if (!tagResult.isOld) {
+					Logger.getInstance().recordOutput("tester/" + tagId + cameraIdentifier, true);
                     if (tagResult.bestPose == null) {
                         poseReadings.put(cameraIdentifier, null); // will get replaced later
                     } else {
                         poseReadings.put(cameraIdentifier, tagResult.bestPose);
                     }
-                }
+                } else {
+					Logger.getInstance().recordOutput("tester/" + tagId + cameraIdentifier, false);
+				}
             }
-
+			
 			for (String cameraIdentifier : poseReadings.keySet()) {
 				if (poseReadings.get(cameraIdentifier) == null) {
 					AprilTagResult tagResult = tagReadings.get(cameraIdentifier);

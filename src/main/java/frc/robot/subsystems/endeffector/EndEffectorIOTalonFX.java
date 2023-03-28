@@ -15,6 +15,7 @@ import frc.robot.commons.Conversions;
 
 import static frc.robot.Constants.EndEffector.*;
 import static frc.robot.Constants.Electrical.*;
+import static frc.robot.Constants.FaultChecker.*;
 
 public class EndEffectorIOTalonFX implements EndEffectorIO {
     private TalonFX motor;
@@ -48,7 +49,7 @@ public class EndEffectorIOTalonFX implements EndEffectorIO {
         inputs.tempCelcius = motor.getTemperature();
         inputs.motorSpeed = Conversions.falconToRPM(motor.getSelectedSensorVelocity(), 1.0);
 		moterErrorWaitI++;
-		if (moterErrorWaitI >= 50) {
+		if (moterErrorWaitI >= LOOPS_PER_ERROR_CHECK) {
 			moterErrorWaitI = 0;
         	inputs.lastError = motor.getLastError().toString();
 		}

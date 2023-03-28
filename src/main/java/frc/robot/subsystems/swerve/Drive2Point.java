@@ -64,7 +64,6 @@ public class Drive2Point extends CommandBase {
             ), maxVelocity, maxAccel, swerve.getVelocity().getNorm(), endVelocity);
             Logger.getInstance().recordOutput("OnTheFlyTrajectoryGeneration", trajectory);
         } catch (Exception e) {
-            System.out.println("Failed to create on-the-fly trajectory!");
             failedToCreateTrajectory = true;
         }
     }

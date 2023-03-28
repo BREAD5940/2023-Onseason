@@ -15,9 +15,9 @@ import frc.robot.subsystems.swerve.TrajectoryFollowerCommand;
 
 import static frc.robot.Constants.Elevator.*;
 
-public class ThreePieceBumpMode extends SequentialCommandGroup {
+public class ThrowBalanceMode extends SequentialCommandGroup {
 
-    public ThreePieceBumpMode(Superstructure superstructure, Swerve swerve) {
+    public ThrowBalanceMode(Superstructure superstructure, Swerve swerve) {
         addRequirements(superstructure, swerve);
         addCommands(
             new InstantCommand(() -> swerve.requestPercent(new ChassisSpeeds(0, 0, 0), false)),
@@ -26,31 +26,31 @@ public class ThreePieceBumpMode extends SequentialCommandGroup {
             new InstantCommand(() -> superstructure.requestScore()),
             new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_CONE_PULL_OUT_HIGH)),
             new WaitCommand(0.4),
-            new TrajectoryFollowerCommand(Robot.threePieceBumpA, () -> Robot.threePieceBumpA.getInitialHolonomicPose().getRotation(), swerve, true).raceWith(
+            new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0)),
+            new TrajectoryFollowerCommand(Robot.throwA, () -> Robot.throwA.getInitialHolonomicPose().getRotation(), swerve, true).raceWith(
                 new RunCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0))
             ),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
-            new TrajectoryFollowerCommand(Robot.threePieceBumpB, swerve, true).alongWith(new SequentialCommandGroup(
-                new WaitCommand(1.5),
-                new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE))
+            new TrajectoryFollowerCommand(Robot.throwB, swerve, true).alongWith(new SequentialCommandGroup(
+                new WaitCommand(Robot.throwB.getTotalTimeSeconds() - 0.9),
+                new InstantCommand(() -> superstructure.requestThrow())
             )),
-            new WaitCommand(0.4),
-            new InstantCommand(() -> superstructure.requestScore()), 
-            new WaitCommand(0.5),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0)),
-            new WaitCommand(0.1),
-            new TrajectoryFollowerCommand(Robot.threePieceBumpC, swerve, true),
-            new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
-            new TrajectoryFollowerCommand(Robot.threePieceBumpD, swerve, true).alongWith(new SequentialCommandGroup(
-                new WaitCommand(1.0),
-                new InstantCommand(() -> superstructure.requestPreScore(Level.MID, GamePiece.CUBE))
+            new TrajectoryFollowerCommand(Robot.throwC, swerve, true).alongWith(new SequentialCommandGroup(
+                new WaitCommand(Robot.throwC.getTotalTimeSeconds() - 1.5),
+                new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
+                new WaitCommand(Robot.throwC.getTotalTimeSeconds() - 1.5 - 0.9),
+                new InstantCommand(() -> superstructure.requestThrow())
             )),
-            new WaitCommand(0.1),
-            new InstantCommand(() -> superstructure.requestScore()),
-            new WaitCommand(0.5),
+            new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0)),
+            new TrajectoryFollowerCommand(Robot.throwD, swerve, true).alongWith(new SequentialCommandGroup(
+                new WaitCommand(Robot.throwC.getTotalTimeSeconds() - 1.5),
+                new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
+                new WaitCommand(Robot.throwC.getTotalTimeSeconds() - 1.5 - 0.9),
+                new InstantCommand(() -> superstructure.requestThrow())
+            )),
             new InstantCommand(() -> superstructure.requestIdle()),
-            new WaitCommand(0.1),
-            new TrajectoryFollowerCommand(Robot.threePieceBumpE, swerve, false),
+            new TrajectoryFollowerCommand(Robot.throwE, swerve, false),
             new RunCommand(() -> swerve.requestPercent(new ChassisSpeeds(0, 0, 0), false))
         );
     }

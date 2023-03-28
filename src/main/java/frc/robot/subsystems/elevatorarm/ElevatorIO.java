@@ -23,8 +23,8 @@ public interface ElevatorIO {
     /** Updates the set of loggable inputs */
     public default void updateInputs(ElevatorIOInputs inputs) {}
 
-    /** Sets the climber to a height setpoint via motion magic */
-    public default void setHeight(double heightMeters) {}
+    /* Sets the climber to a height setpoint via motion magic */
+    public default void setHeight(double heightMeters, boolean goSlow) {}
 
     /** Sets the climber to a specified percent output */
     public default void setPercent(double percent) {}

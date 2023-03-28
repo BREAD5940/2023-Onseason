@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
 import frc.robot.commons.GeomUtil;
+import frc.robot.commons.LoggedTunableNumber;
 import frc.robot.commons.PolynomialRegression;
 import frc.robot.commons.PoseEstimator.TimestampedVisionUpdate;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIO.AprilTagVisionIOInputs;
@@ -31,13 +32,13 @@ import javax.xml.crypto.dsig.Transform;
 import org.littletonrobotics.junction.Logger;
 
 public class AprilTagVision extends SubsystemBase {
-    private static final double ambiguityThreshold = 0.15;
-    private static final double targetLogTimeSecs = 0.1;
-    public static double mStdDevScalar;
-    private static final Pose3d[] cameraPoses;
-    private static final PolynomialRegression xyStdDevModel;
-    private static final PolynomialRegression thetaStdDevModel;
-    private static boolean trustHigh = false;
+        private static final double ambiguityThreshold = 0.15;
+        private static final double targetLogTimeSecs = 0.1;
+        public static LoggedTunableNumber mStdDevScalar = new LoggedTunableNumber("AprilTagVision/StdDevScalar", 2.0);
+        private static final Pose3d[] cameraPoses;
+        private static final PolynomialRegression xyStdDevModel;
+        private static final PolynomialRegression thetaStdDevModel;
+        private static boolean trustHigh = false;
 
     private final AprilTagVisionIO[] io;
     private final AprilTagVisionIOInputs[] inputs;
@@ -49,17 +50,36 @@ public class AprilTagVision extends SubsystemBase {
     private Map<Integer, Map<String, AprilTagResult>> latestTagReadings = new HashMap<>();;
 
     static {
-        cameraPoses = new Pose3d[] {
+		// gamma
+        /*cameraPoses = new Pose3d[] {
                 new Pose3d(-0.245 - Units.inchesToMeters(0.5), 0.33, 0.345,
                         new Rotation3d(0.0, 0.0, 0.541)),
                 new Pose3d(-0.245 - Units.inchesToMeters(0.5), -0.33, 0.345,
-                        new Rotation3d(-0.055 + Units.degreesToRadians(180), -0.03, -0.541)),
+                        new Rotation3d(-0.055
+						
+						
+						
+						
+						
+						+ Units.degreesToRadians(180), -0.03, -0.541)),
                 new Pose3d(
                         Units.inchesToMeters(12.79), Units.inchesToMeters(-3), Units.inchesToMeters(13.43),
                         new Rotation3d(Units.degreesToRadians(180.0), Units.degreesToRadians(-9.5),
                                 Units.degreesToRadians(0.0)))
 
-        };
+        };*/
+		// beta
+		cameraPoses = new Pose3d[] {
+			new Pose3d(-0.245, 0.33, 0.345,
+							new Rotation3d(3.031, 0.049, 0.593)),
+			new Pose3d(-0.245, -0.33, 0.345,
+							new Rotation3d(-0.055, -0.03, -0.541)),
+			new Pose3d(
+					Units.inchesToMeters(8.640), Units.inchesToMeters(-5.163), Units.inchesToMeters(12.209),
+							new Rotation3d(Units.degreesToRadians(0.0), Units.degreesToRadians(-25.0), Units.degreesToRadians(0.0))
+			)
+
+};
         xyStdDevModel = new PolynomialRegression(
                 new double[] {
                         0.752358, 1.016358, 1.296358, 1.574358, 1.913358, 2.184358, 2.493358,
@@ -113,9 +133,10 @@ public class AprilTagVision extends SubsystemBase {
     }
 
     public void periodic() {
+		makeLatestTagsOld();
         long start = Logger.getInstance().getRealTimestamp();
 
-        Logger.getInstance().recordOutput("AprilTagVision/StdDevScalar", mStdDevScalar);
+        Logger.getInstance().recordOutput("AprilTagVision/StdDevScalar", mStdDevScalar.get());
 
         for (int i = 0; i < io.length; i++) {
             io[i].updateInputs(inputs[i]);
@@ -143,6 +164,7 @@ public class AprilTagVision extends SubsystemBase {
 
                 // Loop over observations
                 for (int i = 0; i < values.length; i += 15) {
+					System.out.println(io[instanceIndex].getIdentifier() + (int) values[i]);
                     // Get observation data
                     int tagId = (int) values[i];
                     var pose0 = openCVPoseToWPILibPose(
@@ -232,7 +254,7 @@ public class AprilTagVision extends SubsystemBase {
                             error1,
                             cameraPoses[instanceIndex].transformBy(GeomUtil.pose3dToTransform3d(pose1)),
                             timestamp));
-
+					System.out.println(tagId + " " + cameraIdentifier);
                     // Log tag pose
                     tagPose3ds.add(tagPose);
                     tagIds.add(tagId);
@@ -240,8 +262,8 @@ public class AprilTagVision extends SubsystemBase {
 
                     // Add to vision updates
                     double tagDistance = tagPose.getTranslation().getNorm();
-                    double xyStdDev = xyStdDevModel.predict(tagDistance) * mStdDevScalar;
-                    double thetaStdDev = thetaStdDevModel.predict(tagDistance) * mStdDevScalar;
+                    double xyStdDev = xyStdDevModel.predict(tagDistance) * mStdDevScalar.get();
+                    double thetaStdDev = thetaStdDevModel.predict(tagDistance) * mStdDevScalar.get();
                     visionUpdates.add(
                             new TimestampedVisionUpdate(
                                     timestamp, robotPose, VecBuilder.fill(xyStdDev,
@@ -295,6 +317,7 @@ public class AprilTagVision extends SubsystemBase {
                         "AprilTagVision/TargetPoses",
                         targetPose3ds.toArray(new Pose3d[targetPose3ds.size()]));
 
+
         // Send results to pose esimator
         visionConsumer.accept(visionUpdates);
 
@@ -314,14 +337,14 @@ public class AprilTagVision extends SubsystemBase {
     }
 
     public static void setTrustLevel(boolean isTrustHigh) {
-        mStdDevScalar = isTrustHigh ? 0.2 : 2.0;
+        //mStdDevScalar = isTrustHigh ? 0.2 : 2.0;
     }
 
     public Map<Integer, Map<String, AprilTagResult>> getLatestTagReadings() {
         return latestTagReadings;
     }
 
-    private void makeLatestTagOld() {
+    private void makeLatestTagsOld() {
         for (Map<String, AprilTagResult> tagReading : latestTagReadings.values()) {
             for (AprilTagResult result : tagReading.values()) {
                 result.isOld = true;

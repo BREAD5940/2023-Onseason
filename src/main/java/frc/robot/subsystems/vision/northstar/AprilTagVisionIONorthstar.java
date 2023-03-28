@@ -7,6 +7,8 @@
 
 package frc.robot.subsystems.vision.northstar;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -26,7 +28,7 @@ public class AprilTagVisionIONorthstar implements AprilTagVisionIO {
 
     public AprilTagVisionIONorthstar(String identifier) {
         var northstarTable = NetworkTableInstance.getDefault().getTable(identifier);
-
+		this.identifier = identifier;
         var outputTable = northstarTable.getSubTable("output");
         observationSubscriber = outputTable
                 .getDoubleArrayTopic("observations")
@@ -40,6 +42,7 @@ public class AprilTagVisionIONorthstar implements AprilTagVisionIO {
 
     public void updateInputs(AprilTagVisionIOInputs inputs) {
         var queue = observationSubscriber.readQueue();
+		//Logger.getInstance().recordOutput(identifier, queue[0].value);
         inputs.timestamps = new double[queue.length];
         inputs.frames = new double[queue.length][];
         for (int i = 0; i < queue.length; i++) {
