@@ -29,8 +29,8 @@ public class EndEffectorIOTalonFX implements EndEffectorIO {
 
         TalonFXConfiguration config = new TalonFXConfiguration();
         config.supplyCurrLimit.enable = true;
-        config.supplyCurrLimit.triggerThresholdCurrent = 200;
-        config.supplyCurrLimit.currentLimit = 200;
+        config.supplyCurrLimit.triggerThresholdCurrent = 40.0;
+        config.supplyCurrLimit.currentLimit = 40.0;
         config.supplyCurrLimit.triggerThresholdTime = 1.5;
         config.voltageCompSaturation = 9.0;
         motor.enableVoltageCompensation(false);

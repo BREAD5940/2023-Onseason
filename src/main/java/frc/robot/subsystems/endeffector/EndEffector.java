@@ -12,7 +12,8 @@ public class EndEffector {
     
     /* Tunable numbers */
     LoggedTunableNumber intakeConePercent = new LoggedTunableNumber("EndEffector/IntakeConePercent", 1.0);
-    LoggedTunableNumber intakeCubePercent = new LoggedTunableNumber("EndEffector/IntakeCubePercent", 0.9);
+    LoggedTunableNumber intakeCubePercent = new LoggedTunableNumber("EndEffector/IntakeCubePercent", 0.5);
+
     LoggedTunableNumber holdingPercent = new LoggedTunableNumber("EndEffector/HoldingPercent", 0.1);
     LoggedTunableNumber spitCubePercent = new LoggedTunableNumber("EndEffector/SpitCubePercent", -1.0);
 
@@ -38,29 +39,25 @@ public class EndEffector {
     /* For intaking cubes */
     public void intakeCube() {
         endEffectorIO.setPercent(intakeCubePercent.get());
-        if (endEffectorInputs.motorSpeed < -100.0) {
-            endEffectorIO.setCurrentLimit(50, 60.0);
-        } else {
-            endEffectorIO.setCurrentLimit(10, 15.0);
-        }
+        endEffectorIO.setCurrentLimit(20, 30.0);
     }
 
     /* For holding a cube */
     public void holdCube() {
         endEffectorIO.setPercent(holdingPercent.get());
-        endEffectorIO.setCurrentLimit(3, 6.0);
+        endEffectorIO.setCurrentLimit(10, 15.0);
     }
 
     /* For holding a cone */
     public void holdCone() {
         endEffectorIO.setPercent(holdingPercent.get());
-        endEffectorIO.setCurrentLimit(10, 15.0);
+        endEffectorIO.setCurrentLimit(20, 30.0);
     }
 
     /* For spitting a cube */
     public void spitCube() {
         endEffectorIO.setPercent(spitCubePercent.get());
-        endEffectorIO.setCurrentLimit(160, 180.0);
+        endEffectorIO.setCurrentLimit(80, 100.0);
     }
 
     /* For idling */
@@ -78,7 +75,7 @@ public class EndEffector {
     /* For throwing cubes */
     public void throwCube() {
         endEffectorIO.setPercent(-1.0);
-        endEffectorIO.setCurrentLimit(200, 220.0);
+        endEffectorIO.setCurrentLimit(140, 160.0);
     }
 
     /* Enables/disables brake mode */

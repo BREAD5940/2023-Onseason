@@ -208,7 +208,7 @@ public final class Constants {
         public static final TalonFXInvertType INVERSION = TalonFXInvertType.Clockwise;
 
         public static final double INTAKE_CONE_CURR_LIMIT = 70.0;
-        public static final double INTAKE_CUBE_CURR_LIMIT = 15.0;
+        public static final double INTAKE_CUBE_CURR_LIMIT = 25.0;
     }
 
     // Constants pertaining to the floor intake subsystem
@@ -261,7 +261,7 @@ public final class Constants {
         public static final Transform3d ROBOT_TO_LL =
                 new Transform3d(
                         new Translation3d(Units.inchesToMeters(12), Units.inchesToMeters(-9), Units.inchesToMeters(10)),
-                        new Rotation3d(Units.degreesToRadians(0.0), Units.degreesToRadians(-23.5), 0.0)); //Units.degreesToRadians(1.6593493)));
+                        new Rotation3d(Units.degreesToRadians(0.0), Units.degreesToRadians(-23.5), Units.degreesToRadians(-0.5))); //Units.degreesToRadians(1.6593493)));
         public static final double HIGH_TAPE_OFF_GROUND = 1.12;
         public static final double MID_TAPE_OFF_GROUND = 0.61;
         public static final double X_SCORING_POSITION = 1.83;
