@@ -16,6 +16,7 @@ import frc.robot.Robot;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
+import frc.robot.subsystems.Superstructure.SuperstructureState;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.TrajectoryFollowerCommand;
 
@@ -40,10 +41,13 @@ public class TwoPieceBalanceMode extends SequentialCommandGroup {
             new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CONE)),
             new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_PRE_CONE_HIGH)),
             new InstantCommand(() -> superstructure.requestScore()),
-            new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_CONE_PULL_OUT_HIGH)),
-            new WaitCommand(0.3),
-            new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0)),
-            new TrajectoryFollowerCommand(Robot.twoPieceBalanceA, () -> Robot.twoPieceBalanceA.getInitialHolonomicPose().getRotation(), swerve, true),
+            new WaitUntilCommand(() -> superstructure.getSystemState() == SuperstructureState.PULL_OUT_CONE),
+            new TrajectoryFollowerCommand(Robot.twoPieceBalanceA, () -> Robot.twoPieceBalanceA.getInitialHolonomicPose().getRotation(), swerve, true).raceWith(
+                new SequentialCommandGroup(
+                    new WaitCommand(0.1),
+                    new RunCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0))
+                )
+            ),
             new WaitCommand(0.05),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
             new TrajectoryFollowerCommand(Robot.twoPieceBalanceB, swerve, true).alongWith(new SequentialCommandGroup(

@@ -25,30 +25,31 @@ public class ThreePieceMode extends SequentialCommandGroup {
             new InstantCommand(() -> superstructure.requestScore()),
             new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_CONE_PULL_OUT_HIGH)),
             new WaitCommand(0.4),
-            new TrajectoryFollowerCommand(Robot.threePieceA, () -> Robot.threePieceA.getInitialHolonomicPose().getRotation(), swerve, true).raceWith(
+            new TrajectoryFollowerCommand(Robot.threePieceSlowA, () -> Robot.threePieceSlowA.getInitialHolonomicPose().getRotation(), swerve, true).raceWith(
                 new RunCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0))
             ),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
-            new TrajectoryFollowerCommand(Robot.threePieceB, swerve, true).alongWith(new SequentialCommandGroup(
-                new WaitCommand(Robot.threePieceB.getTotalTimeSeconds() - 1.05),
-                new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE)),
-                new WaitCommand(Robot.threePieceB.getTotalTimeSeconds() - 0.25),
-                new InstantCommand(() -> superstructure.requestScore())
+            new TrajectoryFollowerCommand(Robot.threePieceSlowB, swerve, true).alongWith(new SequentialCommandGroup(
+                new WaitCommand(1.5),
+                new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE))
             )),
+            new WaitCommand(0.4),
+            new InstantCommand(() -> superstructure.requestScore()), 
+            new WaitCommand(0.5),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0)),
             new WaitCommand(0.1),
-            new TrajectoryFollowerCommand(Robot.threePieceC, swerve, true),
+            new TrajectoryFollowerCommand(Robot.threePieceSlowC, swerve, true),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
-            new TrajectoryFollowerCommand(Robot.threePieceD, swerve, true).alongWith(new SequentialCommandGroup(
-                new WaitCommand(Robot.threePieceD.getTotalTimeSeconds() - 1.88),
-                new InstantCommand(() -> superstructure.requestPreScore(Level.MID, GamePiece.CUBE)),
-                new WaitCommand(Robot.threePieceD.getTotalTimeSeconds() - 0.25),
-                new InstantCommand(() -> superstructure.requestScore())
+            new TrajectoryFollowerCommand(Robot.threePieceSlowD, swerve, true).alongWith(new SequentialCommandGroup(
+                new WaitCommand(1.0),
+                new InstantCommand(() -> superstructure.requestPreScore(Level.MID, GamePiece.CUBE))
             )),
             new WaitCommand(0.1),
+            new InstantCommand(() -> superstructure.requestScore()),
+            new WaitCommand(0.5),
             new InstantCommand(() -> superstructure.requestIdle()),
             new WaitCommand(0.1),
-            new TrajectoryFollowerCommand(Robot.threePieceSetup, swerve, false),
+            new TrajectoryFollowerCommand(Robot.threePieceSlowSetup, swerve, false),
             new RunCommand(() -> swerve.requestPercent(new ChassisSpeeds(0, 0, 0), false))
         );
     }

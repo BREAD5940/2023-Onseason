@@ -31,9 +31,10 @@ public class ThreePieceBalanceMode extends SequentialCommandGroup {
             ),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
             new TrajectoryFollowerCommand(Robot.threePieceB, swerve, true).alongWith(new SequentialCommandGroup(
-                new WaitCommand(1.0),
+                new WaitCommand(Robot.threePieceB.getTotalTimeSeconds() - 1.52),
                 new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE)),
-                new WaitCommand(0.8),
+                
+                new WaitCommand(Robot.threePieceB.getTotalTimeSeconds() - 1.52 - 0.3),
                 new InstantCommand(() -> superstructure.requestScore())
             )),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0)),
@@ -41,9 +42,9 @@ public class ThreePieceBalanceMode extends SequentialCommandGroup {
             new TrajectoryFollowerCommand(Robot.threePieceC, swerve, true),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
             new TrajectoryFollowerCommand(Robot.threePieceD, swerve, true).alongWith(new SequentialCommandGroup(
-                new WaitCommand(1.0),
+                new WaitCommand(Robot.threePieceD.getTotalTimeSeconds() - 1.76),
                 new InstantCommand(() -> superstructure.requestPreScore(Level.MID, GamePiece.CUBE)),
-                new WaitCommand(1.0),
+                new WaitCommand(Robot.threePieceD.getTotalTimeSeconds() - 1.76 - 0.1),
                 new InstantCommand(() -> superstructure.requestScore())
             )),
             new InstantCommand(() -> superstructure.requestIdle()),

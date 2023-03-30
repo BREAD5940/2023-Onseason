@@ -54,6 +54,12 @@ public class Robot extends LoggedRobot {
   public static PathPlannerTrajectory threePieceBumpD;
   public static PathPlannerTrajectory threePieceBumpE;
 
+  public static PathPlannerTrajectory threePieceSlowA;
+  public static PathPlannerTrajectory threePieceSlowB; 
+  public static PathPlannerTrajectory threePieceSlowC;
+  public static PathPlannerTrajectory threePieceSlowD; 
+  public static PathPlannerTrajectory threePieceSlowSetup;
+
   public static PathPlannerTrajectory twoPieceBalanceA;
   public static PathPlannerTrajectory twoPieceBalanceB;
   public static PathPlannerTrajectory twoPieceBalanceC;
@@ -103,12 +109,18 @@ public class Robot extends LoggedRobot {
     throwD = PathPlanner.loadPath("Throw D", new PathConstraints(3.5, 2.5));
     throwE = PathPlanner.loadPath("Throw E", new PathConstraints(3.5, 2.5));
 
-    threePieceA = PathPlanner.loadPath("Three Piece A", new PathConstraints(4.0, 3.0));
-    threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(4.0, 3.0));
-    threePieceC = PathPlanner.loadPath("Three Piece C", new PathConstraints(4.0, 3.0));
-    threePieceD = PathPlanner.loadPath("Three Piece D", new PathConstraints(4.0, 3.0));
+    threePieceA = PathPlanner.loadPath("Three Piece A", new PathConstraints(4.0, 2.5));
+    threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(4.0, 2.5));
+    threePieceC = PathPlanner.loadPath("Three Piece C", new PathConstraints(4.0, 2.5));
+    threePieceD = PathPlanner.loadPath("Three Piece D", new PathConstraints(4.0, 2.5));
     threePieceBalance = PathPlanner.loadPath("Three Piece Balance", new PathConstraints(4.0, 3.0));
     threePieceSetup = PathPlanner.loadPath("Three Piece Setup", new PathConstraints(4.0, 3.0));
+
+    threePieceSlowA = PathPlanner.loadPath("Three Piece A", new PathConstraints(3.5, 2.5));
+    threePieceSlowB = PathPlanner.loadPath("Three Piece B", new PathConstraints(3.5, 2.5));
+    threePieceSlowC = PathPlanner.loadPath("Three Piece C", new PathConstraints(3.5, 2.5));
+    threePieceSlowD = PathPlanner.loadPath("Three Piece D", new PathConstraints(3.5, 2.5));
+    threePieceSlowSetup = PathPlanner.loadPath("Three Piece Setup", new PathConstraints(3.5, 2.5));
 
     threePieceBumpA = PathPlanner.loadPath("Three Piece Bump A", new PathConstraints(3.5, 2.5));
     threePieceBumpB = PathPlanner.loadPath("Three Piece Bump B", new PathConstraints(3.5, 2.5));

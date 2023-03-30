@@ -8,6 +8,7 @@ public interface FloorIntakeIO {
         public double rollerCurrentAmps = 0.0;
         public double rollerAppliedVoltage = 0.0;
         public double rollerTempCelcius = 0.0;
+        public double rollerMotorSpeedRPM = 0.0;
 
         public double angleDegrees = 0.0;
         public double angleDegreesCC = 0.0;
@@ -15,6 +16,7 @@ public interface FloorIntakeIO {
         public double velDegreesPerSecondCC = 0.0;
         public double deployCurrentAmps = 0.0;
         public double deployAppliedVoltage = 0.0;
+        
         public double deployTempCelcius = 0.0;
         public double deployPositionTarget = 0.0;
         public double deployVelocityTarget = 0.0;

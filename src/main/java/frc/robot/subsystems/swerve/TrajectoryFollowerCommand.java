@@ -42,10 +42,17 @@ public class TrajectoryFollowerCommand extends CommandBase {
     private final LoggedTunableNumber thetaControllerP = new LoggedTunableNumber("BalanceTunes/thetaControllerP", 4.0);
     private final LoggedTunableNumber thetaControllerD = new LoggedTunableNumber("BalanceTunes/thetaControllerD", 0.0);
 
+    private double X_CONTROLLER_P = 8.0;
+    private double Y_CONTROLLER_P = 8.0;
+    private double THETA_CONTROLLER_P = 4.0;
+    private double X_CONTROLLER_D = 0.0;
+    private double Y_CONTROLLER_D = 0.0;
+    private double THETA_CONTROLLER_D = 0.0;
+
     public final BreadHolonomicDriveController autonomusController = new BreadHolonomicDriveController(
-        new PIDController(8.0, 0, 0), 
-        new PIDController(8.0, 0, 0), 
-        new PIDController(4.0, 0, 0)
+        new PIDController(X_CONTROLLER_P, 0, X_CONTROLLER_D), 
+        new PIDController(Y_CONTROLLER_P, 0, Y_CONTROLLER_D), 
+        new PIDController(THETA_CONTROLLER_P, 0, THETA_CONTROLLER_D)
     );
 
     public TrajectoryFollowerCommand(PathPlannerTrajectory trajectory, Supplier<Rotation2d> startHeading, Swerve swerve, boolean dontBalanceAtEnd) {
@@ -87,12 +94,30 @@ public class TrajectoryFollowerCommand extends CommandBase {
         } else {
             swerveRot = goal.holonomicRotation;
         }
+        Pose2d poseError = wpilibGoal.poseMeters.relativeTo(RobotContainer.poseEstimator.getLatestPose());
+        Pose2d loggedGoal = new Pose2d(wpilibGoal.poseMeters.getTranslation(), swerveRot);
+        if (!dontBalanceAtEnd && poseError.getTranslation().getNorm() < Units.inchesToMeters(18.0)) {
+            autonomusController.setXController_P(xControllerP.get());
+            autonomusController.setXController_D(xControllerD.get());
+            autonomusController.setYController_P(yControllerP.get());
+            autonomusController.setYController_D(yControllerD.get());      
+            autonomusController.setThetaController_P(thetaControllerP.get());
+            autonomusController.setThetaController_D(thetaControllerD.get());
+            Logger.getInstance().recordOutput("TrajectoryFollowerController/UsingBalancePIDs", true);
+        } else {
+            autonomusController.setXController_P(X_CONTROLLER_P);
+            autonomusController.setXController_D(X_CONTROLLER_D);
+            autonomusController.setYController_P(Y_CONTROLLER_P);
+            autonomusController.setYController_D(Y_CONTROLLER_D);
+            autonomusController.setThetaController_P(THETA_CONTROLLER_P);
+            autonomusController.setThetaController_D(THETA_CONTROLLER_D);
+            Logger.getInstance().recordOutput("TrajectoryFollowerController/UsingBalancePIDs", false);
+        }
         ChassisSpeeds adjustedSpeeds = autonomusController.calculate(RobotContainer.poseEstimator.getLatestPose(), wpilibGoal, swerveRot); 
         swerve.requestVelocity(
             adjustedSpeeds, false, true
         );
-        Pose2d poseError = wpilibGoal.poseMeters.relativeTo(RobotContainer.poseEstimator.getLatestPose());
-        Pose2d loggedGoal = new Pose2d(wpilibGoal.poseMeters.getTranslation(), swerveRot);
+        
         Logger.getInstance().recordOutput("TrajectoryFollowerController/TrajectoryGoal", loggedGoal);
     }
 

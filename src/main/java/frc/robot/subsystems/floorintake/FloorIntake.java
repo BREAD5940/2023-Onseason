@@ -97,6 +97,11 @@ public class FloorIntake {
         return floorIntakeInputs.angleDegrees;
     }
 
+    /** Returns the speed of the floor intake's motor in rpm */
+    public double getRollerRPM() {
+        return floorIntakeInputs.rollerMotorSpeedRPM;
+    }
+
     /** Enables coast mode on the intake */
     public void requestBrakeMode(boolean enable) {
         floorIntakeIO.enableDeployBrakeMode(enable);

@@ -65,9 +65,9 @@ public class ModuleIOTalonFX implements ModuleIO {
         feedbackConfigs.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
 
         Slot0Configs slot0Configs = new Slot0Configs();
-        slot0Configs.kP = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.35) * 10.0;
-        slot0Configs.kI = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.0) * 10.0;
-        slot0Configs.kD = integratedSensorUnitsToWheelSpeedMetersPerSecond(0.0) * 10.0;
+        slot0Configs.kP = wheelSpeedMetersPerSecondToIntegratedSensorUnits(0.0028) * 10.0;
+        slot0Configs.kI = wheelSpeedMetersPerSecondToIntegratedSensorUnits(0.0) * 10.0;
+        slot0Configs.kD = wheelSpeedMetersPerSecondToIntegratedSensorUnits(0.000004) * 10.0;
         slot0Configs.kS = 0.6;
         slot0Configs.kV = 10.7/wheelSpeedMetersPerSecondToIntegratedSensorUnits(ROBOT_MAX_SPEED);
 

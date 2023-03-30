@@ -31,6 +31,7 @@ public class LimelightDetectionsClassifier extends SubsystemBase {
     private double timestamp;
 
     LoggedTunableNumber latency = new LoggedTunableNumber("Latency", 11);
+    static LoggedTunableNumber limelightYawDegrees = new LoggedTunableNumber("LimelightYawDegrees", -0.5);
 
     public LimelightDetectionsClassifier(String cameraName) {
         this.cameraName = cameraName;
@@ -41,8 +42,13 @@ public class LimelightDetectionsClassifier extends SubsystemBase {
     }
 
     public ArrayList<Pose3d> getTargets(boolean lookingForTallPoles) {
+        Transform3d robotToLL = new Transform3d(
+            ROBOT_TO_LL.getTranslation(),
+            new Rotation3d(ROBOT_TO_LL.getRotation().getX(), ROBOT_TO_LL.getRotation().getY(), Units.degreesToRadians(limelightYawDegrees.get()))
+        );
+
         Pose3d robotPoseEstimate = new Pose3d(RobotContainer.poseEstimator.getLatestPose());
-        Pose3d cameraPoseEstimate = robotPoseEstimate.transformBy(ROBOT_TO_LL); 
+        Pose3d cameraPoseEstimate = robotPoseEstimate.transformBy(robotToLL); 
         Logger.getInstance().recordOutput("CameraPoseEstimate", cameraPoseEstimate);
 
         ArrayList<Pose3d> targets = new ArrayList<>(); // holds the actual, field-relative positions of the detections
@@ -50,9 +56,8 @@ public class LimelightDetectionsClassifier extends SubsystemBase {
         for (int i = 0; i < rawDetections.length; i++) { // populate the list above with targets
             double targetHeightOffGround = lookingForTallPoles ? HIGH_TAPE_OFF_GROUND : MID_TAPE_OFF_GROUND;
             double xyDistanceToTarget = getXYDistanceToTarget(rawDetections[i], targetHeightOffGround);
-            double distanceToTarget = Math.hypot(xyDistanceToTarget, targetHeightOffGround - ROBOT_TO_LL.getZ());
+            double distanceToTarget = Math.hypot(xyDistanceToTarget, targetHeightOffGround - robotToLL.getZ());
             Logger.getInstance().recordOutput("DistanceToTargets/" + i, distanceToTarget);
-
             Translation3d cameraToTargetTranslation = new Translation3d(distanceToTarget, new Rotation3d(0.0, Units.degreesToRadians(-rawDetections[i].ty), Units.degreesToRadians(-rawDetections[i].tx)));
             Transform3d cameraToTargetTransform = new Transform3d(cameraToTargetTranslation, new Rotation3d()); // TODO construct the transform for transforming the camera to a target
             
@@ -83,6 +88,12 @@ public class LimelightDetectionsClassifier extends SubsystemBase {
     }
 
     private static double getXYDistanceToTarget(LimelightTarget_Retro detection, double targetHeightOffGround) {
+
+        Transform3d robotToLL = new Transform3d(
+            ROBOT_TO_LL.getTranslation(),
+            new Rotation3d(ROBOT_TO_LL.getRotation().getX(), ROBOT_TO_LL.getRotation().getY(), Units.degreesToRadians(limelightYawDegrees.get()))
+        );
+
         // Define the vector
         double x = 1.0 * Math.tan(Units.degreesToRadians(detection.tx));
         double y = 1.0 * Math.tan(Units.degreesToRadians(detection.ty));
@@ -94,24 +105,30 @@ public class LimelightDetectionsClassifier extends SubsystemBase {
 
         // Rotate the vector by the camera pitch
         double xPrime = x;
-        Translation2d yzPrime = new Translation2d(y, z).rotateBy(new Rotation2d(ROBOT_TO_LL.getRotation().getY()));
+        Translation2d yzPrime = new Translation2d(y, z).rotateBy(new Rotation2d(robotToLL.getRotation().getY()));
         double yPrime = yzPrime.getX();
         double zPrime = yzPrime.getY();
 
         // Solve for the intersection
         double angleToGoalRadians = Math.asin(yPrime);
-        double diffHeight = targetHeightOffGround - ROBOT_TO_LL.getZ();
+        double diffHeight = targetHeightOffGround - robotToLL.getZ();
         double distance = diffHeight/Math.tan(angleToGoalRadians);
 
         return distance;
     }
 
     public static Pose3d targetPoseToRobotPose(Translation3d target, Pose3d robotPose, LimelightTarget_Retro detection) {
+
+        Transform3d robotToLL = new Transform3d(
+            ROBOT_TO_LL.getTranslation(),
+            new Rotation3d(ROBOT_TO_LL.getRotation().getX(), ROBOT_TO_LL.getRotation().getY(), Units.degreesToRadians(limelightYawDegrees.get()))
+        );
+
         double targetHeightOffGround = target.getZ();
         double xyDistanceToTarget = getXYDistanceToTarget(detection, targetHeightOffGround);
-        double distanceToTarget = Math.hypot(xyDistanceToTarget, targetHeightOffGround - ROBOT_TO_LL.getZ());
+        double distanceToTarget = Math.hypot(xyDistanceToTarget, targetHeightOffGround - robotToLL.getZ());
 
-        Pose3d estimatedCameraPose = robotPose.transformBy(ROBOT_TO_LL);        
+        Pose3d estimatedCameraPose = robotPose.transformBy(robotToLL);        
 
         Translation3d cameraToTargetTranslation = new Translation3d(distanceToTarget, new Rotation3d(0.0, Units.degreesToRadians(-detection.ty), Units.degreesToRadians(-detection.tx)));
         cameraToTargetTranslation = cameraToTargetTranslation.rotateBy(estimatedCameraPose.getRotation());
@@ -119,7 +136,7 @@ public class LimelightDetectionsClassifier extends SubsystemBase {
         Translation3d cameraTranslation = target.minus(cameraToTargetTranslation);
         Pose3d cameraPose = new Pose3d(cameraTranslation, estimatedCameraPose.getRotation());
 
-        Pose3d estimatedRobotPose = cameraPose.transformBy(ROBOT_TO_LL.inverse());
+        Pose3d estimatedRobotPose = cameraPose.transformBy(robotToLL.inverse());
 
         return estimatedRobotPose;
     }

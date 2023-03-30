@@ -15,6 +15,7 @@ import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
+import frc.robot.commons.Conversions;
 import frc.robot.commons.LoggedTunableNumber;
 
 import static frc.robot.Constants.FloorIntake.*;
@@ -77,6 +78,7 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
         inputs.rollerCurrentAmps = roller.getStatorCurrent();
         inputs.rollerAppliedVoltage = roller.getMotorOutputVoltage();
         inputs.rollerTempCelcius = roller.getTemperature();
+        inputs.rollerMotorSpeedRPM = Conversions.falconToRPM(roller.getSelectedSensorVelocity(), 1.0);
         inputs.angleDegrees = getAngle();
         inputs.angleDegreesCC = floorIntakeAzimuth.getPosition();
         inputs.velDegreesPerSecond = CANCoderSensorUnitsToDegreesPerSecond(deploy.getSelectedSensorVelocity());

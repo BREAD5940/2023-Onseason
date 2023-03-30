@@ -16,6 +16,7 @@ public class EndEffector {
 
     LoggedTunableNumber holdingPercent = new LoggedTunableNumber("EndEffector/HoldingPercent", 0.1);
     LoggedTunableNumber spitCubePercent = new LoggedTunableNumber("EndEffector/SpitCubePercent", -1.0);
+    LoggedTunableNumber spitLowPercent = new LoggedTunableNumber("EndEffector/SpitLowPercent", -0.5);
 
 
     /* Instantiate the IO instance in the constructor */
@@ -60,10 +61,16 @@ public class EndEffector {
         endEffectorIO.setCurrentLimit(80, 100.0);
     }
 
+    /* For spitting a piece low */
+    public void spitLow() {
+        endEffectorIO.setPercent(spitLowPercent.get());
+        endEffectorIO.setCurrentLimit(80, 100.0);
+    }
+
     /* For idling */
     public void idling() {
         endEffectorIO.setPercent(0.0);
-        endEffectorIO.setCurrentLimit(20, 30.0);
+        endEffectorIO.setCurrentLimit(0.0, 0.0);
     }
 
     /* For holding a cone while moving the elevator */
@@ -86,6 +93,11 @@ public class EndEffector {
     /* Returns the stator current of the end effector */
     public double getStatorCurrent() {
         return endEffectorInputs.avgStatorCurrentAmps;
+    }
+
+    /* Returns the rpm of the motor */
+    public double getMotorRPM() {
+        return endEffectorInputs.motorSpeed;
     }
 
     /* Returns whether the end effector's beam break is triggered */

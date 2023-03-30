@@ -140,7 +140,7 @@ public final class Constants {
         public static final double ELEVATOR_MAX_VELOCITY = (6380.0 * (10.5/12.0) * ELEVATOR_GEARING * ELEVATOR_PULLEY_PITCH_DIAMETER * Math.PI)/60.0;
 
         public static final double ELEVATOR_IDLE_POSE = 0.18;
-        public static final double ELEVATOR_THROW_POSE = 0.25;
+        public static final double ELEVATOR_THROW_POSE = 0.25 + Units.inchesToMeters(18.0);
         public static final double ELEVATOR_PRE_CUBE_HIGH = 0.88;
         public static final double ELEVATOR_PRE_CONE_HIGH = 1.21;
         public static final double ELEVATOR_CONE_SLAM_HIGH = 1.21;
@@ -208,7 +208,7 @@ public final class Constants {
         public static final TalonFXInvertType INVERSION = TalonFXInvertType.Clockwise;
 
         public static final double INTAKE_CONE_CURR_LIMIT = 70.0;
-        public static final double INTAKE_CUBE_CURR_LIMIT = 25.0;
+        public static final double INTAKE_CUBE_CURR_LIMIT = 20.0;
     }
 
     // Constants pertaining to the floor intake subsystem
@@ -230,7 +230,7 @@ public final class Constants {
         public static final double FLOOR_INTAKE_KF = 0.0;
         public static final double FLOOR_INTAKE_KG = 0.0;
 
-        public static final double FLOOR_INTAKE_ZERO = -5.0;
+        public static final double FLOOR_INTAKE_ZERO = -5.0; // -4.65
 
         public static final int FLOOR_INTAKE_AZIMUTH_ID = 32;
         public static final boolean FLOOR_INTAKE_AZIMUTH_INVERTED = true;
@@ -271,7 +271,7 @@ public final class Constants {
     // Constants pertaining to the LEDs 
     public static class LEDs {
         public static final int[] PURPLE = {255, 0, 255};
-        public static final int[] YELLOW = {255, 255, 0};
+        public static final int[] YELLOW = {255, 217, 0};
     }
 
     // Constants pertaining to robot locations on the field

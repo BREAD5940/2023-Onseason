@@ -59,6 +59,8 @@ public class AutoPlaceCommand extends CommandBase {
     private final Swerve swerve;
     private final Superstructure superstructure;
 
+    LoggedTunableNumber thetaP = new LoggedTunableNumber("AutoPlace/ThetaP", 5.0);
+
     public AutoPlaceCommand(Swerve swerve, Superstructure superstructure, Supplier<Integer> scoringLocationSup, Supplier<Level> levelSup) {
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
         this.swerve = swerve;
@@ -115,6 +117,8 @@ public class AutoPlaceCommand extends CommandBase {
 
     @Override
     public void execute() { 
+        thetaController.setP(thetaP.get());
+
         Pose2d realGoal = AllianceFlipUtil.apply(targetRobotPose);
         Pose2d poseError = realGoal.relativeTo(RobotContainer.poseEstimator.getLatestPose());
         if (Math.abs(poseError.getY()) > Units.inchesToMeters(6.0)) {
@@ -177,7 +181,7 @@ public class AutoPlaceCommand extends CommandBase {
                 superstructure.requestPreScore(level, isCubeNode ? GamePiece.CUBE : GamePiece.CONE);
             } 
         } else {
-            if (poseError.getTranslation().getNorm() < Units.inchesToMeters(5.0) && Math.abs(poseError.getRotation().getDegrees()) < 2.0 && !linedUp) {
+            if (poseError.getTranslation().getNorm() < Units.inchesToMeters(3.0) && Math.abs(poseError.getRotation().getDegrees()) < 2.0 && !linedUp) {
                 linedUp = true;
                 superstructure.requestPreScore(level, isCubeNode ? GamePiece.CUBE : GamePiece.CONE);
             } 
