@@ -44,7 +44,7 @@ public class ThreePieceBalanceMode extends SequentialCommandGroup {
             new TrajectoryFollowerCommand(Robot.threePieceD, swerve, true).alongWith(new SequentialCommandGroup(
                 new WaitCommand(Robot.threePieceD.getTotalTimeSeconds() - 1.76),
                 new InstantCommand(() -> superstructure.requestPreScore(Level.MID, GamePiece.CUBE)),
-                new WaitCommand(Robot.threePieceD.getTotalTimeSeconds() - 1.76 - 0.1),
+                new WaitCommand(Robot.threePieceD.getTotalTimeSeconds() - 1.76 - 0.3),
                 new InstantCommand(() -> superstructure.requestScore())
             )),
             new InstantCommand(() -> superstructure.requestIdle()),

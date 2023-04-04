@@ -272,13 +272,13 @@ public final class Constants {
     public static class LEDs {
         public static final int[] PURPLE = {255, 0, 255};
         public static final int[] YELLOW = {255, 217, 0};
+        public static final int[] GREEN = {0, 0, 255};
     }
 
     // Constants pertaining to robot locations on the field
     public static class RobotLocations {
         public static final Pose2d FIELD_SIDE_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(51.4), aprilTags.get(4).getY() - Units.inchesToMeters(29), new Rotation2d());
         public static final Pose2d WALL_SIDE_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(51.4), aprilTags.get(4).getY() + Units.inchesToMeters(29), new Rotation2d());
-
     }
   
 }

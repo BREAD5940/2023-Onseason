@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commons.BreadUtil;
 import frc.robot.commons.PoseEstimator;
 import frc.robot.drivers.LEDs;
 import frc.robot.autonomous.AutonomousSelector;
@@ -76,23 +77,23 @@ public class RobotContainer {
 
   private void configureControls() {
     swerve.setDefaultCommand(new RunCommand(() -> {
-      double x = driver.getRightY();
-      double y = driver.getRightX();
-      double omega = driver.getLeftX();
+      double x = BreadUtil.deadband(driver.getRightY(), 0.1);
+      double y = BreadUtil.deadband(driver.getRightX(), 0.1);
+      double omega = BreadUtil.deadband(driver.getLeftX(), 0.1);
 
       // Movement Outputs
       double scale = RobotContainer.driver.getLeftBumper() ? 0.25 : 1.0;
       double dx;
       double dy;
       if (Robot.alliance == DriverStation.Alliance.Blue) {
-        dx = Math.abs(x) > 0.05 ? Math.pow(-x, 1) * scale : 0.0;
-        dy = Math.abs(y) > 0.05 ? Math.pow(-y, 1) * scale : 0.0;
+        dx = Math.pow(-x, 1) * scale;
+        dy = Math.pow(-y, 1) * scale;
         
       } else {
-        dx = Math.abs(x) > 0.05 ? Math.pow(-x, 1) * scale * -1 : 0.0;
-        dy = Math.abs(y) > 0.05 ? Math.pow(-y, 1) * scale * -1 : 0.0;
+        dx = Math.pow(-x, 1) * scale * -1;
+        dy = Math.pow(-y, 1) * scale * -1;
       }
-      double rot = Math.abs(omega) > 0.1 ? Math.pow(-omega, 3) * 1.5 * scale : 0.0;
+      double rot = Math.pow(-omega, 3) * 1.5 * scale;
       swerve.requestPercent(new ChassisSpeeds(dx, dy, rot), true);
 
       // Sets the 0 of the robot

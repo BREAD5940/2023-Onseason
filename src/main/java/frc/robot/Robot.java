@@ -266,6 +266,10 @@ public class Robot extends LoggedRobot {
       RobotContainer.climber.requestDeploy();
     }
 
+    if (RobotContainer.driver.getBButtonPressed()) {
+      RobotContainer.superstructure.requestSpitCubeFront();
+    }
+
     if (RobotContainer.climber.getSystemState() != ClimberStates.RETRACTED
         && RobotContainer.climber.getSystemState() != ClimberStates.DEPLOYING) {
       if (RobotContainer.operator.getRightTriggerAxis() > 0.1) {

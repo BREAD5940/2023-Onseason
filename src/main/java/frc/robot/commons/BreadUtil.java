@@ -54,4 +54,12 @@ public class BreadUtil {
     public static boolean inBound(double val, double lowerBound, double higherBound, boolean inclusive) {
         return inclusive ? (lowerBound <= val && higherBound >= val) : (lowerBound < val && higherBound > val);
     }
+
+    // Deadband method
+    public static double deadband(double value, double tolerance) {
+        if (Math.abs(value) < tolerance)
+            return 0.0;
+
+        return Math.copySign(value, (value - tolerance) / (1.0 - tolerance));
+    }
 }

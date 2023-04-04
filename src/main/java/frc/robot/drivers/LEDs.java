@@ -4,9 +4,12 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.commons.BreadUtil;
 import frc.robot.subsystems.Superstructure.Level;
 
 import static frc.robot.Constants.LEDs.*;
+
+import org.littletonrobotics.junction.Logger;
 
 public class LEDs extends SubsystemBase {
     
@@ -16,7 +19,7 @@ public class LEDs extends SubsystemBase {
 
     /* Enum to keep track of currently selected color */
     private enum Color {
-        NA, PURPLE, YELLOW
+        NA, PURPLE, YELLOW, GREEN
     }
     
     /* Constructs the LEDs object */
@@ -45,21 +48,27 @@ public class LEDs extends SubsystemBase {
     @Override
     public void periodic() {
         int scoringLocation = RobotContainer.operatorControls.getLastSelectedScoringLocation();
+        double blinkTime = BreadUtil.getFPGATimeSeconds() * 10.0;
+        boolean blinkOn = ((int) blinkTime) % 2 == 0;
         Level level = RobotContainer.operatorControls.getLastSelectedLevel();
         boolean isCubeNode = scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8;
-        if (isCubeNode && selectedColor != Color.PURPLE && level != Level.LOW) {
+        if (blinkOn && RobotContainer.superstructure.hasGampiece()) {
+            setColor(GREEN[0], GREEN[1], GREEN[2]);
+            selectedColor = Color.GREEN;
+        } else if (!blinkOn && RobotContainer.superstructure.hasGampiece()) {
+            setColor(0, 0, 0);
+            selectedColor = Color.NA;
+        } else if (isCubeNode && selectedColor != Color.PURPLE && level != Level.LOW) {
             setColor(PURPLE[0], PURPLE[1], PURPLE[2]);
             selectedColor = Color.PURPLE;
-        }
-
-        if (!isCubeNode && selectedColor != Color.YELLOW && level != Level.LOW) {
+        } else if (!isCubeNode && selectedColor != Color.YELLOW && level != Level.LOW) {
             setColor(YELLOW[0], YELLOW[1], YELLOW[2]);
             selectedColor = Color.YELLOW;
-        }
-
-        if (level == Level.LOW && selectedColor != Color.PURPLE) {
+        } else if (level == Level.LOW && selectedColor != Color.PURPLE) {
             setColor(PURPLE[0], PURPLE[1], PURPLE[2]);
             selectedColor = Color.PURPLE;
-        }
+        } 
+
+        Logger.getInstance().recordOutput("SelectedLEDColor", selectedColor.toString());
     }
 }
