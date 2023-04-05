@@ -284,9 +284,6 @@ public class Robot extends LoggedRobot {
     if (RobotContainer.driver.getRightStickButtonPressed()) {
       RobotContainer.superstructure.requestThrow();
     }
-
-    AprilTagVision.setTrustLevel(RobotContainer.operator.getPOV() == 135 || RobotContainer.operator.getPOV() == 180
-        || RobotContainer.operator.getPOV() == 225);
   }
 
   @Override
