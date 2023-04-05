@@ -34,6 +34,7 @@ import frc.robot.subsystems.endeffector.EndEffectorIO;
 import frc.robot.subsystems.endeffector.EndEffectorIOTalonFX;
 import frc.robot.subsystems.floorintake.FloorIntakeIO;
 import frc.robot.subsystems.floorintake.FloorIntakeIOTalonFX;
+import frc.robot.subsystems.swerve.AlignChargeStationCommand;
 import frc.robot.subsystems.swerve.AutoPickupRoutine;
 import frc.robot.subsystems.swerve.AutoPlaceCommand;
 import frc.robot.subsystems.swerve.ManualPickupAssistCommand;
@@ -67,6 +68,7 @@ public class RobotContainer {
   public static final ClimberIOTalonFX climberIO = new ClimberIOTalonFX();
   public static final Climber climber = new Climber(climberIO);
   public static final LEDs leds = new LEDs(0, 74);
+  public static double dy;
 
   private static AutonomousSelector autonomousSelector;
 
@@ -84,7 +86,7 @@ public class RobotContainer {
       // Movement Outputs
       double scale = RobotContainer.driver.getLeftBumper() ? 0.25 : 1.0;
       double dx;
-      double dy;
+      
       if (Robot.alliance == DriverStation.Alliance.Blue) {
         dx = Math.pow(-x, 1) * scale;
         dy = Math.pow(-y, 1) * scale;
@@ -149,6 +151,7 @@ public class RobotContainer {
 
     new JoystickButton(driver, XboxController.Button.kX.value)
         .whileTrue(new AutoPlaceCommand(swerve, superstructure, () -> operatorControls.getLastSelectedScoringLocation(), () -> operatorControls.getLastSelectedLevel()));
+    
 
     // new JoystickButton(driver, XboxController.Button.kA.value)
     //     .whileTrue(new AutoPickupRoutine(driver::getAButton, driver::getBButton, swerve, superstructure));
@@ -157,8 +160,11 @@ public class RobotContainer {
     //     .whileTrue(new AutoPickupRoutine(driver::getAButton, driver::getBButton, swerve, superstructure));
 
     new JoystickButton(driver, XboxController.Button.kA.value)
-    .whileTrue(new ManualPickupAssistCommand(swerve, superstructure));
+      .whileTrue(new ManualPickupAssistCommand(swerve, superstructure));
 
+    // TODO: select a proper control to bind to
+    new JoystickButton(driver, XboxController.Button.kB.value)
+      .whileTrue(new AlignChargeStationCommand(swerve));
   }
 
   private void configureNorthstarVision() {
