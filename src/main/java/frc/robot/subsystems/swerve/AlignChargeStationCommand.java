@@ -74,7 +74,7 @@ public class AlignChargeStationCommand extends CommandBase {
       }
     } else {
       double y = BreadUtil.deadband(RobotContainer.driver.getRightX(), 0.1);
-      double scale = RobotContainer.driver.getLeftBumper() ? 0.25 : 1.0;
+      double scale = 0.25;
       double dy;
 
       if (Robot.alliance == DriverStation.Alliance.Blue) {
