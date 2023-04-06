@@ -30,6 +30,7 @@ public class AprilTagVision extends SubsystemBase {
 
         private static double xyStdDevCoefficient;
         private static double thetaStdDevCoefficient;
+        private static final double fieldBorderMargin = 0.5;
 
         private Supplier<Pose2d> poseSupplier = () -> new Pose2d();
         private Consumer<List<TimestampedVisionUpdate>> visionConsumer = (x) -> {};
@@ -168,6 +169,14 @@ public class AprilTagVision extends SubsystemBase {
                                 // Exit if no data
                                 if (cameraPose == null || robotPose == null) {
                                         continue;
+                                }
+
+                                // Exit if robot pose is off the field
+                                if (robotPose.getX() < -fieldBorderMargin
+                                || robotPose.getX() > FieldConstants.fieldLength + fieldBorderMargin
+                                || robotPose.getY() < -fieldBorderMargin
+                                || robotPose.getY() > FieldConstants.fieldWidth + fieldBorderMargin) {
+                                continue;
                                 }
 
                                 // Get tag poses and update last detection times
