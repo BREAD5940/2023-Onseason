@@ -1,6 +1,7 @@
 package frc.robot.subsystems.floorintake;
 
 import org.littletonrobotics.junction.AutoLog;
+import com.ctre.phoenix.ErrorCode;
 
 public interface FloorIntakeIO {
     @AutoLog
@@ -21,6 +22,9 @@ public interface FloorIntakeIO {
         public double deployPositionTarget = 0.0;
         public double deployVelocityTarget = 0.0;
         public double deployDutyCycle = 0.0;
+
+        public String lastDeployError = ErrorCode.OK.toString();
+        public String lastRollerError = ErrorCode.OK.toString();
     }
 
     /** Updates the set of loggable inputs */

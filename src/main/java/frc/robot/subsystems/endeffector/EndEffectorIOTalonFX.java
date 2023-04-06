@@ -17,11 +17,13 @@ import frc.robot.commons.Conversions;
 
 import static frc.robot.Constants.EndEffector.*;
 import static frc.robot.Constants.Electrical.*;
+import static frc.robot.Constants.FaultChecker.*;
 
 public class EndEffectorIOTalonFX implements EndEffectorIO {
     private TalonFX motor;
     private AveragingFilter filter = new AveragingFilter(13);
     private double mCurrentLimit = 0.0;
+    private int moterErrorWaitI = 0;
 
 
     public EndEffectorIOTalonFX() {
@@ -51,6 +53,12 @@ public class EndEffectorIOTalonFX implements EndEffectorIO {
         inputs.tempCelcius = motor.getTemperature();
         inputs.motorSpeed = Conversions.falconToRPM(motor.getSelectedSensorVelocity(), 1.0);
         inputs.beamBreakTriggered = motor.isFwdLimitSwitchClosed() == 1.0 ? true : false;
+
+        moterErrorWaitI++;
+		if (moterErrorWaitI >= LOOPS_PER_ERROR_CHECK) {
+			moterErrorWaitI = 0;
+        	inputs.lastError = motor.getLastError().toString();
+		}
     }
 
     @Override
@@ -74,6 +82,10 @@ public class EndEffectorIOTalonFX implements EndEffectorIO {
     @Override
     public void updateFilter() {
         filter.addSample(Math.abs(motor.getStatorCurrent()));
+    }
+
+    public void clearFault(){
+        motor.clearStickyFaults();
     }
 }
 

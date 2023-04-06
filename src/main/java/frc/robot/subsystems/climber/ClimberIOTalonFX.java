@@ -10,13 +10,13 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
 import frc.robot.commons.LoggedTunableNumber;
 
-
+import static frc.robot.Constants.FaultChecker.*;
 import static frc.robot.Constants.Climber.*;
 
 public class ClimberIOTalonFX implements ClimberIO {
 
     LoggedTunableNumber climbingFF = new LoggedTunableNumber("ClimbingFF", CLIMBING_FF);
-    
+
     /** Instantiate the hardware */
     private TalonFX climber = new TalonFX(CLIMBER_ID, "dabus");
 
@@ -24,6 +24,8 @@ public class ClimberIOTalonFX implements ClimberIO {
     private double mCurrentLimit = 0.0;
     private double mCurrentLimitTriggerThreshhold = 0.0;
     private double mcurrentLimitThresholdTime = 0.0;
+
+    private int moterErrorWaitI = 0;
 
     public ClimberIOTalonFX() {
         /* Climber configs */
@@ -52,6 +54,13 @@ public class ClimberIOTalonFX implements ClimberIO {
         inputs.forksDeployed = false;
         inputs.heightMeters = integratedSensorUnitsToMeters(climber.getSelectedSensorPosition());
         inputs.tempCelcius = climber.getTemperature();
+
+        moterErrorWaitI++;
+        if (moterErrorWaitI >= LOOPS_PER_ERROR_CHECK) {
+            moterErrorWaitI = 0;
+            inputs.lastClimberError = climber.getLastError().toString();
+            clearFault();
+        }
     }
 
     @Override
@@ -65,12 +74,15 @@ public class ClimberIOTalonFX implements ClimberIO {
     }
 
     @Override
-    public void setCurrentLimits(double currentLimit, double currentLimitTriggerThreshold, double currentLimitThresholdTime) {
-        if (currentLimit != mCurrentLimit || currentLimitTriggerThreshold != mCurrentLimitTriggerThreshhold || currentLimitThresholdTime != mcurrentLimitThresholdTime) {
+    public void setCurrentLimits(double currentLimit, double currentLimitTriggerThreshold,
+            double currentLimitThresholdTime) {
+        if (currentLimit != mCurrentLimit || currentLimitTriggerThreshold != mCurrentLimitTriggerThreshhold
+                || currentLimitThresholdTime != mcurrentLimitThresholdTime) {
             mCurrentLimit = currentLimit;
             mCurrentLimitTriggerThreshhold = currentLimitTriggerThreshold;
             mcurrentLimitThresholdTime = currentLimitThresholdTime;
-            climber.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, currentLimit, currentLimitTriggerThreshold, currentLimitThresholdTime));
+            climber.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, currentLimit,
+                    currentLimitTriggerThreshold, currentLimitThresholdTime));
         }
     }
 
@@ -80,11 +92,16 @@ public class ClimberIOTalonFX implements ClimberIO {
     }
 
     private double integratedSensorUnitsToMeters(double integratedSensorUnits) {
-        return integratedSensorUnits * ((CLIMBER_GEARING * Math.PI * CLIMBER_PULLEY_DIAMETER)/2048.0);
+        return integratedSensorUnits * ((CLIMBER_GEARING * Math.PI * CLIMBER_PULLEY_DIAMETER) / 2048.0);
     }
 
     private double metersToIntegratedSensorUnits(double meters) {
-        return meters * (2048.0/(CLIMBER_GEARING * Math.PI * CLIMBER_PULLEY_DIAMETER));
+        return meters * (2048.0 / (CLIMBER_GEARING * Math.PI * CLIMBER_PULLEY_DIAMETER));
     }
-    
+
+    /** resets sticky faults to allow error to change from anything back to "ok" */
+    public void clearFault(){
+        climber.clearStickyFaults();
+    }
+
 }

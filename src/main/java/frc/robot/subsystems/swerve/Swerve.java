@@ -62,6 +62,7 @@ public class Swerve extends SubsystemBase {
     private int[] steerErrCount = new int[4];
     private int[] driveErrCount = new int[4];
     private int[] azimuthErrCount = new int[4];
+    private int errCheckNum = 1;
 
     /* Swerve States Enum */
     enum SwerveState {
@@ -107,7 +108,7 @@ public class Swerve extends SubsystemBase {
             if(moduleInputs[i].lastAzimuthError != ErrorCode.OK.toString()){
                 azimuthErrCount[i]++;
             }
-            moduleIOs[i].clearFault();
+            errCheckNum++;
         }
         Logger.getInstance().recordOutput("Swerve/loopCycleTime",
                 Logger.getInstance().getRealTimestamp() / 1.0E6 - lastFPGATimestamp);
@@ -374,25 +375,28 @@ public class Swerve extends SubsystemBase {
 
     /** Returns the error concentration for the drive motor */
     public double getSteerErrorConc(int i){
-        return(steerErrCount[i]);
+        return(steerErrCount[i]/errCheckNum);
     }
 
     /** Returns the error concentration for the drive motor */
     public double getDriveErrorConc(int i){
-        return(driveErrCount[i]);
+        return(driveErrCount[i]/errCheckNum);
     }
 
     /** Returns the error concentration for the encoder */
     public double getAzimuthErrorConc(int i){
-        return(azimuthErrCount[i]);
+        return(azimuthErrCount[i]/errCheckNum);
     }
 
     /** Resets error counters */
     public void resetError(){
-        for(Integer i = 0; i < 4; i++){
+        int i = 0;
+        while(i<4){
             azimuthErrCount[i] = 0;
             steerErrCount[i] = 0;
             driveErrCount[i] = 0;
+            errCheckNum = 1;
+            i++;
         }
     }
 }

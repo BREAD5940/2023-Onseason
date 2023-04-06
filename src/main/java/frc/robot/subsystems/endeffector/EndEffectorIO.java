@@ -2,6 +2,8 @@ package frc.robot.subsystems.endeffector;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import com.ctre.phoenix.ErrorCode;
+
 public interface EndEffectorIO {
     @AutoLog
     public static class EndEffectorIOInputs {
@@ -12,6 +14,8 @@ public interface EndEffectorIO {
         public double tempCelcius = 0.0;
         public double motorSpeed = 0.0;
         public boolean beamBreakTriggered = false;
+
+        public String lastError = ErrorCode.OK.toString();
     }
 
     /** Updates the set of loggable inputs */

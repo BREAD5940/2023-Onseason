@@ -1,6 +1,7 @@
 package frc.robot.subsystems.climber;
 
 import org.littletonrobotics.junction.AutoLog;
+import com.ctre.phoenix.ErrorCode;
 
 /* Climber subsystem hardware interface */
 public interface ClimberIO {
@@ -11,6 +12,9 @@ public interface ClimberIO {
         public boolean forksDeployed = false;
         public double currentAmps = 0.0;
         public double tempCelcius = 0.0;
+
+        public String lastClimberError = ErrorCode.OK.toString();
+
     }
 
     /* Updates the set of loggable inputs */

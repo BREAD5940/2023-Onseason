@@ -1,5 +1,5 @@
 package frc.robot.subsystems.elevatorarm;
-
+import com.ctre.phoenix.ErrorCode;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ArmIO {
@@ -15,6 +15,9 @@ public interface ArmIO {
         public double tempCelcius = 0.0;
         public double armTargetPosition = 0.0;
         public double armTargetVelocity = 0.0;
+
+        public String lastArmError = ErrorCode.OK.toString();
+        public String lastArmAzimuthError = ErrorCode.OK.toString();
     }
 
     /** Updates the set of loggable inputs */

@@ -6,6 +6,7 @@ import java.net.InetAddress;
 
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.Superstructure;
 import edu.wpi.first.hal.can.CANJNI;
 import edu.wpi.first.hal.can.CANStatus;
 import edu.wpi.first.math.Pair;
@@ -99,19 +100,23 @@ public class FaultChecker {
         }
 
         ArrayList<Pair<Boolean, String>> CANerrors = new ArrayList<>();
-        //CANerrors.add(new Pair<Boolean, String>(RobotContainer.climber.getClimberErrorConc(), "ClimberErrorConc"));
-        //CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getDeployErrorConc() > allowableCANerror, "DeployErrorConc"));
-        //CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getRollerErrorConc() > allowableCANerror, "RollerErrorConc"));
-        //CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getFollowerErrorConc() > allowableCANerror, "FollowerErrorConc"));
-        //CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getLeaderErrorConc() > allowableCANerror, "LeaderErrorConc"));
-        //CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getArmAzimuthErrorConc() > allowableCANerror, "ArmAzimuthErrorConc"));
-        //CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getArmErrorConc() > allowableCANerror, "ArmErrorConc"));
-        //CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getEndEffectorErrorConc() > allowableCANerror, "EndEffectorErrorConc"));
+        CANerrors.add(new Pair<Boolean, String>(RobotContainer.climber.getClimberErrorConc() > allowableCANerror, "ClimberErrorConc"));
+        CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getDeployErrorConc() > allowableCANerror, "DeployErrorConc"));
+        CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getRollerErrorConc() > allowableCANerror, "RollerErrorConc"));
+        CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getFollowerErrorConc() > allowableCANerror, "FollowerErrorConc"));
+        CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getLeaderErrorConc() > allowableCANerror, "LeaderErrorConc"));
+        CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getArmAzimuthErrorConc() > allowableCANerror, "ArmAzimuthErrorConc"));
+        CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getArmErrorConc() > allowableCANerror, "ArmErrorConc"));
+        CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getEndEffectorErrorConc() > allowableCANerror, "EndEffectorErrorConc"));
+
+        RobotContainer.superstructure.resetError();
+        
         for (int i = 0; i < 4; i++) {
             CANerrors.add(new Pair<Boolean, String>(RobotContainer.swerve.getDriveErrorConc(i) > allowableCANerror, "DriveErrorConc " + swerveOrder[i]));
             CANerrors.add(new Pair<Boolean, String>(RobotContainer.swerve.getSteerErrorConc(i) > allowableCANerror, "SteerErrorConc " + swerveOrder[i]));
             CANerrors.add(new Pair<Boolean, String>(RobotContainer.swerve.getAzimuthErrorConc(i) > allowableCANerror, "AzimuthErrorConc " + swerveOrder[i]));
         }
+        RobotContainer.swerve.resetError();        
         
         for (Pair<Boolean, String> CANerror : CANerrors) {
             if (CANerror.getFirst()) {

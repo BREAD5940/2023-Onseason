@@ -4,6 +4,7 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commons.BreadUtil;
+import com.ctre.phoenix.ErrorCode;
 
 import static frc.robot.Constants.Climber.*;
 
@@ -20,6 +21,10 @@ public class Climber extends SubsystemBase {
     private boolean requestIdle = false;
     private double openLoopRunPercent = 0.0;
     private ClimberStates systemState = ClimberStates.RETRACTED;
+
+    // For fault detection
+    private int climberErrCount = 0;
+    private int errCheckNum = 1;
 
     public enum ClimberStates {
         RETRACTED,
@@ -39,6 +44,12 @@ public class Climber extends SubsystemBase {
         climberIO.updateInputs(climberInputs);
         Logger.getInstance().processInputs("Climber", climberInputs);
         Logger.getInstance().recordOutput("ClimberState", systemState.toString());
+
+        /* Fault Handling stuffs */
+        if(climberInputs.lastClimberError != ErrorCode.OK.toString()){
+            climberErrCount++;
+        }
+        errCheckNum++;
 
         ClimberStates nextSystemState = systemState;
 
@@ -112,5 +123,16 @@ public class Climber extends SubsystemBase {
     public boolean atSetpoint(double setpoint) {
         return BreadUtil.atReference(climberInputs.heightMeters, setpoint, CLIMBER_SETPOINT_TOLERANCE, true);
     }
+
+    /** Returns the Error concentration for the following elevator motor */
+    public double getClimberErrorConc(){
+        return(climberErrCount/errCheckNum);
+    }
+
+    /** Resets error counters */
+    public void resetError(){
+        climberErrCount = 0;
+        errCheckNum = 1;
+    }  
     
 }

@@ -18,6 +18,9 @@ public class EndEffector {
     LoggedTunableNumber spitCubePercent = new LoggedTunableNumber("EndEffector/SpitCubePercent", -1.0);
     LoggedTunableNumber spitLowPercent = new LoggedTunableNumber("EndEffector/SpitLowPercent", -0.5);
 
+    // For fault detection
+    private int ErrCount = 0;
+    private int errCheckNum = 1;
 
     /* Instantiate the IO instance in the constructor */
     public EndEffector(EndEffectorIO endEffectorIO) {
@@ -103,5 +106,16 @@ public class EndEffector {
     /* Returns whether the end effector's beam break is triggered */
     public boolean getBeamBreakTriggered() {
         return endEffectorInputs.beamBreakTriggered;
+    }
+
+    /** Returns the Error concentration for the end effector motor */
+    public double getEndEffectorErrorConc(){
+        return(ErrCount/errCheckNum);
+    }
+
+    /** Resets error counters */
+    public void resetError(){
+        ErrCount = 0;
+        errCheckNum = 1;
     }
 }

@@ -3,6 +3,8 @@ package frc.robot.subsystems.elevatorarm;
 import static frc.robot.Constants.Arm.*;
 import static frc.robot.Constants.Elevator.*;
 
+import com.ctre.phoenix.ErrorCode;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
@@ -22,6 +24,13 @@ public class ElevatorArmLowLevel {
     private boolean moveElevatorSlowly = false;
     private double heightSetpoint = 0.0;
     private double angleSetpoint = 0.0;
+
+    // For fault detection
+    private int followerErrCount = 0;
+    private int leaderErrCount = 0;
+    private int armErrCount = 0;
+    private int armAzimuthErrCount = 0;
+    private int errCheckNum = 1;
 
     /** Instantiate the IO classes */
     public ArmIO armIO;
@@ -56,6 +65,22 @@ public class ElevatorArmLowLevel {
         desiredState = new double[] {elevatorHeight, armAngle};
 
         elevatorIO.updateInputs(elevatorInputs);
+
+        /* Fault Handling stuffs */
+        if(elevatorInputs.lastFollowerError != ErrorCode.OK.toString()){
+            followerErrCount++;
+        }
+        if(elevatorInputs.lastLeaderError != ErrorCode.OK.toString()){
+            leaderErrCount++;
+        }
+        if(armInputs.lastArmError != ErrorCode.OK.toString()){
+            armAzimuthErrCount++;
+        }
+        if(armInputs.lastArmError != ErrorCode.OK.toString()){
+            armErrCount++;
+        }
+        errCheckNum++;
+
         elevatorIO.updateTunableNumbers();
         armIO.updateTunableNumbers();
         armIO.updateInputs(armInputs);
@@ -173,4 +198,32 @@ public class ElevatorArmLowLevel {
         return systemState;
     }
 
+    /* Returns the error concentration for the arm motor */
+    public double getArmErrorConc(){
+        return(armErrCount/errCheckNum);
+    }
+
+    /* Returns the error concentration for the arm encoder */
+    public double getArmAzimuthErrorConc(){
+        return(armAzimuthErrCount/errCheckNum);
+    }
+
+    /* Returns the error concentration for the leading elevator motor */
+    public double getLeaderErrorConc(){
+        return(leaderErrCount/errCheckNum);
+    }
+
+    /* Returns the Error concentration for the following elevator motor */
+    public double getFollowerErrorConc(){
+        return(followerErrCount/errCheckNum);
+    }
+
+    /* Resets error counters */
+    public void resetError(){
+        armErrCount = 0;
+        armAzimuthErrCount = 0;
+        followerErrCount = 0;
+        leaderErrCount = 0;
+        errCheckNum = 1;
+    }
 }

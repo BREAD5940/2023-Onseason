@@ -41,6 +41,7 @@ import frc.robot.commons.Alert.AlertType;
 
 import static frc.robot.Constants.Drive.*;
 import static frc.robot.Constants.Electrical.*;
+import static frc.robot.Constants.FaultChecker.*;
 
 public class ModuleIOTalonFX implements ModuleIO {
 
@@ -48,16 +49,15 @@ public class ModuleIOTalonFX implements ModuleIO {
     private final TalonFX steer;
     private final double offset;
     public final CANCoder azimuth;
-    public double[] desiredState = {0, 0};
-    private String lastSteerError;
-	private String lastDriveError;
-	private String lastAzimuthError;
-    
+    public double[] desiredState = { 0, 0 };
 
     private DutyCycleOut dutyCycleOut = new DutyCycleOut(0.0, true, false);
     private VelocityVoltage velocityVoltageOut = new VelocityVoltage(0.0, true, 0.0, 0, false);
 
-    public ModuleIOTalonFX(int driveID, int steerID, int azimuthID, Rotation2d offset, InvertedValue driveDirection, TalonFXInvertType steerReversed, boolean azimuthReversed, String moduleIdentifier) {
+    int moterErrorWaitI = 0;
+
+    public ModuleIOTalonFX(int driveID, int steerID, int azimuthID, Rotation2d offset, InvertedValue driveDirection,
+            TalonFXInvertType steerReversed, boolean azimuthReversed, String moduleIdentifier) {
         this.offset = offset.getDegrees();
 
         // Configure the driving motor
@@ -73,7 +73,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         slot0Configs.kI = wheelSpeedMetersPerSecondToIntegratedSensorUnits(0.0) * 10.0;
         slot0Configs.kD = wheelSpeedMetersPerSecondToIntegratedSensorUnits(0.000004) * 10.0;
         slot0Configs.kS = 0.6;
-        slot0Configs.kV = 10.7/wheelSpeedMetersPerSecondToIntegratedSensorUnits(ROBOT_MAX_SPEED);
+        slot0Configs.kV = 10.7 / wheelSpeedMetersPerSecondToIntegratedSensorUnits(ROBOT_MAX_SPEED);
 
         MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
         motorOutputConfigs.Inverted = driveDirection;
@@ -94,7 +94,7 @@ public class ModuleIOTalonFX implements ModuleIO {
 
         // Create CAN Coder object
         azimuth = new CANCoder(azimuthID, CANIVORE_BUS_NAME);
-        azimuth.configMagnetOffset(0.0); 
+        azimuth.configMagnetOffset(0.0);
         azimuth.configSensorDirection(false);
         azimuth.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
         azimuth.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
@@ -123,7 +123,8 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     @Override
     public void updateInputs(ModuleIOInputs inputs) {
-        inputs.driveVelocityMetersPerSec = integratedSensorUnitsToWheelSpeedMetersPerSecond(drive.getRotorVelocity().getValue());
+        inputs.driveVelocityMetersPerSec = integratedSensorUnitsToWheelSpeedMetersPerSecond(
+                drive.getRotorVelocity().getValue());
         inputs.driveAppliedVolts = drive.getDutyCycle().getValue() * drive.getSupplyVoltage().getValue();
         inputs.driveCurrentAmps = drive.getStatorCurrent().getValue();
         inputs.driveTempCelcius = drive.getDeviceTemp().getValue();
@@ -131,22 +132,25 @@ public class ModuleIOTalonFX implements ModuleIO {
         inputs.driveOutputPercent = drive.get();
         inputs.rawDriveRPM = drive.getRotorVelocity().getValue();
 
-        inputs.moduleAngleRads = Units.degreesToRadians(Conversions.falconToDegrees(steer.getSelectedSensorPosition(), STEER_GEARING));
+        inputs.moduleAngleRads = Units
+                .degreesToRadians(Conversions.falconToDegrees(steer.getSelectedSensorPosition(), STEER_GEARING));
         inputs.rawAbsolutePositionDegrees = azimuth.getAbsolutePosition();
         inputs.turnAppliedVolts = steer.getMotorOutputVoltage();
         inputs.turnCurrentAmps = steer.getStatorCurrent();
         inputs.turnTempCelcius = steer.getTemperature();
 
-        inputs.lastSteerError = steer.getLastError().toString();
-        lastSteerError = inputs.lastSteerError;
-        if(drive.isAlive()){
-            inputs.lastDriveError = "OK";
-        } else {
-            inputs.lastDriveError = "Not Alive";
-        }
-        lastDriveError = inputs.lastDriveError;
-		inputs.lastAzimuthError = azimuth.getLastError().toString();
-		lastAzimuthError = inputs.lastAzimuthError;
+        moterErrorWaitI++;
+		if (moterErrorWaitI >= LOOPS_PER_ERROR_CHECK) {
+			moterErrorWaitI = 0;
+            if(drive.isAlive() == false){
+                inputs.lastDriveError = "NC";
+            } else {
+                inputs.lastDriveError = "OK";
+            }
+        	inputs.lastSteerError = steer.getLastError().toString();
+            inputs.lastAzimuthError = azimuth.getLastError().toString();
+            clearFault();
+		}
     }
 
     @Override
@@ -178,21 +182,25 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     @Override
     public void resetToAbsolute() {
-        double absolutePosition = Conversions.degreesToFalcon(getCanCoderAbsolutePosition().getDegrees() - offset, STEER_GEARING);
+        double absolutePosition = Conversions.degreesToFalcon(getCanCoderAbsolutePosition().getDegrees() - offset,
+                STEER_GEARING);
         steer.setSelectedSensorPosition(absolutePosition);
         if (steer.getSelectedSensorPosition() == 0.0) {
-            new Alert("Steer motor with id " + steer.getDeviceID() + "did not zero properly. Please restart robot or align it properly before match begins.", AlertType.ERROR);
+            new Alert(
+                    "Steer motor with id " + steer.getDeviceID()
+                            + "did not zero properly. Please restart robot or align it properly before match begins.",
+                    AlertType.ERROR);
         }
     }
 
     /** Converts CANCoder sensor units to radians */
     private final double CANCoderSensorUnitsToRadians(double sensorUnits) {
-        return sensorUnits * (2.0 * Math.PI)/CANCODER_RESOLUTION;
+        return sensorUnits * (2.0 * Math.PI) / CANCODER_RESOLUTION;
     }
 
     /** Converts radians to CANCoder sensor units */
     private final double radiansToCANCoderSensorUnits(double radians) {
-        return radians * CANCODER_RESOLUTION/(2.0 * Math.PI);
+        return radians * CANCODER_RESOLUTION / (2.0 * Math.PI);
     }
 
     /** Converts integrated sensor units to wheel speed meters per second */
@@ -202,7 +210,7 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     /** Converts wheel speed meters per second to integrated sensor units */
     private final double wheelSpeedMetersPerSecondToIntegratedSensorUnits(double wheelSpeed) {
-        return wheelSpeed/(DRIVE_GEARING * 2.0 * Math.PI * WHEEL_RADIUS);
+        return wheelSpeed / (DRIVE_GEARING * 2.0 * Math.PI * WHEEL_RADIUS);
     }
 
     /** Converts integrated sensor units to wheel speed meters per second */
@@ -213,23 +221,17 @@ public class ModuleIOTalonFX implements ModuleIO {
     /** Converts wheel speed meters per second to integrated sensor units */
     private final double wheelPositionMetersToIntegratedSensorUnits(double wheelSpeed) {
         return wheelSpeedMetersPerSecondToIntegratedSensorUnits(wheelSpeed);
-    }  
+    }
 
     /** Returns a rotation2d representing the angle of the CANCoder object */
     public Rotation2d getCanCoderAbsolutePosition() {
         return Rotation2d.fromDegrees(azimuth.getAbsolutePosition());
     }
-    
+
     @Override
-    public void clearFault(){
-		if(lastAzimuthError != "OK"){
-			azimuth.clearStickyFaults();
-		}
-		if(lastSteerError != "OK"){
-			steer.clearStickyFaults();
-		}
-		if(lastDriveError != "OK"){
-			drive.clearStickyFaults();
-		} 
+    public void clearFault() {
+        azimuth.clearStickyFaults();
+        steer.clearStickyFaults();
+        drive.clearStickyFaults();
     }
 }

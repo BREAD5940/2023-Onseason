@@ -1,6 +1,7 @@
 package frc.robot.subsystems.floorintake;
 
 import org.littletonrobotics.junction.Logger;
+import com.ctre.phoenix.ErrorCode;
 
 import frc.robot.commons.BreadUtil;
 import frc.robot.commons.LoggedTunableNumber;
@@ -23,8 +24,12 @@ public class FloorIntake {
     public enum FloorIntakeStates {
         IDLE,
         CLOSED_LOOP
-
     }
+
+    // For fault detection
+    private int deployErrCount = 0;
+    private int rollerErrCount = 0;
+    private int errCheckNum = 1;
 
     /* Instantiate IO class in the constructor */
     public FloorIntake(FloorIntakeIO floorIntakeIO) {
@@ -38,6 +43,14 @@ public class FloorIntake {
         Logger.getInstance().processInputs("FloorIntake", floorIntakeInputs);
         Logger.getInstance().recordOutput("FloorIntakeSetpoint", closedLoopSetpoint[1]);
         Logger.getInstance().recordOutput("FloorIntakeState", systemState.toString());
+
+        if(floorIntakeInputs.lastDeployError != ErrorCode.OK.toString()){
+            deployErrCount++;
+        }
+        if(floorIntakeInputs.lastRollerError != ErrorCode.OK.toString()){
+            rollerErrCount++;
+        }
+        errCheckNum++;
 
         FloorIntakeStates nextSystemState = systemState;
 
@@ -110,6 +123,23 @@ public class FloorIntake {
     /** Zeros sensors */
     public void zeroSensors() {
         floorIntakeIO.resetAngle();
+    }
+
+    /** Returns the Error concentration for the intake roller motor */
+    public double getRollerErrorConc() {
+        return (rollerErrCount / errCheckNum);
+    }
+
+    /** Returns the Error concentration for the intake deploy motor */
+    public double getDeployErrorConc() {
+        return (deployErrCount / errCheckNum);
+    }
+
+    /** Resets error counters */
+    public void resetError() {
+        deployErrCount = 0;
+        rollerErrCount = 0;
+        errCheckNum = 1;
     }
 
 }

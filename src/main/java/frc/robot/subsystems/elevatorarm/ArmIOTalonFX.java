@@ -11,6 +11,7 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
+import static frc.robot.Constants.FaultChecker.*;
 import static frc.robot.Constants.Arm.*;
 public class ArmIOTalonFX implements ArmIO {
 
@@ -18,7 +19,7 @@ public class ArmIOTalonFX implements ArmIO {
     CANCoder armAzimuth = new CANCoder(ARM_AZIMUTH_ID);
 
     double lastVelocityTarget = 0.0;
-
+    private int moterErrorWaitI = 0;
     public static void main(String[] args) {        
         
     }
@@ -68,6 +69,14 @@ public class ArmIOTalonFX implements ArmIO {
         inputs.tempCelcius = arm.getTemperature();
         inputs.armTargetPosition = CANCoderSensorUnitsToDegrees(arm.getActiveTrajectoryPosition());
         inputs.armTargetVelocity = CANCoderSensorUnitsToDegreesPerSecond(arm.getActiveTrajectoryVelocity());
+        
+        moterErrorWaitI++;
+		if (moterErrorWaitI >= LOOPS_PER_ERROR_CHECK) {
+			moterErrorWaitI = 0;
+			inputs.lastArmAzimuthError = armAzimuth.getLastError().toString();
+			inputs.lastArmError = arm.getLastError().toString();
+            clearFault();
+		}
     }
 
     @Override
@@ -132,4 +141,9 @@ public class ArmIOTalonFX implements ArmIO {
         return CANCoderSensorUnitsToDegrees(arm.getSelectedSensorPosition());
     }
 
+    /* resets sticky faults to allow error to change from anything back to "ok" */
+    public void clearFault(){
+        arm.clearStickyFaults();
+        armAzimuth.clearStickyFaults();
+    }
 }

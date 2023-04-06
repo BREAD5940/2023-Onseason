@@ -15,11 +15,13 @@ import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
+import frc.robot.Constants.Drive;
 import frc.robot.commons.Conversions;
 import frc.robot.commons.LoggedTunableNumber;
 
 import static frc.robot.Constants.FloorIntake.*;
 import static frc.robot.Constants.Electrical.*;
+import static frc.robot.Constants.FaultChecker.*;
 
 public class FloorIntakeIOTalonFX implements FloorIntakeIO {
     
@@ -30,6 +32,8 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
     private double mCurrentLimit = 0.0;
     private double mCurrentLimitTriggerThreshhold = 0.0;
     private double mcurrentLimitThresholdTime = 0.0;
+
+    private int moterErrorWaitI = 0;
     
     LoggedTunableNumber kP = new LoggedTunableNumber("FloorIntake/kP", FLOOR_INTAKE_KP);
     LoggedTunableNumber kD = new LoggedTunableNumber("FloorIntake/kD", FLOOR_INTAKE_KD);
@@ -89,6 +93,14 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
         inputs.deployPositionTarget = CANCoderSensorUnitsToDegrees(deploy.getActiveTrajectoryPosition());
         inputs.deployVelocityTarget = CANCoderSensorUnitsToDegreesPerSecond(deploy.getActiveTrajectoryVelocity());
         inputs.deployDutyCycle = deploy.getMotorOutputPercent();
+
+        moterErrorWaitI++;
+		if (moterErrorWaitI >= LOOPS_PER_ERROR_CHECK) {
+			moterErrorWaitI = 0;
+        	inputs.lastDeployError = deploy.getLastError().toString();
+        	inputs.lastRollerError = roller.getLastError().toString();
+            clearFault();
+		}
     }
 
     @Override
@@ -181,6 +193,12 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
     /* Returns the angle of the intake */
     private double getAngle() {
         return CANCoderSensorUnitsToDegrees(deploy.getSelectedSensorPosition());
+    }
+
+    /** resets sticky faults to allow error to change from anything back to "ok" */
+    public void clearFault(){
+        deploy.clearStickyFaults();
+        roller.clearStickyFaults();
     }
  
 }
