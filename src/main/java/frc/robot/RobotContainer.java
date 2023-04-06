@@ -162,8 +162,7 @@ public class RobotContainer {
     new JoystickButton(driver, XboxController.Button.kA.value)
       .whileTrue(new ManualPickupAssistCommand(swerve, superstructure));
 
-    // TODO: select a proper control to bind to
-    new JoystickButton(driver, XboxController.Button.kB.value)
+    new JoystickButton(driver, XboxController.Button.kRightStick.value)
       .whileTrue(new AlignChargeStationCommand(swerve));
   }
 
