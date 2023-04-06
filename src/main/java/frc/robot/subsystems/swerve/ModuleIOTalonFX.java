@@ -49,6 +49,10 @@ public class ModuleIOTalonFX implements ModuleIO {
     private final double offset;
     public final CANCoder azimuth;
     public double[] desiredState = {0, 0};
+    private String lastSteerError;
+	private String lastDriveError;
+	private String lastAzimuthError;
+    
 
     private DutyCycleOut dutyCycleOut = new DutyCycleOut(0.0, true, false);
     private VelocityVoltage velocityVoltageOut = new VelocityVoltage(0.0, true, 0.0, 0, false);
@@ -132,6 +136,17 @@ public class ModuleIOTalonFX implements ModuleIO {
         inputs.turnAppliedVolts = steer.getMotorOutputVoltage();
         inputs.turnCurrentAmps = steer.getStatorCurrent();
         inputs.turnTempCelcius = steer.getTemperature();
+
+        inputs.lastSteerError = steer.getLastError().toString();
+        lastSteerError = inputs.lastSteerError;
+        if(drive.isAlive()){
+            inputs.lastDriveError = "OK";
+        } else {
+            inputs.lastDriveError = "Not Alive";
+        }
+        lastDriveError = inputs.lastDriveError;
+		inputs.lastAzimuthError = azimuth.getLastError().toString();
+		lastAzimuthError = inputs.lastAzimuthError;
     }
 
     @Override
@@ -205,4 +220,16 @@ public class ModuleIOTalonFX implements ModuleIO {
         return Rotation2d.fromDegrees(azimuth.getAbsolutePosition());
     }
     
+    @Override
+    public void clearFault(){
+		if(lastAzimuthError != "OK"){
+			azimuth.clearStickyFaults();
+		}
+		if(lastSteerError != "OK"){
+			steer.clearStickyFaults();
+		}
+		if(lastDriveError != "OK"){
+			drive.clearStickyFaults();
+		} 
+    }
 }
