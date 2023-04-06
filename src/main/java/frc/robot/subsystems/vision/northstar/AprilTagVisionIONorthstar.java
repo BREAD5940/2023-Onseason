@@ -18,6 +18,7 @@ import frc.robot.commons.Alert.AlertType;
 public class AprilTagVisionIONorthstar implements AprilTagVisionIO {
     private final DoubleArraySubscriber observationSubscriber;
     private final IntegerSubscriber fpsSubscriber;
+    private final IntegerSubscriber versionSubscriber;
 
     private static final double disconnectedTimeout = 1.5;
     private final Alert disconnectedAlert;
@@ -32,6 +33,7 @@ public class AprilTagVisionIONorthstar implements AprilTagVisionIO {
                 .subscribe(
                         new double[] {}, PubSubOption.keepDuplicates(true), PubSubOption.sendAll(true));
         fpsSubscriber = outputTable.getIntegerTopic("fps").subscribe(0);
+        versionSubscriber = outputTable.getIntegerTopic("version").subscribe(1);
 
         disconnectedAlert = new Alert("No data from \"" + identifier + "\"", AlertType.ERROR);
         disconnectedTimer.start();
@@ -46,6 +48,7 @@ public class AprilTagVisionIONorthstar implements AprilTagVisionIO {
             inputs.frames[i] = queue[i].value;
         }
         inputs.fps = fpsSubscriber.get();
+        inputs.version = versionSubscriber.get();
 
         // Update disconnected alert
         if (queue.length > 0) {
