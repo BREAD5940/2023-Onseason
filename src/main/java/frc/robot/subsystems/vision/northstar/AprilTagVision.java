@@ -40,6 +40,10 @@ public class AprilTagVision extends SubsystemBase {
         private Supplier<Pose2d> poseSupplier = () -> new Pose2d();
         private Consumer<List<TimestampedVisionUpdate>> visionConsumer = (x) -> {};
         private Map<Integer, Double> lastDetectionTimeIds = new HashMap<>();
+        private Pose2d currentPose;
+        private List<TimestampedVisionUpdate> visionUpdates;
+        private List<Pose2d> allRobotPoses;
+
 
         static {
                 cameraPoses = new Pose3d[] {
@@ -87,9 +91,9 @@ public class AprilTagVision extends SubsystemBase {
                 }
 
                 // Loop over instances
-                Pose2d currentPose = poseSupplier.get();
-                List<Pose2d> allRobotPoses = new ArrayList<>();
-                List<TimestampedVisionUpdate> visionUpdates = new ArrayList<>();
+                currentPose = poseSupplier.get();
+                allRobotPoses = new ArrayList<>();
+                visionUpdates = new ArrayList<>();
                 
                 for (int instanceIndex = 0; instanceIndex < io.length; instanceIndex++) {
                         List<Pose2d> visionPose2ds = new ArrayList<>();
@@ -111,201 +115,12 @@ public class AprilTagVision extends SubsystemBase {
 
                                 switch (version) {
                                         case 1:
-                                                // Loop over observations
-                                                for (int i = 0; i < values.length; i += 15) {
-                                                        // Get observation data
-                                                        int tagId = (int) values[i];
-                                                        var pose0 = openCVPoseToWPILibPose(
-                                                                        VecBuilder.fill(values[i + 1], values[i + 2], values[i + 3]),
-                                                                        VecBuilder.fill(values[i + 4], values[i + 5], values[i + 6]));
-                                                        var error0 = values[i + 7];
-                                                        var pose1 = openCVPoseToWPILibPose(
-                                                                        VecBuilder.fill(values[i + 8], values[i + 9], values[i + 10]),
-                                                                        VecBuilder.fill(values[i + 11], values[i + 12],
-                                                                                        values[i + 13]));
-                                                        var error1 = values[i + 14];
-
-                                                        // Calculate robot poses
-                                                        var fieldToTag = FieldConstants.aprilTags.get(tagId);
-                                                        if (fieldToTag == null) {
-                                                                continue;
-                                                        }
-                                                        var robotPose0 = fieldToTag
-                                                                        .transformBy(GeomUtil.pose3dToTransform3d(pose0).inverse())
-                                                                        .transformBy(GeomUtil
-                                                                                        .pose3dToTransform3d(cameraPoses[instanceIndex])
-                                                                                        .inverse());
-                                                        var robotPose1 = fieldToTag
-                                                                        .transformBy(GeomUtil.pose3dToTransform3d(pose1).inverse())
-                                                                        .transformBy(GeomUtil
-                                                                                        .pose3dToTransform3d(cameraPoses[instanceIndex])
-                                                                                        .inverse());
-
-                                                        // Choose better pose
-                                                        Pose3d robotPose3d;
-                                                        Pose2d robotPose;
-                                                        Pose3d tagPose;
-                                                        if (error0 < error1 * ambiguityThreshold) {
-                                                                robotPose = robotPose0.toPose2d();
-                                                                robotPose3d = robotPose0;
-                                                                tagPose = pose0;
-                                                        } else if (error1 < error0 * ambiguityThreshold) {
-                                                                robotPose = robotPose1.toPose2d();
-                                                                robotPose3d = robotPose1;
-                                                                tagPose = pose1;
-                                                        } else if (Math.abs(
-                                                                        robotPose0.toPose2d().getRotation()
-                                                                                        .minus(currentPose.getRotation())
-                                                                                        .getRadians()) < Math
-                                                                                                        .abs(robotPose1.toPose2d()
-                                                                                                                        .getRotation()
-                                                                                                                        .minus(currentPose
-                                                                                                                                        .getRotation())
-                                                                                                                        .getRadians())) {
-                                                                robotPose = robotPose0.toPose2d();
-                                                                robotPose3d = robotPose0;
-                                                                tagPose = pose0;
-                                                        } else {
-                                                                robotPose = robotPose1.toPose2d();
-                                                                tagPose = pose1;
-                                                                robotPose3d = robotPose1;
-                                                        }
-
-
-                                                        // Exit if no data
-                                                        if (cameraPose == null || robotPose == null) {
-                                                                continue;
-                                                        }
-
-                                                        // Exit if robot pose is off the field
-                                                        if (robotPose.getX() < -fieldBorderMargin
-                                                        || robotPose.getX() > FieldConstants.fieldLength + fieldBorderMargin
-                                                        || robotPose.getY() < -fieldBorderMargin
-                                                        || robotPose.getY() > FieldConstants.fieldWidth + fieldBorderMargin) {
-                                                                continue;
-                                                        }
-
-
-                                                        // Log tag pose
-                                                        tagPose3ds.add(tagPose);
-                                                        tagIds.add(tagId);
-                                                        lastDetectionTimeIds.put(tagId, Timer.getFPGATimestamp());
-
-                                                        // Add to vision updates
-                                                        double tagDistance = tagPose.getTranslation().getNorm();
-                                                        double xyStdDev = xyStdDevCoefficient * tagDistance * mStdDevScalar.get();
-                                                        double thetaStdDev = thetaStdDevCoefficient * tagDistance * mStdDevScalar.get();
-                                                        visionUpdates.add(
-                                                                        new TimestampedVisionUpdate(
-                                                                                        timestamp, robotPose, VecBuilder.fill(xyStdDev,
-                                                                                                        xyStdDev, thetaStdDev)));
-                                                        visionPose2ds.add(robotPose);
-                                                        Logger.getInstance().recordOutput("VisionData/" + instanceIndex, robotPose);
-                                                }
+                                                processVersion1(values, instanceIndex, cameraPose, tagPose3ds, tagIds, visionPose2ds, timestamp);
                                         case 2:
-                                                Pose2d robotPose = null;
-
-                                                switch ((int) values[0]) {
-                                                        case 1:
-                                                                // One pose (multi-tag), use directly
-                                                                cameraPose =
-                                                                new Pose3d(
-                                                                        values[2],
-                                                                        values[3],
-                                                                        values[4],
-                                                                        new Rotation3d(new Quaternion(values[5], values[6], values[7], values[8])));
-                                                                robotPose =
-                                                                cameraPose
-                                                                        .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
-                                                                        .toPose2d();
-                                                                xyStdDevCoefficient = 0.003;
-                                                                thetaStdDevCoefficient = 0.0002;
-                                                                break;
-                                                        case 2:
-                                                                // Two poses (one tag), disambiguate
-                                                                double error0 = values[1];
-                                                                double error1 = values[9];
-                                                                Pose3d cameraPose0 =
-                                                                        new Pose3d(
-                                                                                values[2],
-                                                                                values[3],
-                                                                                values[4],
-                                                                                new Rotation3d(new Quaternion(values[5], values[6], values[7], values[8])));
-                                                                Pose3d cameraPose1 =
-                                                                        new Pose3d(
-                                                                                values[10],
-                                                                                values[11],
-                                                                                values[12],
-                                                                                new Rotation3d(new Quaternion(values[13], values[14], values[15], values[16])));
-                                                                Pose2d robotPose0 =
-                                                                        cameraPose0
-                                                                                .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
-                                                                                .toPose2d();
-                                                                Pose2d robotPose1 =
-                                                                        cameraPose1
-                                                                                .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
-                                                                                .toPose2d();
-                
-                                                                // Select pose using projection errors and current rotation
-                                                                if (error0 < error1 * ambiguityThreshold) {
-                                                                        cameraPose = cameraPose0;
-                                                                        robotPose = robotPose0;
-                                                                } else if (error1 < error0 * ambiguityThreshold) {
-                                                                        cameraPose = cameraPose1;
-                                                                        robotPose = robotPose1;
-                                                                } else if (Math.abs(
-                                                                        robotPose0.getRotation().minus(currentPose.getRotation()).getRadians())
-                                                                < Math.abs(
-                                                                        robotPose1.getRotation().minus(currentPose.getRotation()).getRadians())) {
-                                                                        cameraPose = cameraPose0;
-                                                                        robotPose = robotPose0;
-                                                                } else {
-                                                                        cameraPose = cameraPose1;
-                                                                        robotPose = robotPose1;
-                                                                }
-                                                                xyStdDevCoefficient = 0.01;
-                                                                thetaStdDevCoefficient = 0.01;
-                                                                break;
-                                                }
-                                                
-                                                // Exit if no data
-                                                if (cameraPose == null || robotPose == null) {
-                                                        continue;
-                                                }
-                
-                                                // Exit if robot pose is off the field
-                                                if (robotPose.getX() < -fieldBorderMargin
-                                                || robotPose.getX() > FieldConstants.fieldLength + fieldBorderMargin
-                                                || robotPose.getY() < -fieldBorderMargin
-                                                || robotPose.getY() > FieldConstants.fieldWidth + fieldBorderMargin) {
-                                                        continue;
-                                                }
-                
-                                                // Get tag poses and update last detection times
-                                                for (int i = (values[0] == 1 ? 9 : 17); i < values.length; i++) {
-                                                        Pose3d tagPose = FieldConstants.aprilTags.get((int) values[i]);
-                                                        int tagId = (int) values[i];
-                
-                                                        tagPose3ds.add(tagPose);
-                                                        tagIds.add(tagId);
-                                                }
-                
-                                                // Calculate average distance to tag
-                                                double totalDistance = 0.0;
-                                                for (Pose3d tagPose : tagPose3ds) {
-                                                        totalDistance += tagPose.getTranslation().getDistance(cameraPose.getTranslation());
-                                                }
-                                                double avgDistance = totalDistance / tagPose3ds.size();
-                
-                                                double xyStdDev = xyStdDevCoefficient * Math.pow(avgDistance, 2.0) / tagPose3ds.size();
-                                                double thetaStdDev = thetaStdDevCoefficient * Math.pow(avgDistance, 2.0) / tagPose3ds.size();                                
-                
-                                                visionUpdates.add(
-                                                new TimestampedVisionUpdate(
-                                                        timestamp, robotPose, VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev)));
-                                                allRobotPoses.add(robotPose);
-                
-                                                Logger.getInstance().recordOutput("VisionData/" + instanceIndex, robotPose);
+                                                processVersion2(values, instanceIndex, cameraPose, tagPose3ds, tagIds, timestamp);
+                                        default:
+                                                // Default to version 1 if "version" is not 1 or 2
+                                                processVersion1(values, instanceIndex, cameraPose, tagPose3ds, tagIds, visionPose2ds, timestamp);
                                 }
                         }
 
@@ -367,5 +182,205 @@ public class AprilTagVision extends SubsystemBase {
 
         public static void setTrustLevel(boolean isTrustHigh) {
                 // mStdDevScalar = isTrustHigh ? 0.2 : 2.0;
+        }
+
+        public void processVersion1(double[] values, int instanceIndex, Pose3d cameraPose, List<Pose3d> tagPose3ds, List<Integer> tagIds, List<Pose2d> visionPose2ds, double timestamp) {
+                // Loop over observations
+                for (int i = 0; i < values.length; i += 15) {
+                        // Get observation data
+                        int tagId = (int) values[i];
+                        var pose0 = openCVPoseToWPILibPose(
+                                        VecBuilder.fill(values[i + 1], values[i + 2], values[i + 3]),
+                                        VecBuilder.fill(values[i + 4], values[i + 5], values[i + 6]));
+                        var error0 = values[i + 7];
+                        var pose1 = openCVPoseToWPILibPose(
+                                        VecBuilder.fill(values[i + 8], values[i + 9], values[i + 10]),
+                                        VecBuilder.fill(values[i + 11], values[i + 12],
+                                                        values[i + 13]));
+                        var error1 = values[i + 14];
+
+                        // Calculate robot poses
+                        var fieldToTag = FieldConstants.aprilTags.get(tagId);
+                        if (fieldToTag == null) {
+                                continue;
+                        }
+                        var robotPose0 = fieldToTag
+                                        .transformBy(GeomUtil.pose3dToTransform3d(pose0).inverse())
+                                        .transformBy(GeomUtil
+                                                        .pose3dToTransform3d(cameraPoses[instanceIndex])
+                                                        .inverse());
+                        var robotPose1 = fieldToTag
+                                        .transformBy(GeomUtil.pose3dToTransform3d(pose1).inverse())
+                                        .transformBy(GeomUtil
+                                                        .pose3dToTransform3d(cameraPoses[instanceIndex])
+                                                        .inverse());
+
+                        // Choose better pose
+                        Pose3d robotPose3d;
+                        Pose2d robotPose;
+                        Pose3d tagPose;
+                        if (error0 < error1 * ambiguityThreshold) {
+                                robotPose = robotPose0.toPose2d();
+                                robotPose3d = robotPose0;
+                                tagPose = pose0;
+                        } else if (error1 < error0 * ambiguityThreshold) {
+                                robotPose = robotPose1.toPose2d();
+                                robotPose3d = robotPose1;
+                                tagPose = pose1;
+                        } else if (Math.abs(
+                                        robotPose0.toPose2d().getRotation()
+                                                        .minus(currentPose.getRotation())
+                                                        .getRadians()) < Math
+                                                                        .abs(robotPose1.toPose2d()
+                                                                                        .getRotation()
+                                                                                        .minus(currentPose
+                                                                                                        .getRotation())
+                                                                                        .getRadians())) {
+                                robotPose = robotPose0.toPose2d();
+                                robotPose3d = robotPose0;
+                                tagPose = pose0;
+                        } else {
+                                robotPose = robotPose1.toPose2d();
+                                tagPose = pose1;
+                                robotPose3d = robotPose1;
+                        }
+
+
+                        // Exit if no data
+                        if (cameraPose == null || robotPose == null) {
+                                continue;
+                        }
+
+                        // Exit if robot pose is off the field
+                        if (robotPose.getX() < -fieldBorderMargin
+                        || robotPose.getX() > FieldConstants.fieldLength + fieldBorderMargin
+                        || robotPose.getY() < -fieldBorderMargin
+                        || robotPose.getY() > FieldConstants.fieldWidth + fieldBorderMargin) {
+                                continue;
+                        }
+
+
+                        // Log tag pose
+                        tagPose3ds.add(tagPose);
+                        tagIds.add(tagId);
+                        lastDetectionTimeIds.put(tagId, Timer.getFPGATimestamp());
+
+                        // Add to vision updates
+                        double tagDistance = tagPose.getTranslation().getNorm();
+                        double xyStdDev = xyStdDevCoefficient * tagDistance * mStdDevScalar.get();
+                        double thetaStdDev = thetaStdDevCoefficient * tagDistance * mStdDevScalar.get();
+                        visionUpdates.add(
+                                        new TimestampedVisionUpdate(
+                                                        timestamp, robotPose, VecBuilder.fill(xyStdDev,
+                                                                        xyStdDev, thetaStdDev)));
+                        visionPose2ds.add(robotPose);
+                        Logger.getInstance().recordOutput("VisionData/" + instanceIndex, robotPose);
+                }
+        }
+
+        public void processVersion2(double[] values, int instanceIndex, Pose3d cameraPose, List<Pose3d> tagPose3ds, List<Integer> tagIds, double timestamp) {
+                Pose2d robotPose = null;
+
+                switch ((int) values[0]) {
+                        case 1:
+                                // One pose (multi-tag), use directly
+                                cameraPose =
+                                new Pose3d(
+                                        values[2],
+                                        values[3],
+                                        values[4],
+                                        new Rotation3d(new Quaternion(values[5], values[6], values[7], values[8])));
+                                robotPose =
+                                cameraPose
+                                        .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
+                                        .toPose2d();
+                                xyStdDevCoefficient = 0.003;
+                                thetaStdDevCoefficient = 0.0002;
+                                break;
+                        case 2:
+                                // Two poses (one tag), disambiguate
+                                double error0 = values[1];
+                                double error1 = values[9];
+                                Pose3d cameraPose0 =
+                                        new Pose3d(
+                                                values[2],
+                                                values[3],
+                                                values[4],
+                                                new Rotation3d(new Quaternion(values[5], values[6], values[7], values[8])));
+                                Pose3d cameraPose1 =
+                                        new Pose3d(
+                                                values[10],
+                                                values[11],
+                                                values[12],
+                                                new Rotation3d(new Quaternion(values[13], values[14], values[15], values[16])));
+                                Pose2d robotPose0 =
+                                        cameraPose0
+                                                .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
+                                                .toPose2d();
+                                Pose2d robotPose1 =
+                                        cameraPose1
+                                                .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
+                                                .toPose2d();
+
+                                // Select pose using projection errors and current rotation
+                                if (error0 < error1 * ambiguityThreshold) {
+                                        cameraPose = cameraPose0;
+                                        robotPose = robotPose0;
+                                } else if (error1 < error0 * ambiguityThreshold) {
+                                        cameraPose = cameraPose1;
+                                        robotPose = robotPose1;
+                                } else if (Math.abs(
+                                        robotPose0.getRotation().minus(currentPose.getRotation()).getRadians())
+                                < Math.abs(
+                                        robotPose1.getRotation().minus(currentPose.getRotation()).getRadians())) {
+                                        cameraPose = cameraPose0;
+                                        robotPose = robotPose0;
+                                } else {
+                                        cameraPose = cameraPose1;
+                                        robotPose = robotPose1;
+                                }
+                                xyStdDevCoefficient = 0.01;
+                                thetaStdDevCoefficient = 0.01;
+                                break;
+                }
+                
+                // Exit if no data
+                if (cameraPose == null || robotPose == null) {
+                        return;
+                }
+
+                // Exit if robot pose is off the field
+                if (robotPose.getX() < -fieldBorderMargin
+                || robotPose.getX() > FieldConstants.fieldLength + fieldBorderMargin
+                || robotPose.getY() < -fieldBorderMargin
+                || robotPose.getY() > FieldConstants.fieldWidth + fieldBorderMargin) {
+                        return;
+                }
+
+                // Get tag poses and update last detection times
+                for (int i = (values[0] == 1 ? 9 : 17); i < values.length; i++) {
+                        Pose3d tagPose = FieldConstants.aprilTags.get((int) values[i]);
+                        int tagId = (int) values[i];
+
+                        tagPose3ds.add(tagPose);
+                        tagIds.add(tagId);
+                }
+
+                // Calculate average distance to tag
+                double totalDistance = 0.0;
+                for (Pose3d tagPose : tagPose3ds) {
+                        totalDistance += tagPose.getTranslation().getDistance(cameraPose.getTranslation());
+                }
+                double avgDistance = totalDistance / tagPose3ds.size();
+
+                double xyStdDev = xyStdDevCoefficient * Math.pow(avgDistance, 2.0) / tagPose3ds.size();
+                double thetaStdDev = thetaStdDevCoefficient * Math.pow(avgDistance, 2.0) / tagPose3ds.size();                                
+
+                visionUpdates.add(
+                new TimestampedVisionUpdate(
+                        timestamp, robotPose, VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev)));
+                allRobotPoses.add(robotPose);
+
+                Logger.getInstance().recordOutput("VisionData/" + instanceIndex, robotPose);
         }
 }
