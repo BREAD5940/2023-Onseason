@@ -6,7 +6,6 @@ import java.net.InetAddress;
 
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.Superstructure;
 import edu.wpi.first.hal.can.CANJNI;
 import edu.wpi.first.hal.can.CANStatus;
 import edu.wpi.first.math.Pair;
@@ -121,27 +120,19 @@ public class FaultChecker {
         for (Pair<Boolean, String> CANerror : CANerrors) {
             if (CANerror.getFirst()) {
                 System.out.println(CANerror.getSecond() + ": HAS ERROR");
+				priorityCANerror = CANerror.getSecond().replace("ErrorConc", ""); // removes the ErrorConc for space reasons
             } else {
                 System.out.println(CANerror.getSecond() + ": is ok");
             }
-            
         }
 
-        // System.out.println("----------- Ethernet Total Failed Packet Counts (20ms
-        // timeout) -----------");
-        // System.out.println("Radio: " + radioErrCount);
-        // System.out.println("Limelight: " + ErrCounts[0]);
-        // System.out.println("Orangepi1: " + ErrCounts[1]);
-        // System.out.println("Orangepi2: " + ErrCounts[2]);
-
-        /*loopCounter++;
+        loopCounter++;
         if (loopCounter % 100 == 0) {
             CANStatus status = new CANStatus();
             CANJNI.getCANStatus(status);
             // serialMXP.writeString("<0,0,0,0>");
-            serialMXP.writeString("<" + "?," + ((int) (status.percentBusUtilization * 100)) + "," + priorityCANerror
-                    + "_" + priorityETHerror + "," + "?>");
-        }*/
+            serialMXP.writeString("<" + "stuff will go here" + "," + ((int) (status.percentBusUtilization * 100)) + "," + priorityCANerror + "_" + priorityETHerror + "," + "?>");
+        }
 
         System.out.print("---------- END OF ERRORS ----------");
     }

@@ -12,7 +12,7 @@ public class Testmode {
         PRE_START,
         SWERVE_DRIVE,
         SWERVE_STEER,
-
+		VISION_TEST,
         SUPERSTRUCTURE_HOME,
         LED_DANCE
     }
