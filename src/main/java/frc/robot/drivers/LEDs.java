@@ -16,6 +16,9 @@ public class LEDs extends SubsystemBase {
     private final AddressableLED mLeds;
     private final AddressableLEDBuffer mBuffer;
     private Color selectedColor = Color.NA;
+    private boolean dangerBlink = false;
+    private boolean happyBlink = false;
+
 
     /* Enum to keep track of currently selected color */
     private enum Color {
@@ -44,12 +47,21 @@ public class LEDs extends SubsystemBase {
         mLeds.setData(mBuffer);
     }
 
+    public void setDangerBlink(boolean on){
+        dangerBlink = on;
+    }
+
+    public void setHappyBlink(boolean on){
+        happyBlink = on;
+    }
+
     /* Set the colors depending on the operators last selected scoring location */
     @Override
     public void periodic() {
         int scoringLocation = RobotContainer.operatorControls.getLastSelectedScoringLocation();
         double blinkTime = BreadUtil.getFPGATimeSeconds() * 10.0;
         boolean blinkOn = ((int) blinkTime) % 2 == 0;
+        boolean dangerBlinkOn = ((int) blinkTime) % 0.5 == 0;
         Level level = RobotContainer.operatorControls.getLastSelectedLevel();
         boolean isCubeNode = scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8;
         if (blinkOn && RobotContainer.superstructure.hasGampiece()) {
@@ -67,7 +79,15 @@ public class LEDs extends SubsystemBase {
         } else if (level == Level.LOW && selectedColor != Color.PURPLE) {
             setColor(PURPLE[0], PURPLE[1], PURPLE[2]);
             selectedColor = Color.PURPLE;
-        } 
+        } else if (happyBlink && blinkOn){
+            setColor(0, 255, 0);
+        } else if (happyBlink && !blinkOn){
+            setColor(0, 0, 0);
+        } else if (dangerBlink && dangerBlinkOn){
+            setColor(255, 0, 0);
+        } else if (dangerBlink && !dangerBlinkOn){
+            setColor(0, 0, 0);
+        }
 
         Logger.getInstance().recordOutput("SelectedLEDColor", selectedColor.toString());
     }

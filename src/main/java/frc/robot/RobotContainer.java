@@ -42,6 +42,7 @@ import frc.robot.subsystems.vision.limelight.LimelightDetectionsClassifier;
 import frc.robot.subsystems.vision.northstar.AprilTagVision;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIO;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIONorthstar;
+import frc.robot.subsystems.faultChecker.Testmode;
 
 public class RobotContainer {
 
@@ -67,6 +68,8 @@ public class RobotContainer {
   public static final ClimberIOTalonFX climberIO = new ClimberIOTalonFX();
   public static final Climber climber = new Climber(climberIO);
   public static final LEDs leds = new LEDs(0, 74);
+
+  public static final Testmode testmode = new Testmode();
 
   private static AutonomousSelector autonomousSelector;
 

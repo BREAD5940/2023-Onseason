@@ -27,6 +27,7 @@ import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.subsystems.climber.Climber.ClimberStates;
 import frc.robot.subsystems.vision.limelight.LimelightDetectionsClassifier;
 import frc.robot.subsystems.vision.northstar.AprilTagVision;
+import frc.robot.subsystems.faultChecker.Testmode;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -296,6 +297,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void testPeriodic() {
+    RobotContainer.testmode.periodic();
   }
 
   @Override
