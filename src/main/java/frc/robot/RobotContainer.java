@@ -68,7 +68,6 @@ public class RobotContainer {
   public static final ClimberIOTalonFX climberIO = new ClimberIOTalonFX();
   public static final Climber climber = new Climber(climberIO);
   public static final LEDs leds = new LEDs(0, 74);
-  public static double dy;
 
   private static AutonomousSelector autonomousSelector;
 
@@ -86,6 +85,7 @@ public class RobotContainer {
       // Movement Outputs
       double scale = RobotContainer.driver.getLeftBumper() ? 0.25 : 1.0;
       double dx;
+      double dy;
       
       if (Robot.alliance == DriverStation.Alliance.Blue) {
         dx = Math.pow(-x, 1) * scale;
