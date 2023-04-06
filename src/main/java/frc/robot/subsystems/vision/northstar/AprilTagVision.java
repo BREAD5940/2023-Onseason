@@ -28,8 +28,8 @@ public class AprilTagVision extends SubsystemBase {
         private final AprilTagVisionIO[] io;
         private final AprilTagVisionIOInputs[] inputs;
 
-        private static final double xyStdDevCoefficient;
-        private static final double thetaStdDevCoefficient;
+        private static double xyStdDevCoefficient;
+        private static double thetaStdDevCoefficient;
 
         private Supplier<Pose2d> poseSupplier = () -> new Pose2d();
         private Consumer<List<TimestampedVisionUpdate>> visionConsumer = (x) -> {};
@@ -47,9 +47,6 @@ public class AprilTagVision extends SubsystemBase {
                                 )
 
                 };
-
-                xyStdDevCoefficient = 0.01;
-                thetaStdDevCoefficient = 0.01;
         }
 
         public AprilTagVision(AprilTagVisionIO... io) {
@@ -118,6 +115,8 @@ public class AprilTagVision extends SubsystemBase {
                                                 cameraPose
                                                         .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
                                                         .toPose2d();
+                                                xyStdDevCoefficient = 0.003;
+                                                thetaStdDevCoefficient = 0.0002;
                                                 break;
                                         case 2:
                                                 // Two poses (one tag), disambiguate
@@ -161,6 +160,8 @@ public class AprilTagVision extends SubsystemBase {
                                                         cameraPose = cameraPose1;
                                                         robotPose = robotPose1;
                                                 }
+                                                xyStdDevCoefficient = 0.01;
+                                                thetaStdDevCoefficient = 0.01;
                                                 break;
                                 }
                                 
