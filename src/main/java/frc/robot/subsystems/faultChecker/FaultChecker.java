@@ -37,6 +37,8 @@ public class FaultChecker {
     InetAddress orangepi1;
     InetAddress orangepi2;
 
+    Caniv caniv = new Caniv();
+
     SerialPort serialMXP = new SerialPort(115200, SerialPort.Port.kMXP);
 
     public FaultChecker() {
