@@ -1,5 +1,7 @@
 package frc.robot.subsystems.faultChecker;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
@@ -22,12 +24,12 @@ public class Testmode {
     private int reusedLoopCounter = 0;
 
     public void periodic(){
+        RobotContainer.leds.setDangerBlink(true);
         if(RobotContainer.driver.getAButton()){
 
             /*State Transition */
-            if(RobotContainer.driver.getLeftBumper()){
+            if(RobotContainer.driver.getLeftBumperPressed()){
                 state = State.values()[state.ordinal() + 1];
-                while(RobotContainer.driver.getLeftBumper()){}
                 reusedLoopCounter = 0;
                 watingForStateAdvance = false;
             }

@@ -179,7 +179,4 @@ public class RobotContainer {
     autonomousSelector = new AutonomousSelector(swerve, superstructure);
   }
 
-  public void runTestModeClassStuff() {
-	superstructure.doOnLoop();
-  }
 }

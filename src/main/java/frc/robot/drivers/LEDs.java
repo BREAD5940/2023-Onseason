@@ -64,7 +64,11 @@ public class LEDs extends SubsystemBase {
         boolean dangerBlinkOn = ((int) blinkTime) % 0.5 == 0;
         Level level = RobotContainer.operatorControls.getLastSelectedLevel();
         boolean isCubeNode = scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8;
-        if (blinkOn && RobotContainer.superstructure.hasGampiece()) {
+        if (dangerBlink && blinkOn){
+            setColor(255, 0, 0);
+        } else if (dangerBlink && !blinkOn){
+            setColor(0, 0, 0);
+        } else if (blinkOn && RobotContainer.superstructure.hasGampiece()) {
             setColor(GREEN[0], GREEN[1], GREEN[2]);
             selectedColor = Color.GREEN;
         } else if (!blinkOn && RobotContainer.superstructure.hasGampiece()) {
@@ -82,10 +86,6 @@ public class LEDs extends SubsystemBase {
         } else if (happyBlink && blinkOn){
             setColor(0, 255, 0);
         } else if (happyBlink && !blinkOn){
-            setColor(0, 0, 0);
-        } else if (dangerBlink && dangerBlinkOn){
-            setColor(255, 0, 0);
-        } else if (dangerBlink && !dangerBlinkOn){
             setColor(0, 0, 0);
         }
 

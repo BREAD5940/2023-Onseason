@@ -94,6 +94,7 @@ public class Swerve extends SubsystemBase {
         /** Update inputs */
         gyroIO.updateInputs(gyroInputs);
         Logger.getInstance().processInputs("Swerve/Gyro", gyroInputs);
+        Logger.getInstance().recordOutput("blah", Timer.getFPGATimestamp());
         for (int i = 0; i < 4; i++) {
             moduleIOs[i].updateInputs(moduleInputs[i]);
             Logger.getInstance().processInputs("Swerve/Module" + Integer.toString(i), moduleInputs[i]);
