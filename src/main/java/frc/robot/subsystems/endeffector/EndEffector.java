@@ -2,6 +2,7 @@ package frc.robot.subsystems.endeffector;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commons.LoggedTunableNumber;
 
 public class EndEffector {
@@ -118,4 +119,16 @@ public class EndEffector {
         ErrCount = 0;
         errCheckNum = 1;
     }
+
+	/** runs code that is needed for test mode. onLoop should not run while running this */
+	public void runTestMode(boolean on) {
+		if (on) {
+			endEffectorIO.updateInputs(endEffectorInputs);
+			endEffectorIO.setPercent(0.1);
+			SmartDashboard.putNumber("avgStatorCurrentAmps", endEffectorInputs.avgStatorCurrentAmps);
+		} else {
+			endEffectorIO.updateInputs(endEffectorInputs);
+			endEffectorIO.setPercent(0.0);
+		}
+	}
 }

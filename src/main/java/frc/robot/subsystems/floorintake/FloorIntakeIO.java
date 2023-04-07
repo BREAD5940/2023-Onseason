@@ -36,6 +36,9 @@ public interface FloorIntakeIO {
     /** Sets desired deploy angle */  
     public default void setDeployAngle(double angle) {}
 
+	/** Set the desired percent output on the intake deploy moter */
+	public default void setDeployPercent(double percent) {}
+
     /** Resets the angle of the floor intake */
     public default void resetAngle() {}
 

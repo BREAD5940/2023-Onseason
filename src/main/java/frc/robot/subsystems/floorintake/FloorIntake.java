@@ -3,6 +3,7 @@ package frc.robot.subsystems.floorintake;
 import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix.ErrorCode;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commons.BreadUtil;
 import frc.robot.commons.LoggedTunableNumber;
 
@@ -142,4 +143,18 @@ public class FloorIntake {
         errCheckNum = 1;
     }
 
+	/** runs code that is needed for test mode. onLoop should not run while running this */
+	public void runTestMode(boolean on) {
+		if (on) {
+			floorIntakeIO.updateInputs(floorIntakeInputs);
+			floorIntakeIO.setRollerPercent(0.1);
+			floorIntakeIO.setDeployPercent(0.01);
+			SmartDashboard.putNumber("rollerCurrentAmps", floorIntakeInputs.rollerCurrentAmps);
+			SmartDashboard.putNumber("deployCurrentAmps", floorIntakeInputs.deployCurrentAmps);
+		} else {
+			floorIntakeIO.updateInputs(floorIntakeInputs);
+			floorIntakeIO.setRollerPercent(0.0);
+			floorIntakeIO.setDeployPercent(0.0);
+		}
+	}
 }
