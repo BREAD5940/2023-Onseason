@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
 import frc.robot.commons.GeomUtil;
 import frc.robot.commons.LoggedTunableNumber;
+import frc.robot.commons.PolynomialRegression;
 import frc.robot.commons.PoseEstimator.TimestampedVisionUpdate;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIO.AprilTagVisionIOInputs;
 import java.util.ArrayList;
@@ -36,6 +37,8 @@ public class AprilTagVision extends SubsystemBase {
         private double xyStdDevCoefficient;
         private double thetaStdDevCoefficient;
         private static final double fieldBorderMargin = 0.5;
+        private static final PolynomialRegression xyStdDevModel;
+        private static final PolynomialRegression thetaStdDevModel;
 
         private Supplier<Pose2d> poseSupplier = () -> new Pose2d();
         private Consumer<List<TimestampedVisionUpdate>> visionConsumer = (x) -> {};
@@ -43,7 +46,6 @@ public class AprilTagVision extends SubsystemBase {
         private Pose2d currentPose;
         private List<TimestampedVisionUpdate> visionUpdates;
         private List<Pose2d> allRobotPoses;
-
 
         static {
                 cameraPoses = new Pose3d[] {
@@ -57,7 +59,35 @@ public class AprilTagVision extends SubsystemBase {
                                 )
 
                 };
-        }
+                xyStdDevModel = new PolynomialRegression(
+                        new double[] {
+                                        0.752358, 1.016358, 1.296358, 1.574358, 1.913358, 2.184358, 2.493358,
+                                        2.758358,
+                                        3.223358, 4.093358, 4.726358
+                        },
+                        // new double[] {
+                        // 0.005, 0.0135, 0.016, 0.038, 0.0515, 0.0925, 0.0695, 0.046, 0.1245,
+                        // 0.0815, 0.193
+                        // },
+                        new double[] {
+                                        0.005, 0.0135, 0.016, 0.038, 0.0515, 0.0925, 0.12, 0.14, 0.17,
+                                        0.27, 0.38
+                        },
+                        2);
+        thetaStdDevModel = new PolynomialRegression(
+                        new double[] {
+                                        0.752358, 1.016358, 1.296358, 1.574358, 1.913358, 2.184358, 2.493358,
+                                        2.758358,
+                                        3.223358, 4.093358, 4.726358
+                        },
+                        new double[] {
+                                        0.008, 0.027, 0.015, 0.044, 0.04, 0.078, 0.049, 0.027, 0.059, 0.029,
+                                        0.068
+                        },
+                        1);
+
+}
+        
 
         public AprilTagVision(AprilTagVisionIO... io) {
                 this.io = io;
@@ -170,17 +200,6 @@ public class AprilTagVision extends SubsystemBase {
                 visionConsumer.accept(visionUpdates);
         }
 
-        private static Pose3d openCVPoseToWPILibPose(Vector<N3> tvec, Vector<N3> rvec) {
-                return new Pose3d(
-                                new Translation3d(tvec.get(2, 0), -tvec.get(0, 0), -tvec.get(1, 0)),
-                                new Rotation3d(
-                                                VecBuilder.fill(rvec.get(2, 0), -rvec.get(0, 0), -rvec.get(1, 0)),
-                                                Math.sqrt(
-                                                                Math.pow(rvec.get(0, 0), 2)
-                                                                                + Math.pow(rvec.get(1, 0), 2)
-                                                                                + Math.pow(rvec.get(2, 0), 2))));
-        }
-
         public static void setTrustLevel(boolean isTrustHigh) {
                 // mStdDevScalar = isTrustHigh ? 0.2 : 2.0;
         }
@@ -267,8 +286,9 @@ public class AprilTagVision extends SubsystemBase {
 
                         // Add to vision updates
                         double tagDistance = tagPose.getTranslation().getNorm();
-                        double xyStdDev = xyStdDevCoefficient * tagDistance * mStdDevScalar.get();
-                        double thetaStdDev = thetaStdDevCoefficient * tagDistance * mStdDevScalar.get();
+                        double xyStdDev = xyStdDevModel.predict(tagDistance) * mStdDevScalar.get();
+                        double thetaStdDev = thetaStdDevModel.predict(tagDistance) * mStdDevScalar.get();
+
                         visionUpdates.add(
                                         new TimestampedVisionUpdate(
                                                         timestamp, robotPose, VecBuilder.fill(xyStdDev,
@@ -383,5 +403,16 @@ public class AprilTagVision extends SubsystemBase {
                 allRobotPoses.add(robotPose);
 
                 Logger.getInstance().recordOutput("VisionData/" + instanceIndex, robotPose);
+        }
+
+        private static Pose3d openCVPoseToWPILibPose(Vector<N3> tvec, Vector<N3> rvec) {
+                return new Pose3d(
+                                new Translation3d(tvec.get(2, 0), -tvec.get(0, 0), -tvec.get(1, 0)),
+                                new Rotation3d(
+                                                VecBuilder.fill(rvec.get(2, 0), -rvec.get(0, 0), -rvec.get(1, 0)),
+                                                Math.sqrt(
+                                                                Math.pow(rvec.get(0, 0), 2)
+                                                                                + Math.pow(rvec.get(1, 0), 2)
+                                                                                + Math.pow(rvec.get(2, 0), 2))));
         }
 }
