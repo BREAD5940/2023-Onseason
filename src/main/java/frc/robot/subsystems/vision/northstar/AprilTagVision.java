@@ -134,7 +134,8 @@ public class AprilTagVision extends SubsystemBase {
                         for (int frameIndex = 0; frameIndex < inputs[instanceIndex].timestamps.length; frameIndex++) {
                                 var timestamp = inputs[instanceIndex].timestamps[frameIndex];
                                 var values = inputs[instanceIndex].frames[frameIndex];
-                                int version = (int) inputs[instanceIndex].version;
+                                // int version = (int) inputs[instanceIndex].version;
+                                int version = 2;
 
                                 Logger.getInstance()
                                                 .recordOutput(
@@ -146,11 +147,14 @@ public class AprilTagVision extends SubsystemBase {
                                 switch (version) {
                                         case 1:
                                                 processVersion1(values, instanceIndex, tagPose3ds, tagIds, visionPose2ds, timestamp);
+                                                break;
                                         case 2:
                                                 processVersion2(values, instanceIndex, cameraPose, tagPose3ds, tagIds, timestamp);
+                                                break;
                                         default:
                                                 // Default to version 1 if "version" is not 1 or 2
                                                 processVersion1(values, instanceIndex, tagPose3ds, tagIds, visionPose2ds, timestamp);
+                                                break;
                                 }
                         }
 
@@ -315,7 +319,8 @@ public class AprilTagVision extends SubsystemBase {
                                         .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
                                         .toPose2d();
                                 xyStdDevCoefficient = 0.003;
-                                thetaStdDevCoefficient = 0.0002;
+                                thetaStdDevCoefficient = 0.002;
+                                Logger.getInstance().recordOutput("Camera Pose (Multi Tag) " + instanceIndex, cameraPose);
                                 break;
                         case 2:
                                 // Two poses (one tag), disambiguate
@@ -341,7 +346,6 @@ public class AprilTagVision extends SubsystemBase {
                                         cameraPose1
                                                 .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
                                                 .toPose2d();
-                                System.out.println(cameraPose0);
 
                                 // Select pose using projection errors and current rotation
                                 if (error0 < error1 * ambiguityThreshold) {
@@ -360,8 +364,7 @@ public class AprilTagVision extends SubsystemBase {
                                         cameraPose = cameraPose1;
                                         robotPose = robotPose1;
                                 }
-                                xyStdDevCoefficient = 0.01;
-                                thetaStdDevCoefficient = 0.01;
+                                Logger.getInstance().recordOutput("Camera Pose (Single Tag) " + instanceIndex, cameraPose);
                                 break;
                 }
                 
@@ -393,9 +396,19 @@ public class AprilTagVision extends SubsystemBase {
                         totalDistance += tagPose.getTranslation().getDistance(cameraPose.getTranslation());
                 }
                 double avgDistance = totalDistance / tagPose3ds.size();
+                double xyStdDev = 0.0;
+                double thetaStdDev = 0.0;
 
-                double xyStdDev = xyStdDevCoefficient * Math.pow(avgDistance, 2.0) / tagPose3ds.size();
-                double thetaStdDev = thetaStdDevCoefficient * Math.pow(avgDistance, 2.0) / tagPose3ds.size();                                
+                switch ((int) values[0]) {
+                        case 1:
+                                xyStdDev = xyStdDevCoefficient * Math.pow(avgDistance, 2.0) / tagPose3ds.size();
+                                thetaStdDev = thetaStdDevCoefficient * Math.pow(avgDistance, 2.0) / tagPose3ds.size(); 
+                                break;
+                        case 2:
+                                xyStdDev = xyStdDevModel.predict(avgDistance) * mStdDevScalar.get();
+                                thetaStdDev = thetaStdDevModel.predict(avgDistance) * mStdDevScalar.get();
+                                break;
+                }                           
 
                 visionUpdates.add(
                 new TimestampedVisionUpdate(
