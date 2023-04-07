@@ -108,6 +108,11 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
         roller.set(ControlMode.PercentOutput, percent);
     }
 
+	@Override
+    public void setDeployPercent(double percent) {
+        deploy.set(ControlMode.PercentOutput, percent);
+    }
+
     @Override
     public void setDeployAngle(double angle) {
         deploy.selectProfileSlot(0, 0);
