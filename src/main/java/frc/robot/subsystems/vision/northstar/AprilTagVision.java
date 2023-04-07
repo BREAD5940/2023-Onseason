@@ -115,17 +115,18 @@ public class AprilTagVision extends SubsystemBase {
 
                                 switch (version) {
                                         case 1:
-                                                processVersion1(values, instanceIndex, cameraPose, tagPose3ds, tagIds, visionPose2ds, timestamp);
+                                                processVersion1(values, instanceIndex, tagPose3ds, tagIds, visionPose2ds, timestamp);
                                         case 2:
                                                 processVersion2(values, instanceIndex, cameraPose, tagPose3ds, tagIds, timestamp);
                                         default:
                                                 // Default to version 1 if "version" is not 1 or 2
-                                                processVersion1(values, instanceIndex, cameraPose, tagPose3ds, tagIds, visionPose2ds, timestamp);
+                                                processVersion1(values, instanceIndex, tagPose3ds, tagIds, visionPose2ds, timestamp);
                                 }
                         }
 
                         // Log poses
                         boolean hasFrames = inputs[instanceIndex].timestamps.length > 0;
+                        
                         if (hasFrames) {
                                 Logger.getInstance()
                                 .recordOutput(
@@ -184,7 +185,7 @@ public class AprilTagVision extends SubsystemBase {
                 // mStdDevScalar = isTrustHigh ? 0.2 : 2.0;
         }
 
-        public void processVersion1(double[] values, int instanceIndex, Pose3d cameraPose, List<Pose3d> tagPose3ds, List<Integer> tagIds, List<Pose2d> visionPose2ds, double timestamp) {
+        public void processVersion1(double[] values, int instanceIndex, List<Pose3d> tagPose3ds, List<Integer> tagIds, List<Pose2d> visionPose2ds, double timestamp) {
                 // Loop over observations
                 for (int i = 0; i < values.length; i += 15) {
                         // Get observation data
@@ -245,9 +246,8 @@ public class AprilTagVision extends SubsystemBase {
                                 robotPose3d = robotPose1;
                         }
 
-
                         // Exit if no data
-                        if (cameraPose == null || robotPose == null) {
+                        if (robotPose == null) {
                                 continue;
                         }
 
@@ -321,6 +321,7 @@ public class AprilTagVision extends SubsystemBase {
                                         cameraPose1
                                                 .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
                                                 .toPose2d();
+                                System.out.println(cameraPose0);
 
                                 // Select pose using projection errors and current rotation
                                 if (error0 < error1 * ambiguityThreshold) {
