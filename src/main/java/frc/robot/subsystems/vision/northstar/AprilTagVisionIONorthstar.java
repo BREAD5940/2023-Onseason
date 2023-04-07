@@ -39,7 +39,7 @@ public class AprilTagVisionIONorthstar implements AprilTagVisionIO {
     }
 
     public void updateInputs(AprilTagVisionIOInputs inputs) {
-        var queue = observationSubscriber.readQueue();
+        /*var queue = observationSubscriber.readQueue();
         inputs.timestamps = new double[queue.length];
         inputs.frames = new double[queue.length][];
         for (int i = 0; i < queue.length; i++) {
@@ -52,7 +52,7 @@ public class AprilTagVisionIONorthstar implements AprilTagVisionIO {
         if (queue.length > 0) {
             disconnectedTimer.reset();
         }
-        disconnectedAlert.set(disconnectedTimer.hasElapsed(disconnectedTimeout));
+        disconnectedAlert.set(disconnectedTimer.hasElapsed(disconnectedTimeout));*/
     }
 
     public String getIdentifier() {

@@ -21,6 +21,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.commons.BreadUtil;
@@ -398,6 +399,23 @@ public class Swerve extends SubsystemBase {
             driveErrCount[i] = 0;
             errCheckNum = 1;
             i++;
+        }
+    }
+
+    public void runTestMode(boolean on){
+        if(!on){
+            for(int i=0; i<4; i++){
+                moduleIOs[i].setDrivePercent(0);
+                moduleIOs[i].setTurnPercent(0);
+            }
+        } else {
+            for(int i=0; i<4; i++){
+                moduleIOs[i].setDrivePercent(0.1);
+                moduleIOs[i].setTurnPercent(0.1);
+                moduleIOs[i].updateInputs(moduleInputs[i]);
+                SmartDashboard.putNumber("Module " + i + "Drive Current", moduleInputs[i].driveCurrentAmps);
+                SmartDashboard.putNumber("Module " + i + "Steer Current", moduleInputs[i].turnCurrentAmps);
+            }
         }
     }
 }

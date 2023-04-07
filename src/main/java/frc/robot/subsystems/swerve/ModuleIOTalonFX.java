@@ -170,6 +170,10 @@ public class ModuleIOTalonFX implements ModuleIO {
         steer.set(TalonFXControlMode.Position, Conversions.degreesToFalcon(angleDeg, STEER_GEARING));
     }
 
+    public void setTurnPercent(double percent){
+        steer.set(TalonFXControlMode.PercentOutput, percent);
+    }
+
     @Override
     public void setDriveBrakeMode(boolean enable) {
         // drive.setNeutralMode(enable ? NeutralMode.Brake : NeutralMode.Coast);

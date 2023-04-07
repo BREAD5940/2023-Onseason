@@ -15,7 +15,9 @@ public class Testmode {
         PRE_START,
         SWERVE_DRIVE,
         SWERVE_STEER,
+        SWERVE_CURRENT_CHECK,
         SUPERSTRUCTURE_HOME,
+        SUPERSTRUCTURE_CURRENT_CHECK,
         LED_DANCE
     }
 
@@ -37,6 +39,7 @@ public class Testmode {
         if (RobotContainer.driver.getLeftBumperPressed()) {
             state = State.values()[state.ordinal() + 1];
             reusedLoopCounter = 0;
+            RobotContainer.swerve.runTestMode(false);
             watingForStateAdvance = false;
         }
 
@@ -55,6 +58,13 @@ public class Testmode {
                     RobotContainer.swerve.requestVelocity(new ChassisSpeeds(0, 0.1, 0), false, false);
                 }
                 reusedLoopCounter++;
+            }
+
+            /* Swerve Current Test */
+            if(state == State.SWERVE_CURRENT_CHECK){
+                RobotContainer.swerve.runTestMode(true);
+            } else {
+                RobotContainer.swerve.periodic();
             }
             
             if (state != State.SWERVE_DRIVE && state != State.SWERVE_STEER){

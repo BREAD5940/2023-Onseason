@@ -38,6 +38,9 @@ public interface ModuleIO {
     /** Set the turn motor to a particular angle */
     public default void setTurnAngle(double positionRads) {}
 
+    /** Set the turn motor percent */
+    public default void setTurnPercent(double percent){}
+
     /** Enable or disable drive brake mode */
     public default void setDriveBrakeMode(boolean enable) {}
 

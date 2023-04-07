@@ -297,7 +297,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void testPeriodic() {
-    RobotContainer.swerve.periodic();
     RobotContainer.superstructure.periodic();
     RobotContainer.leds.periodic();
     RobotContainer.testmode.periodic();
