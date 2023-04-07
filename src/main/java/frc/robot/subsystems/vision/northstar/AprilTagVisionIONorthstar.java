@@ -18,6 +18,7 @@ import frc.robot.commons.Alert.AlertType;
 public class AprilTagVisionIONorthstar implements AprilTagVisionIO {
     private final DoubleArraySubscriber observationSubscriber;
     private final IntegerSubscriber fpsSubscriber;
+    private String identifier;
 
     private static final double disconnectedTimeout = 1.5;
     private final Alert disconnectedAlert;
@@ -52,5 +53,9 @@ public class AprilTagVisionIONorthstar implements AprilTagVisionIO {
             disconnectedTimer.reset();
         }
         disconnectedAlert.set(disconnectedTimer.hasElapsed(disconnectedTimeout));
+    }
+
+    public String getIdentifier() {
+        return identifier;
     }
 }
