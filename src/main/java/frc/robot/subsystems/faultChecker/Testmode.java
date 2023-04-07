@@ -40,6 +40,7 @@ public class Testmode {
             state = State.values()[state.ordinal() + 1];
             reusedLoopCounter = 0;
             RobotContainer.swerve.runTestMode(false);
+            RobotContainer.superstructure.runTestMode(false);
             watingForStateAdvance = false;
         }
 
@@ -77,6 +78,13 @@ public class Testmode {
                     RobotContainer.superstructure.requestHome();
                     watingForStateAdvance = true;
                 }
+            }
+
+            /* SuperStructure Current Test */
+            if(state == State.SUPERSTRUCTURE_CURRENT_CHECK){
+                RobotContainer.superstructure.runTestMode(true);
+            } else {
+                RobotContainer.superstructure.periodic();
             }
 
             /* LED dance */

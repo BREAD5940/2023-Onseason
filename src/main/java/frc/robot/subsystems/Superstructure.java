@@ -723,5 +723,10 @@ public class Superstructure extends SubsystemBase {
         endEffector.resetError();
     }
 
+    public void runTestMode(boolean on){
+        endEffector.runTestMode(on);
+        floorIntake.runTestMode(on);
+    }
+
 }
 

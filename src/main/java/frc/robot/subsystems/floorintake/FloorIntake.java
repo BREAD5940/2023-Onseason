@@ -148,7 +148,7 @@ public class FloorIntake {
 		if (on) {
 			floorIntakeIO.updateInputs(floorIntakeInputs);
 			floorIntakeIO.setRollerPercent(0.1);
-			floorIntakeIO.setDeployPercent(0.01);
+			floorIntakeIO.setDeployPercent(-0.03);
 			SmartDashboard.putNumber("rollerCurrentAmps", floorIntakeInputs.rollerCurrentAmps);
 			SmartDashboard.putNumber("deployCurrentAmps", floorIntakeInputs.deployCurrentAmps);
 		} else {
