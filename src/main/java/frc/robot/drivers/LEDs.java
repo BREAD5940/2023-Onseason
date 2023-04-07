@@ -68,6 +68,10 @@ public class LEDs extends SubsystemBase {
             setColor(255, 0, 0);
         } else if (dangerBlink && !blinkOn){
             setColor(0, 0, 0);
+        } else if (happyBlink && blinkOn){
+            setColor(0, 255, 0);
+        } else if (happyBlink && !blinkOn){
+            setColor(0, 0, 0);
         } else if (blinkOn && RobotContainer.superstructure.hasGampiece()) {
             setColor(GREEN[0], GREEN[1], GREEN[2]);
             selectedColor = Color.GREEN;
@@ -83,10 +87,6 @@ public class LEDs extends SubsystemBase {
         } else if (level == Level.LOW && selectedColor != Color.PURPLE) {
             setColor(PURPLE[0], PURPLE[1], PURPLE[2]);
             selectedColor = Color.PURPLE;
-        } else if (happyBlink && blinkOn){
-            setColor(0, 255, 0);
-        } else if (happyBlink && !blinkOn){
-            setColor(0, 0, 0);
         }
 
         Logger.getInstance().recordOutput("SelectedLEDColor", selectedColor.toString());
