@@ -297,6 +297,9 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void testPeriodic() {
+	CommandScheduler.getInstance().run();
+    Logger.getInstance().recordOutput("Alliance Color", alliance.toString());
+    RobotContainer.operatorControls.updateSelection();
     RobotContainer.testmode.periodic();
   }
 

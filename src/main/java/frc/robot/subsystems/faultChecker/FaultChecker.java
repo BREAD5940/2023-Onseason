@@ -16,7 +16,7 @@ import org.littletonrobotics.junction.Logger;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
-public class FaultChecker {
+public class FaultChecker extends Thread {
     int loopCounter = 0;
     public int radioErrCount = 0;
     // order limelight, orangepi1, orangepi2
@@ -54,7 +54,8 @@ public class FaultChecker {
 
     }
 
-    public void update() {
+	@Override
+    public void run() {
         System.out.println("---------- ERRORS ----------");
         priorityCANerror = "OK";
         priorityETHerror = "OK";
