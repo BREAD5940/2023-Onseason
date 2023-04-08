@@ -240,9 +240,10 @@ public class AutoPlaceCommand extends CommandBase {
         Pose3d closestNode = new Pose3d();
         Pose3d testNode = new Pose3d();
         int closestScoringLocation = -1;
+        double errorOfCurrentClosest = Double.POSITIVE_INFINITY;
+        Pose2d currentPose = RobotContainer.poseEstimator.getLatestPose();
+
         for (int i = 1; i <= 9; i++) {
-            Pose2d currentPose = RobotContainer.poseEstimator.getLatestPose();
-            Pose3d current3dPose = new Pose3d(currentPose.getX(), currentPose.getY(), 0.0, new Rotation3d());
             if (level == Level.HIGH) {
                 Translation2d xyNodeTranslation = AllianceFlipUtil.apply(Grids.highTranslations[i - 1]);
                 testNode = new Pose3d(
@@ -265,17 +266,14 @@ public class AutoPlaceCommand extends CommandBase {
                         0.0,
                         new Rotation3d());
             }
-            double error = testNode.relativeTo(current3dPose).getTranslation().getNorm();
-            double errorOfCurrentClosest = closestNode.relativeTo(current3dPose).getTranslation().getNorm();
+            double error = testNode.toPose2d().relativeTo(currentPose).getTranslation().getNorm();
+            
             if (error < errorOfCurrentClosest) {
+                errorOfCurrentClosest = closestNode.toPose2d().relativeTo(currentPose).getTranslation().getNorm();
                 closestScoringLocation = i;
                 closestNode = testNode;
             }
         }
-        // double lowestError = closestNode.relativeTo(RobotContainer.poseEstimator.getLatestPose()).getTranslation().getNorm();
-        // if (lowestError < Units.inchesToMeters(8.0)) {
-        //     return closestScoringLocation;
-        // }
         nodeLocation = closestNode;
         return closestScoringLocation;
     }
