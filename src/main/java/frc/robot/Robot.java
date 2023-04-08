@@ -286,7 +286,7 @@ public class Robot extends LoggedRobot {
     }
 
     AprilTagVision.setTrustLevel(RobotContainer.operator.getPOV() == 135 || RobotContainer.operator.getPOV() == 180
-        || RobotContainer.operator.getPOV() == 225);
+    || RobotContainer.operator.getPOV() == 225);
   }
 
   @Override
