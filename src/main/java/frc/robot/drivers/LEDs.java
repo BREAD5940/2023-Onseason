@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.commons.BreadUtil;
 import frc.robot.subsystems.Superstructure.Level;
+import frc.robot.subsystems.swerve.Swerve;
 
 import static frc.robot.Constants.LEDs.*;
 
@@ -19,7 +20,7 @@ public class LEDs extends SubsystemBase {
 
     /* Enum to keep track of currently selected color */
     private enum Color {
-        NA, PURPLE, YELLOW, GREEN
+        NA, PURPLE, YELLOW, BLUE, TURQUOISE
     }
     
     /* Constructs the LEDs object */
@@ -53,21 +54,24 @@ public class LEDs extends SubsystemBase {
         Level level = RobotContainer.operatorControls.getLastSelectedLevel();
         boolean isCubeNode = scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8;
         if (blinkOn && RobotContainer.superstructure.hasGampiece()) {
-            setColor(GREEN[0], GREEN[1], GREEN[2]);
-            selectedColor = Color.GREEN;
+            setColor(BLUE[0], BLUE[1], BLUE[2]);
+            selectedColor = Color.BLUE;
         } else if (!blinkOn && RobotContainer.superstructure.hasGampiece()) {
             setColor(0, 0, 0);
             selectedColor = Color.NA;
         } else if (isCubeNode && selectedColor != Color.PURPLE && level != Level.LOW) {
             setColor(PURPLE[0], PURPLE[1], PURPLE[2]);
             selectedColor = Color.PURPLE;
+        } else if (Swerve.alignedChargeStation == true && Swerve.aligningChargeStation == true) {
+            setColor(TURQUOISE[0], TURQUOISE[1], TURQUOISE[2]);
+            selectedColor = Color.TURQUOISE;
         } else if (!isCubeNode && selectedColor != Color.YELLOW && level != Level.LOW) {
             setColor(YELLOW[0], YELLOW[1], YELLOW[2]);
             selectedColor = Color.YELLOW;
         } else if (level == Level.LOW && selectedColor != Color.PURPLE) {
             setColor(PURPLE[0], PURPLE[1], PURPLE[2]);
             selectedColor = Color.PURPLE;
-        } 
+        }
 
         Logger.getInstance().recordOutput("SelectedLEDColor", selectedColor.toString());
     }

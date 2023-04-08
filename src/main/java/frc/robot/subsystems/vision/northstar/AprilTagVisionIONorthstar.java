@@ -8,6 +8,7 @@
 package frc.robot.subsystems.vision.northstar;
 
 import edu.wpi.first.networktables.DoubleArraySubscriber;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -19,7 +20,7 @@ import frc.robot.commons.Alert.AlertType;
 public class AprilTagVisionIONorthstar implements AprilTagVisionIO {
     private final DoubleArraySubscriber observationSubscriber;
     private final IntegerSubscriber fpsSubscriber;
-    private final double version;
+    private final DoubleSubscriber versionSubscriber;
 
     private static final double disconnectedTimeout = 1.5;
     private final Alert disconnectedAlert;
@@ -34,7 +35,7 @@ public class AprilTagVisionIONorthstar implements AprilTagVisionIO {
                 .subscribe(
                         new double[] {}, PubSubOption.keepDuplicates(true), PubSubOption.sendAll(true));
         fpsSubscriber = outputTable.getIntegerTopic("fps").subscribe(0);
-        version = outputTable.getEntry("version").getDouble(1.0);
+        versionSubscriber = outputTable.getDoubleTopic("version").subscribe(1);
 
         disconnectedAlert = new Alert("No data from \"" + identifier + "\"", AlertType.ERROR);
         disconnectedTimer.start();
@@ -50,7 +51,7 @@ public class AprilTagVisionIONorthstar implements AprilTagVisionIO {
         }
 
         inputs.fps = fpsSubscriber.get();
-        inputs.version = (long) version;
+        inputs.version = (long) versionSubscriber.get();
 
         // Update disconnected alert
         if (queue.length > 0) {
