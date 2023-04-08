@@ -1,7 +1,10 @@
 package frc.robot.subsystems.swerve;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -11,6 +14,9 @@ import frc.robot.RobotContainer;
 import frc.robot.commons.AllianceFlipUtil;
 import frc.robot.commons.BreadUtil;
 import static frc.robot.Constants.Drive.*;
+import static frc.robot.FieldConstants.*;
+
+import org.littletonrobotics.junction.Logger;
 
 public class AlignChargeStationCommand extends CommandBase {
   private final Swerve swerve;
@@ -20,7 +26,6 @@ public class AlignChargeStationCommand extends CommandBase {
   private final PIDController thetaController = new PIDController(5.0, 0.0, 0.0);
 
   private Pose2d targetPose;
-  private boolean aligned;
 
   private final double X_ERROR_TOLERANCE = Units.inchesToMeters(2.0);
   private final double Y_ERROR_TOLERANCE = Units.inchesToMeters(2.0);
@@ -35,8 +40,9 @@ public class AlignChargeStationCommand extends CommandBase {
   @Override
   public void initialize() {
     // TOOD: define target pose
-    targetPose = AllianceFlipUtil.apply(new Pose2d());
-    aligned = false;
+    targetPose = AllianceFlipUtil.apply(new Pose2d(new Translation2d(fieldLength - 12.46, 4.97), Rotation2d.fromDegrees(180.0)));
+    Swerve.alignedChargeStation = false;
+    Swerve.aligningChargeStation = true;
 
     // Reset PID controllers
     xController.reset();
@@ -50,14 +56,18 @@ public class AlignChargeStationCommand extends CommandBase {
     Pose2d poseError = targetPose.relativeTo(currentRobotPose);
 
     // Calculate the outputs for the PID controllers
-    double xOutput = xController.calculate(poseError.getX());
-    double yOutput = yController.calculate(poseError.getY());
+    double xOutput = xController.calculate(currentRobotPose.getX(), targetPose.getX());
+    double yOutput = yController.calculate(currentRobotPose.getY(), targetPose.getY());
     double thetaOutput = thetaController.calculate(
-      poseError.getRotation().getRadians()
+      currentRobotPose.getRotation().getRadians(), targetPose.getRotation().getRadians()
     );
 
-    if (!aligned) {
-       // Aligns to the correct pose based on the PID outpus
+    xOutput = MathUtil.clamp(xOutput, -1, 1);
+    yOutput = MathUtil.clamp(yOutput, -1, 1);
+    thetaOutput = MathUtil.clamp(thetaOutput, -1.0, 1.0);
+
+    if (!Swerve.alignedChargeStation) {
+       // Aligns to the correct pose based on the PID outputs
       swerve.requestVelocity(
         new ChassisSpeeds(xOutput, yOutput, thetaOutput),
         true,
@@ -66,39 +76,49 @@ public class AlignChargeStationCommand extends CommandBase {
 
       // Check if aligned with the target pose
       if (
-        Math.abs(xController.getPositionError()) < X_ERROR_TOLERANCE &&
-        Math.abs(yController.getPositionError()) < Y_ERROR_TOLERANCE &&
-        Math.abs(thetaController.getPositionError()) < THETA_ERROR_TOLERANCE
+        Math.abs(poseError.getX()) < X_ERROR_TOLERANCE &&
+        Math.abs(poseError.getY()) < Y_ERROR_TOLERANCE &&
+        Math.abs(poseError.getRotation().getDegrees()) < THETA_ERROR_TOLERANCE
       ) {
-        aligned = true;
+        Swerve.alignedChargeStation = true;
       }
     } else {
       double y = BreadUtil.deadband(RobotContainer.driver.getRightX(), 0.1);
+      double x = BreadUtil.deadband(RobotContainer.driver.getRightY(), 0.1);
       double scale = 0.25;
       double dy;
+      double dx;
 
       if (Robot.alliance == DriverStation.Alliance.Blue) {
+        dx = Math.pow(-x, 1) * scale;
         dy = Math.pow(-y, 1) * scale;
+        
       } else {
+        dx = Math.pow(-x, 1) * scale * -1;
         dy = Math.pow(-y, 1) * scale * -1;
       }
 
       // Lock x and heading, allowing driver input on y
       swerve.requestVelocity(
-        new ChassisSpeeds(xOutput, dy * ROBOT_MAX_VELOCITY, thetaOutput),
+        new ChassisSpeeds(dx * ROBOT_MAX_VELOCITY, dy * ROBOT_MAX_VELOCITY, thetaOutput),
         true,
         false
       );
     }
+
+    Logger.getInstance().recordOutput("AutoAlignChargeStation/TargetPose", targetPose);
+    Logger.getInstance().recordOutput("AutoAlignChargeStation/TargetPoseError", poseError);
+    Logger.getInstance().recordOutput("AutoAlignChargeStation/Aligned", Swerve.alignedChargeStation);
   }
 
   @Override
   public void end(boolean interrupted) {
+    Swerve.aligningChargeStation = false;
     swerve.requestVelocity(new ChassisSpeeds(0.0, 0.0, 0.0), false, false);
   }
 
   /* Returns the alignment status */
   public boolean isAligned() {
-    return aligned;
+    return Swerve.alignedChargeStation;
   }
 }

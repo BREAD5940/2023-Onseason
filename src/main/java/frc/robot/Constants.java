@@ -273,7 +273,8 @@ public final class Constants {
     public static class LEDs {
         public static final int[] PURPLE = {255, 0, 255};
         public static final int[] YELLOW = {255, 217, 0};
-        public static final int[] GREEN = {0, 0, 255};
+        public static final int[] BLUE = {0, 0, 255};
+        public static final int[] TURQUOISE = {48, 213, 200};
     }
 
     // Constants pertaining to robot locations on the field

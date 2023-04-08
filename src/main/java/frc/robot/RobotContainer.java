@@ -162,7 +162,7 @@ public class RobotContainer {
     new JoystickButton(driver, XboxController.Button.kA.value)
       .whileTrue(new ManualPickupAssistCommand(swerve, superstructure));
 
-    new JoystickButton(driver, XboxController.Button.kRightStick.value)
+    new JoystickButton(driver, XboxController.Button.kLeftStick.value)
       .whileTrue(new AlignChargeStationCommand(swerve));
   }
 
