@@ -134,8 +134,7 @@ public class AprilTagVision extends SubsystemBase {
                         for (int frameIndex = 0; frameIndex < inputs[instanceIndex].timestamps.length; frameIndex++) {
                                 var timestamp = inputs[instanceIndex].timestamps[frameIndex];
                                 var values = inputs[instanceIndex].frames[frameIndex];
-                                // int version = (int) inputs[instanceIndex].version;
-                                int version = 2;
+                                int version = (int) inputs[instanceIndex].version;
 
                                 Logger.getInstance()
                                                 .recordOutput(
