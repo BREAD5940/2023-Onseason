@@ -102,6 +102,7 @@ public final class Constants {
         public static final double STEER_GEARING = (24.0/12) * (72.0/14);
         public static final double ROBOT_WIDTH = Units.inchesToMeters(27.0 - 2.625 * 2.0);
         public static final double ROBOT_LENGTH = Units.inchesToMeters(28.0 - 2.625 * 2.0);
+        public static final double ROBOT_MAX_VELOCITY = 4.95;
         // Madtown field callibration constant factor is 0.97
         public static final double WHEEL_RADIUS = Units.inchesToMeters(2.0) * 0.9442667069;
         public static final Translation2d FIELD_TO_TARGET = new Translation2d(Units.feetToMeters(27), Units.feetToMeters(13.5));
@@ -272,7 +273,8 @@ public final class Constants {
     public static class LEDs {
         public static final int[] PURPLE = {255, 0, 255};
         public static final int[] YELLOW = {255, 217, 0};
-        public static final int[] GREEN = {0, 0, 255};
+        public static final int[] BLUE = {0, 0, 255};
+        public static final int[] TURQUOISE = {48, 213, 200};
     }
 
     // Constants pertaining to robot locations on the field

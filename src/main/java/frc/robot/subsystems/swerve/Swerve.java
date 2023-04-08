@@ -56,6 +56,8 @@ public class Swerve extends SubsystemBase {
     private boolean fieldRelative = true;
     private boolean auto = false;
     private double lastFPGATimestamp = 0.0;
+    public static boolean alignedChargeStation = false;
+    public static boolean aligningChargeStation = false;
 
     /* Swerve States Enum */
     enum SwerveState {

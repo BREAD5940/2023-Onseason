@@ -15,6 +15,7 @@ public interface AprilTagVisionIO {
         public double[] timestamps = new double[] {};
         public double[][] frames = new double[][] {};
         public long fps = 0;
+        public long version = 0;
 
         @Override
         public void toLog(LogTable table) {
@@ -24,6 +25,7 @@ public interface AprilTagVisionIO {
                 table.put("Frame/" + Integer.toString(i), frames[i]);
             }
             table.put("Fps", fps);
+            table.put("Version", version);
         }
 
         @Override
@@ -35,6 +37,7 @@ public interface AprilTagVisionIO {
                 frames[i] = table.getDoubleArray("Frame/" + Integer.toString(i), new double[] {});
             }
             fps = table.getInteger("Fps", fps);
+            version = table.getInteger("Version", version);
         }
     }
 
