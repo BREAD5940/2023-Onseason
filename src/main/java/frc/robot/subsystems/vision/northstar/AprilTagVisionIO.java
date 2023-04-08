@@ -15,7 +15,7 @@ public interface AprilTagVisionIO {
         public double[] timestamps = new double[] {};
         public double[][] frames = new double[][] {};
         public long fps = 0;
-        public long version = 0;
+        public long version = 2;
 
         @Override
         public void toLog(LogTable table) {
