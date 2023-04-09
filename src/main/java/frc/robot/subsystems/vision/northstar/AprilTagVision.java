@@ -143,14 +143,30 @@ public class AprilTagVision extends SubsystemBase {
                                                                 Timer.getFPGATimestamp() - timestamp);
                                 Pose3d cameraPose = null;
 
+                                // Default value (100) represents an unloaded value
+                                if (version == 100) {
+                                        continue;
+                                }
+
                                 switch (version) {
                                         case 1:
+                                                if (values.length < 15) {
+                                                        continue;
+                                                }
+
                                                 processVersion1(values, instanceIndex, tagPose3ds, tagIds, visionPose2ds, timestamp);
                                                 break;
                                         case 2:
+                                                if (values.length < 8) {
+                                                        continue;
+                                                }
+                                        
                                                 processVersion2(values, instanceIndex, cameraPose, tagPose3ds, tagIds, timestamp);
                                                 break;
                                         default:
+                                                if (values.length < 15) {
+                                                        continue;
+                                                }
                                                 // Default to version 1 if "version" is not 1 or 2
                                                 processVersion1(values, instanceIndex, tagPose3ds, tagIds, visionPose2ds, timestamp);
                                                 break;
