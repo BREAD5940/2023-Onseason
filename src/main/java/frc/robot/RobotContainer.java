@@ -42,6 +42,7 @@ import frc.robot.subsystems.vision.limelight.LimelightDetectionsClassifier;
 import frc.robot.subsystems.vision.northstar.AprilTagVision;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIO;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIONorthstar;
+import frc.robot.subsystems.vision.visionTest.CameraPoseTester;
 import frc.robot.subsystems.faultChecker.FaultChecker;
 import frc.robot.subsystems.faultChecker.Testmode;
 
@@ -81,6 +82,7 @@ public class RobotContainer {
     configureControls();
     configureNorthstarVision();
 	faultChecker.start();
+	CameraPoseTester tester = new CameraPoseTester(northstarVision);
   }
 
   private void configureControls() {

@@ -12,13 +12,14 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.subsystems.vision.northstar.AprilTagVision;
 
 /** Used to test if the camera on the robot are in the correct positions */
 public class CameraPoseTester {
     private AprilTagVision visionSupplier;
     private double visionTesterTolerance = 0.1;
-    private Map<Integer, Map<Pair<String, String>, Boolean>> cameraAlignment = new HashMap<Integer, Map<Pair<String, String>, Boolean>>();
+    private Map<Pair<String, String>, Boolean> cameraAlignment = new HashMap<>();
 
 	private Map<String, Pair<LinearFilter, AlignmentTypes>> activeAlignmentsCheck = new HashMap<String, Pair<LinearFilter, AlignmentTypes>>();
 
@@ -28,22 +29,16 @@ public class CameraPoseTester {
 
     /** runs tests on the all cameras and then holds the result internally */
     public void update() {
-        Map<Integer, Map<String, Pose3d>> allPoseReadings = getTagData();
-        Map<Integer, Map<Pair<String, String>, Boolean>> camAlignment = new HashMap<Integer, Map<Pair<String, String>, Boolean>>();
-        for (Integer tagId : allPoseReadings.keySet()) {
-            Map<String, Pose3d> tagPoses = allPoseReadings.get(tagId);
-            String[] tagPosesKeys = tagPoses.keySet().toArray(new String[0]);
-            for (int i = 0; i < tagPosesKeys.length; i++) {
-                for (int j = i+1; j < tagPosesKeys.length; j++) {
-					if (!camAlignment.containsKey(tagId)) {
-						camAlignment.put(tagId, new HashMap<Pair<String, String>, Boolean>());
-					}
-                    camAlignment.get(tagId).put(
-                        new Pair<String,String>(tagPosesKeys[i], tagPosesKeys[j]),
-                        areAligned(tagPoses.get(tagPosesKeys[i]), tagPoses.get(tagPosesKeys[j])));
-                }
-            }
-        }
+    	Map<String, Pose3d> allPoseReadings = getTagData();
+		Map<Pair<String, String>, Boolean> camAlignment = new HashMap<>();
+		String[] allPosesKeys = allPoseReadings.keySet().toArray(new String[0]);
+		for (int i = 0; i < allPosesKeys.length; i++) {
+			for (int j = i+1; j < allPosesKeys.length; j++) {
+				camAlignment.put(
+					new Pair<String,String>(allPosesKeys[i], allPosesKeys[j]),
+					areAligned(allPoseReadings.get(allPosesKeys[i]), allPoseReadings.get(allPosesKeys[j])));
+			}
+		}
 
         cameraAlignment = camAlignment;
     }
@@ -64,15 +59,14 @@ public class CameraPoseTester {
 	 * and AlignmentTypes.NO_RESULT when there is not enough data to choose beteen the tags.
 	 */
     public AlignmentTypes checkCameraAlignment(String cam1, String cam2, Integer tagId) {
-		if (cameraAlignment.containsKey(tagId)) {
-			for (Pair<String,String> key : cameraAlignment.get(tagId).keySet()) {
-				if ((key.getFirst() == cam1 && key.getSecond() == cam2) || (key.getFirst() == cam2 && key.getSecond() == cam1)) {
-					return cameraAlignment.get(tagId).get(key) ?
-						AlignmentTypes.ALIGNED : AlignmentTypes.NOT_ALIGNED;
-				}
+		for (Pair<String,String> key : cameraAlignment.keySet()) {
+			if ((key.getFirst() == cam1 && key.getSecond() == cam2) || (key.getFirst() == cam2 && key.getSecond() == cam1)) {
+				return cameraAlignment.get(key) ?
+					AlignmentTypes.ALIGNED : AlignmentTypes.NOT_ALIGNED;
 			}
 		}
 		// System.out.printf("Could not get alignment data for cameras %S and %S. %n", cam1, cam2);
+
 		return AlignmentTypes.NO_RESULT;
     }
 
@@ -91,55 +85,38 @@ public class CameraPoseTester {
     /**
      * @return This will retrun a map that has all the latest tag pose estimates.
      */
-    private Map<Integer, Map<String, Pose3d>> getTagData() {
-        Map<Integer, Map<String, AprilTagResult>> allTagReadings = visionSupplier.getLatestTagReadings();
-        Map<Integer, Map<String, Pose3d>> allPoseReadings = new HashMap<Integer, Map<String, Pose3d>>();
-        for (Integer tagId : allTagReadings.keySet()) {
-            Map<String, AprilTagResult> tagReadings = allTagReadings.get(tagId);
-            allPoseReadings.put(tagId, new HashMap<String, Pose3d>());
-			Map<String, Pose3d> poseReadings = allPoseReadings.get(tagId);
-            for (String cameraIdentifier : tagReadings.keySet()) {
-                AprilTagResult tagResult = tagReadings.get(cameraIdentifier);
-                if (!tagResult.isOld) {
-                    if (tagResult.bestPose == null) {
-                        poseReadings.put(cameraIdentifier, null); // will get replaced later
-                    } else {
-                        poseReadings.put(cameraIdentifier, tagResult.bestPose);
-                    }
-                }
-            }
+    private Map<String, Pose3d> getTagData() {
+       	Map<String, RobotPose> allCameraPoseReadings = visionSupplier.getRobotPosesForFaultChecker();
+        Map<String, Pose3d> allPoseReadings = new HashMap<>();
+        for (String cameraIdentifier : allCameraPoseReadings.keySet()) {
+			if (allCameraPoseReadings.get(cameraIdentifier).poseAlt != null) {
+				RobotPose robotPose = allCameraPoseReadings.get(cameraIdentifier);
+				for (String cameraIdentifier2 : allCameraPoseReadings.keySet()) {
+					if (cameraIdentifier != cameraIdentifier2) {
+						if (allCameraPoseReadings.get(cameraIdentifier2).poseAlt != null) {
+							RobotPose robotPose2 = allCameraPoseReadings.get(cameraIdentifier2);
+							double compare00 = robotPose.pose.getTranslation().getDistance(robotPose2.pose.getTranslation());
+							double compare10 = robotPose.poseAlt.getTranslation().getDistance(robotPose2.pose.getTranslation());
+							double compare01 = robotPose.pose.getTranslation().getDistance(robotPose2.poseAlt.getTranslation());
+							double compare11 = robotPose.poseAlt.getTranslation().getDistance(robotPose2.poseAlt.getTranslation());
 
-			for (String cameraIdentifier : poseReadings.keySet()) {
-				if (poseReadings.get(cameraIdentifier) == null) {
-					AprilTagResult tagResult = tagReadings.get(cameraIdentifier);
-					String cameraIdentifier2 = poseReadings.keySet().toArray(new String[0])[0];
-					if (poseReadings.get(cameraIdentifier2) == null) {
-						AprilTagResult tagResult2 = tagReadings.get(cameraIdentifier2);
-						double compare00 = tagResult.tagPose0.getTranslation().getDistance(tagResult2.tagPose0.getTranslation());
-						double compare10 = tagResult.tagPose1.getTranslation().getDistance(tagResult2.tagPose0.getTranslation());
-						double compare01 = tagResult.tagPose0.getTranslation().getDistance(tagResult2.tagPose1.getTranslation());
-						double compare11 = tagResult.tagPose1.getTranslation().getDistance(tagResult2.tagPose1.getTranslation());
-
-						if (compare00 > compare10 && compare00 > compare01 && compare00 > compare11) {
-							poseReadings.put(cameraIdentifier, tagResult.tagPose0);
-							poseReadings.put(cameraIdentifier2, tagResult.tagPose0);
-						} else if (compare10 > compare01 && compare10 > compare11) {
-							poseReadings.put(cameraIdentifier, tagResult.tagPose1);
-							poseReadings.put(cameraIdentifier2, tagResult.tagPose0);
-						} else if (compare01 > compare11) {
-							poseReadings.put(cameraIdentifier, tagResult.tagPose0);
-							poseReadings.put(cameraIdentifier2, tagResult.tagPose1);
+							if (compare00 > compare10 && compare00 > compare01 && compare00 > compare11) {
+								allPoseReadings.put(cameraIdentifier, inversPose3d(robotPose.pose));
+							} else if (compare10 > compare01 && compare10 > compare11) {
+								allPoseReadings.put(cameraIdentifier, inversPose3d(robotPose.poseAlt));
+							} else if (compare01 > compare11) {
+								allPoseReadings.put(cameraIdentifier, inversPose3d(robotPose.pose));
+							} else {
+								allPoseReadings.put(cameraIdentifier, inversPose3d(robotPose.poseAlt));
+							}
 						} else {
-							poseReadings.put(cameraIdentifier, tagResult.tagPose1);
-							poseReadings.put(cameraIdentifier2, tagResult.tagPose1);
-						}
-					} else {
-						Pose3d tagPose2 = poseReadings.get(cameraIdentifier2);
-						if (tagPose2.getTranslation().getDistance(tagResult.tagPose0.getTranslation()) <
-						tagPose2.getTranslation().getDistance(tagResult.tagPose1.getTranslation())) {
-							poseReadings.put(cameraIdentifier, tagResult.tagPose0);
-						} else {
-							poseReadings.put(cameraIdentifier, tagResult.tagPose1);
+							Pose3d pose2 = allCameraPoseReadings.get(cameraIdentifier2).pose;
+							if (pose2.getTranslation().getDistance(robotPose.pose.getTranslation()) <
+							pose2.getTranslation().getDistance(robotPose.poseAlt.getTranslation())) {
+								allPoseReadings.put(cameraIdentifier, inversPose3d(robotPose.pose));
+							} else {
+								allPoseReadings.put(cameraIdentifier, inversPose3d(robotPose.poseAlt));
+							}
 						}
 					}
 				}
@@ -187,4 +164,10 @@ public class CameraPoseTester {
 		}
 		return AlignmentTypes.NO_RESULT;
 	}
+
+	private Pose3d inversPose3d(Pose3d pose) {
+		Transform3d transform3d = new Transform3d(pose.getTranslation(), pose.getRotation()).inverse();
+		return new Pose3d(transform3d.getTranslation(), transform3d.getRotation());
+	}
 }
+
