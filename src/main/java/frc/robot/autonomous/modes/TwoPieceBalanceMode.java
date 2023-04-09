@@ -17,6 +17,7 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
+import frc.robot.subsystems.swerve.AutoBalanceCommand;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.TrajectoryFollowerCommand;
 
@@ -60,6 +61,8 @@ public class TwoPieceBalanceMode extends SequentialCommandGroup {
             new InstantCommand(() -> superstructure.requestIdle()), 
             new WaitCommand(0.25),
             new TrajectoryFollowerCommand(Robot.twoPieceBalanceC, swerve, false),
+            new WaitCommand(0.5),
+            new AutoBalanceCommand(swerve),
             new RunCommand(() -> swerve.requestPercent(new ChassisSpeeds(0, 0, 0), false))
         );
     }

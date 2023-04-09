@@ -1,13 +1,14 @@
 package frc.robot.subsystems.swerve;
 
 import com.ctre.phoenix.sensors.Pigeon2;
-import edu.wpi.first.math.util.Units;
 
-import static frc.robot.Constants.Electrical.*;
+import edu.wpi.first.math.filter.MedianFilter;
+import edu.wpi.first.math.util.Units;
 
 public class GyroIOPigeon2 implements GyroIO {
 
     Pigeon2 pigeon;
+    MedianFilter filter = new MedianFilter(10);
 
     public GyroIOPigeon2() {
         pigeon = new Pigeon2(30, "dabus");
@@ -24,6 +25,7 @@ public class GyroIOPigeon2 implements GyroIO {
         inputs.pitchRad = Units.degreesToRadians(pigeon.getPitch());
         inputs.rollRad = Units.degreesToRadians(inputs.rollDeg);
         pigeon.getRawGyro(inputs.xyz_dps);
+        inputs.changeInPitch = filter.calculate(inputs.xyz_dps[1]);
     }
 
     @Override
