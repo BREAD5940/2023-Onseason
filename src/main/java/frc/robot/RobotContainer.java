@@ -150,7 +150,7 @@ public class RobotContainer {
     // );
 
     new JoystickButton(driver, XboxController.Button.kX.value)
-        .whileTrue(new AutoPlaceCommand(swerve, superstructure, () -> operatorControls.getLastSelectedScoringLocation(), () -> operatorControls.getLastSelectedLevel()));
+        .whileTrue(new AutoPlaceCommand(swerve, superstructure, () -> operatorControls.getLastSelectedGamePiece(), () -> operatorControls.getLastSelectedLevel()));
     
 
     // new JoystickButton(driver, XboxController.Button.kA.value)

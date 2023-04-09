@@ -3,8 +3,10 @@ package frc.robot.drivers;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.OperatorControls;
 import frc.robot.RobotContainer;
 import frc.robot.commons.BreadUtil;
+import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.subsystems.swerve.Swerve;
 
@@ -48,11 +50,10 @@ public class LEDs extends SubsystemBase {
     /* Set the colors depending on the operators last selected scoring location */
     @Override
     public void periodic() {
-        int scoringLocation = RobotContainer.operatorControls.getLastSelectedScoringLocation();
         double blinkTime = BreadUtil.getFPGATimeSeconds() * 10.0;
         boolean blinkOn = ((int) blinkTime) % 2 == 0;
         Level level = RobotContainer.operatorControls.getLastSelectedLevel();
-        boolean isCubeNode = scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8;
+        boolean isCubeNode = RobotContainer.operatorControls.getLastSelectedGamePiece() == GamePiece.CUBE;
         if (blinkOn && RobotContainer.superstructure.hasGampiece()) {
             setColor(BLUE[0], BLUE[1], BLUE[2]);
             selectedColor = Color.BLUE;
