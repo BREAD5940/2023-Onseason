@@ -27,6 +27,7 @@ public class TwoPieceChargeStationMode extends SequentialCommandGroup {
                 new InstantCommand(() -> superstructure.requestScore()),
                 new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_CONE_PULL_OUT_HIGH)),
                 new WaitCommand(0.3),
+                new InstantCommand(() -> superstructure.requestIdle()), 
 
                 // Drive backwards over the charge station, intake the cube, and drive back over
                 new TrajectoryFollowerCommand(Robot.twoPieceChargeStationA, swerve, true),
