@@ -42,8 +42,8 @@ import frc.robot.subsystems.vision.limelight.LimelightDetectionsClassifier;
 import frc.robot.subsystems.vision.northstar.AprilTagVision;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIO;
 import frc.robot.subsystems.vision.northstar.AprilTagVisionIONorthstar;
-import frc.robot.subsystems.faultChecker.FaultChecker;
 import frc.robot.subsystems.faultChecker.Testmode;
+
 
 public class RobotContainer {
 
@@ -71,14 +71,12 @@ public class RobotContainer {
   public static final LEDs leds = new LEDs(0, 74);
 
   public static final Testmode testmode = new Testmode();
-  public static final FaultChecker faultChecker = new FaultChecker();
 
   private static AutonomousSelector autonomousSelector;
 
   public RobotContainer() {
     configureControls();
     configureNorthstarVision();
-	faultChecker.start();
   }
 
   private void configureControls() {

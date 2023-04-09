@@ -28,6 +28,7 @@ import frc.robot.subsystems.climber.Climber.ClimberStates;
 import frc.robot.subsystems.vision.limelight.LimelightDetectionsClassifier;
 import frc.robot.subsystems.vision.northstar.AprilTagVision;
 import frc.robot.subsystems.faultChecker.Testmode;
+import frc.robot.subsystems.faultChecker.*;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -142,6 +143,9 @@ public class Robot extends LoggedRobot {
     RobotContainer.swerve.resetAllToAbsolute();
     m_robotContainer.configureAutonomousSelector(); // Needed down here so auto paths exist when the selector is created
     RobotContainer.limelightVision.enableLeds(false);
+
+    FaultChecker faultChecker = new FaultChecker();
+    faultChecker.start();
   }
 
   @Override
