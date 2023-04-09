@@ -13,6 +13,7 @@ import frc.robot.autonomous.modes.ThrowBalanceMode;
 import frc.robot.autonomous.modes.TwoPieceBalanceBumpMode;
 import frc.robot.autonomous.modes.TwoPieceBalanceMode;
 import frc.robot.autonomous.modes.TwoPieceBumpMode;
+import frc.robot.autonomous.modes.TwoPieceChargeStationMode;
 import frc.robot.autonomous.modes.TwoPieceMode;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.swerve.Swerve;
@@ -61,6 +62,10 @@ public class AutonomousSelector {
         autonomusSelector.addOption(
             "THROW_BALANCE",
             Commands.waitUntil(superstructure::homedOnce).andThen(new ThrowBalanceMode(superstructure, swerve))
+        );
+        autonomusSelector.addOption(
+            "TWO_PIECE_CHARGE_STATION",
+            Commands.waitUntil(superstructure::homedOnce).andThen(new TwoPieceChargeStationMode(superstructure, swerve))
         );
         SmartDashboard.putData("Autonomus Selector", autonomusSelector);
     }
