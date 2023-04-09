@@ -23,6 +23,7 @@ public class GyroIOPigeon2 implements GyroIO {
         inputs.rollDeg = pigeon.getRoll() - 3.515625;
         inputs.pitchRad = Units.degreesToRadians(pigeon.getPitch());
         inputs.rollRad = Units.degreesToRadians(inputs.rollDeg);
+        pigeon.getRawGyro(inputs.xyz_dps);
     }
 
     @Override
