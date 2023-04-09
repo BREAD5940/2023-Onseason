@@ -2,6 +2,7 @@
 
 package frc.robot.subsystems.faultChecker;
 
+import java.io.IOException;
 import java.net.InetAddress;
 
 import frc.robot.Constants;
@@ -20,11 +21,11 @@ public class FaultChecker extends Thread {
     int loopCounter = 0;
     public int radioErrCount = 0;
     // order limelight, orangepi1, orangepi2
-    public int[] ErrCounts = { 0, 0, 0 };
+    public int[] ErrCounts = {0, 0, 0};
     public int limelightErrCount = 0;
     public int orangepi1ErrCount = 0;
     public int orangepi2ErrCount = 0;
-    private String[] swerveOrder = { "FL, FR, BL, BR" };
+    private String[] swerveOrder = {"FL", "FR", "BL", "BR"};
 
     double allowableCANerror = 0.01;
 
@@ -54,143 +55,107 @@ public class FaultChecker extends Thread {
 
     }
 
-    @Override
+	@Override
     public void run() {
-        while (true) {
-            System.out.println("---------- ERRORS ----------");
-        priorityCANerror = "OK";
-        priorityETHerror = "OK";
+		while (true) {
+			System.out.println("---------- ERRORS ----------");
+			priorityCANerror = "OK";
+			priorityETHerror = "OK";
 
-        loopCounter++;
-        try {
-            if (!limelight.isReachable(20)) {
-                limelightErrCount++;
-                Logger.getInstance().recordOutput("Ethernet/Limelight", false);
-                System.out.println("Ethernet/Limelight: " + "false");
-                priorityETHerror = "Limelight NC";
-            } else {
-                Logger.getInstance().recordOutput("Ethernet/Limelight", true);
-                System.out.println("Ethernet/Limelight: " + "true");
-            }
+			
+			ArrayList<Pair<Boolean, String>> ethernetErrors = new ArrayList<>();
 
-            if (!orangepi1.isReachable(20)) {
-                orangepi1ErrCount++;
-                Logger.getInstance().recordOutput("Ethernet/Orangepi1", false);
-                System.out.println("Ethernet/Orangepi1: " + "false");
-                priorityETHerror = "OPI1 NC";
-            } else {
-                Logger.getInstance().recordOutput("Ethernet/Orangepi1", true);
-                System.out.println("Ethernet/Orangepi1: " + "true");
-            }
+			try {
+				ethernetErrors.add(new Pair<Boolean,String>(limelight.isReachable(20), "Limelight"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			try {
+				ethernetErrors.add(new Pair<Boolean,String>(orangepi1.isReachable(20), "Orangepi1"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			try {
+				ethernetErrors.add(new Pair<Boolean,String>(orangepi2.isReachable(20), "Orangepi2"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
-            if (!orangepi2.isReachable(20)) {
-                orangepi2ErrCount++;
-                Logger.getInstance().recordOutput("Ethernet/Orangepi2", false);
-                System.out.println("Ethernet/Orangepi2: " + "false");
-                priorityETHerror = "OPI2 NC";
-            } else {
-                Logger.getInstance().recordOutput("Ethernet/Orangepi2", true);
-                System.out.println("Ethernet/Orangepi2: " + "true");
-            }
+			for (int i = 0; i < ethernetErrors.size(); i++) {
+				Pair<Boolean,String> ethernetError = ethernetErrors.get(i);
+				if (!ethernetError.getFirst()) {
+					ErrCounts[i]++;
+					Logger.getInstance().recordOutput("Ethernet/" + ethernetError.getSecond(), false);
+					System.out.println("Ethernet/" + ethernetError.getSecond() + ": false");
+					priorityETHerror = ethernetError.getSecond()+ " NC";
+				} else {
+					Logger.getInstance().recordOutput("Ethernet/" + ethernetError.getSecond(), true);
+					System.out.println("Ethernet/" + ethernetError.getSecond() + ": true");
+				}
+			}
 
-            long finish = 0;
-            long start = new GregorianCalendar().getTimeInMillis();
+			long finish = 0;
+			long start = new GregorianCalendar().getTimeInMillis();
 
-            if (!radio.isReachable(5000)) {
-                radioErrCount++;
-                Logger.getInstance().recordOutput("Ethernet/Radio", false);
-                System.out.println("Ethernet/Radio: " + "false");
-                priorityETHerror = "Radio NC";
-                Logger.getInstance().recordOutput("Ethernet/RadioTime", 5000);
-                System.out.println("Ethernet/RadioTime: " + "5000");
-            } else {
-                Logger.getInstance().recordOutput("Ethernet/Radio", true);
-                System.out.println("Ethernet/Radio: " + "true");
-                finish = new GregorianCalendar().getTimeInMillis();
-                Logger.getInstance().recordOutput("Ethernet/RadioTime", finish - start);
-                System.out.println("Ethernet/RadioTime: " + (finish - start));
-            }
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+			try {
+				if (!radio.isReachable(5000)) {
+					radioErrCount++;
+					Logger.getInstance().recordOutput("Ethernet/Radio", false);
+					System.out.println("Ethernet/Radio: " + "false");
+					priorityETHerror = "Radio NC";
+					Logger.getInstance().recordOutput("Ethernet/RadioTime", 5000);
+					System.out.println("Ethernet/RadioTime: " + "5000");
+				} else {
+					Logger.getInstance().recordOutput("Ethernet/Radio", true);
+					System.out.println("Ethernet/Radio: " + "true");
+					finish = new GregorianCalendar().getTimeInMillis();
+					Logger.getInstance().recordOutput("Ethernet/RadioTime", finish - start);
+					System.out.println("Ethernet/RadioTime: " + (finish - start));
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
 
-        if (RobotContainer.climber.getClimberErrorConc() > allowableCANerror) {
-            priorityCANerror = "CLMB NC";
-            System.out.println("ClimberErrorConc: " + "CLMB NC");
-        }
+			ArrayList<Pair<Boolean, String>> CANerrors = new ArrayList<>();
+			CANerrors.add(new Pair<Boolean, String>(RobotContainer.climber.getClimberErrorConc() > allowableCANerror, "ClimberErrorConc"));
+			CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getDeployErrorConc() > allowableCANerror, "DeployErrorConc"));
+			CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getRollerErrorConc() > allowableCANerror, "RollerErrorConc"));
+			CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getFollowerErrorConc() > allowableCANerror, "FollowerErrorConc"));
+			CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getLeaderErrorConc() > allowableCANerror, "LeaderErrorConc"));
+			CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getArmAzimuthErrorConc() > allowableCANerror, "ArmAzimuthErrorConc"));
+			CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getArmErrorConc() > allowableCANerror, "ArmErrorConc"));
+			CANerrors.add(new Pair<Boolean, String>(RobotContainer.superstructure.getEndEffectorErrorConc() > allowableCANerror, "EndEffectorErrorConc"));
 
-        if (RobotContainer.superstructure.getDeployErrorConc() > allowableCANerror) {
-            priorityCANerror = "INTK DPLY NC";
-            System.out.println("DeployErrorConc: " + "INTK DPLY NC");
-        }
-        if (RobotContainer.superstructure.getRollerErrorConc() > allowableCANerror) {
-            priorityCANerror = "INTK RLLR NC";
-            System.out.println("RollerErrorConc: " + "INTK RLLR NC");
-        }
+			RobotContainer.superstructure.resetError();
+			
+			for (int i = 0; i < 4; i++) {
+				System.out.println(swerveOrder[i]);
+				CANerrors.add(new Pair<Boolean, String>(RobotContainer.swerve.getDriveErrorConc(i) > allowableCANerror, "DriveErrorConc " + swerveOrder[i]));
+				CANerrors.add(new Pair<Boolean, String>(RobotContainer.swerve.getSteerErrorConc(i) > allowableCANerror, "SteerErrorConc " + swerveOrder[i]));
+				CANerrors.add(new Pair<Boolean, String>(RobotContainer.swerve.getAzimuthErrorConc(i) > allowableCANerror, "AzimuthErrorConc " + swerveOrder[i]));
+			}
+			RobotContainer.swerve.resetError();        
+			
+			// addeds it to the display on the robot
+			for (Pair<Boolean, String> CANerror : CANerrors) {
+				if (CANerror.getFirst()) {
+					System.out.println(CANerror.getSecond() + ": HAS ERROR");
+					priorityCANerror = CANerror.getSecond().replace("ErrorConc", ""); // removes the ErrorConc for space reasons
+				} else {
+					System.out.println(CANerror.getSecond() + ": is ok");
+				}
+			}
 
-        if (RobotContainer.superstructure.getFollowerErrorConc() > allowableCANerror) {
-            priorityCANerror = "ELEV FLLWR NC";
-            System.out.println("FollowerErrorConc: " + "ELEV FLLWR NC");
-        }
-        if (RobotContainer.superstructure.getLeaderErrorConc() > allowableCANerror) {
-            priorityCANerror = "ELEV LDR NC";
-            System.out.println("LeaderErrorConc: " + "ELEV LDR NC");
-        }
+			loopCounter++;
+			if (loopCounter % 100 == 0) {
+				CANStatus status = new CANStatus();
+				CANJNI.getCANStatus(status);
+				// serialMXP.writeString("<0,0,0,0>");
+				serialMXP.writeString("<" + "stuff will go here" + "," + ((int) (status.percentBusUtilization * 100)) + "," + priorityCANerror + "_" + priorityETHerror + "," + "?>");
+			}
 
-        if (RobotContainer.superstructure.getArmAzimuthErrorConc() > allowableCANerror) {
-            priorityCANerror = "ARM ENC NC";
-            System.out.println("ArmAzimuthErrorConc: " + "ARM ENC NC");
-        }
-        if (RobotContainer.superstructure.getArmErrorConc() > allowableCANerror) {
-            priorityCANerror = "ARM NC";
-            System.out.println("ArmErrorConc: " + "ARM NC");
-        }
-
-        if (RobotContainer.superstructure.getEndEffectorErrorConc() > allowableCANerror) {
-            priorityCANerror = "END EFFCTR NC";
-            System.out.println("EndEffectorErrorConc: " + "END EFFCTR NC");
-        }
-
-        // loops through all the swerve
-        for (int i = 0; i < 4; i++) { 
-            if (RobotContainer.swerve.getDriveErrorConc(i) > 0.01) {
-                priorityCANerror = "MOD " + i + " DRV NC";
-                System.out.println(swerveOrder + " DriveErrorConc: STR NC");
-            }
-            if (RobotContainer.swerve.getSteerErrorConc(i) > 0.01) {
-                priorityCANerror = "MOD " + i + " STR NC";
-                System.out.println(swerveOrder + " SteerErrorConc: STR NC");
-            }
-            if (RobotContainer.swerve.getAzimuthErrorConc(i) > 0.01) {
-                priorityCANerror = "MOD " + i + " ENC NC";
-                System.out.println(swerveOrder + " AzimuthErrorConc: STR NC");
-            }
-        }
-
-        System.out.println("----------- Ethernet Total Failed Packet Counts (20ms timeout) -----------");
-        System.out.println("Radio: " + radioErrCount);
-        System.out.println("Limelight: " + limelightErrCount);
-        System.out.println("Orangepi1: " + orangepi1ErrCount);
-        System.out.println("Orangepi2: " + orangepi2ErrCount);
-
-        if (loopCounter % 10 == 0) {
-            CANStatus status = new CANStatus();
-            CANJNI.getCANStatus(status);
-            caniv.update();
-            // serialMXP.writeString("<0,0,0,0>");
-            Logger.getInstance().recordOutput("CanivoreUtilization", caniv.utilizationLine);
-            serialMXP.writeString("<" + caniv.percentBusUtilization + "," + ((int) (status.percentBusUtilization * 100)) + "," + priorityCANerror
-                    + "_" + priorityETHerror + "," + "?>");
-        }
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
-        System.out.print("---------- END OF ERRORS ----------");
-    }
-    }
-
+			System.out.print("---------- END OF ERRORS ----------");
+		}
+	}
 }

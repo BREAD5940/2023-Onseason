@@ -143,9 +143,6 @@ public class Robot extends LoggedRobot {
     RobotContainer.swerve.resetAllToAbsolute();
     m_robotContainer.configureAutonomousSelector(); // Needed down here so auto paths exist when the selector is created
     RobotContainer.limelightVision.enableLeds(false);
-
-    FaultChecker faultChecker = new FaultChecker();
-    faultChecker.start();
   }
 
   @Override
