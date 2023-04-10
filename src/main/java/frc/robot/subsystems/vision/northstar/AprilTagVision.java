@@ -317,7 +317,9 @@ public class AprilTagVision extends SubsystemBase {
                                 cameraPose
                                         .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
                                         .toPose2d();
-                                xyStdDevCoefficient = 0.003;
+                                // xyStdDevCoefficient = 0.003;
+                                // thetaStdDevCoefficient = 0.002;
+                                xyStdDevCoefficient = 0.03;
                                 thetaStdDevCoefficient = 0.002;
                                 Logger.getInstance().recordOutput("Camera Pose (Multi Tag) " + instanceIndex, cameraPose);
                                 break;
