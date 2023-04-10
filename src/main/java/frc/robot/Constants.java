@@ -98,7 +98,7 @@ public final class Constants {
 
         // Measurements/Gearings
         // public static final double DRIVE_GEARING = 1/5.5; MBR BELTED DRIVE GEAR RATIO
-        public static final double DRIVE_GEARING = (14/44) * (28/18) * (15/45); //1/5.5;
+        public static final double DRIVE_GEARING = (14.0/44.0) * (28.0/18.0) * (15.0/45.0);
         public static final double STEER_GEARING = (24.0/8) * (72.0/14);
         // public static final double STEER_GEARING = (24.0/12) * (72.0/14); MBR BELTED STEER GEAR RATIO
         public static final double ROBOT_WIDTH = Units.inchesToMeters(27.0 - 2.625 * 2.0);

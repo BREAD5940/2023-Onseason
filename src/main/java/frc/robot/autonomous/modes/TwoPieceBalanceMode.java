@@ -61,8 +61,8 @@ public class TwoPieceBalanceMode extends SequentialCommandGroup {
             new InstantCommand(() -> superstructure.requestIdle()), 
             new WaitCommand(0.25),
             new TrajectoryFollowerCommand(Robot.twoPieceBalanceC, swerve, false),
-            new WaitCommand(0.5),
-            new AutoBalanceCommand(swerve),
+            // new WaitCommand(0.5),
+            // new AutoBalanceCommand(swerve),
             new RunCommand(() -> swerve.requestPercent(new ChassisSpeeds(0, 0, 0), false))
         );
     }

@@ -125,6 +125,7 @@ public class AutoPlaceCommand extends CommandBase {
 
     @Override
     public void execute() { 
+        System.out.println("Auto Place Command Running!");
         thetaController.setP(thetaP.get());
 
         Pose2d realGoal = AllianceFlipUtil.apply(targetRobotPose);

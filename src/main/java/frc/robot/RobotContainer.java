@@ -160,11 +160,11 @@ public class RobotContainer {
     // new JoystickButton(driver, XboxController.Button.kB.value)
     //     .whileTrue(new AutoPickupRoutine(driver::getAButton, driver::getBButton, swerve, superstructure));
 
-    // new JoystickButton(driver, XboxController.Button.kA.value)
-    //   .whileTrue(new ManualPickupAssistCommand(swerve, superstructure));
-
     new JoystickButton(driver, XboxController.Button.kA.value)
-      .whileTrue(new AutoBalanceCommand(swerve));
+      .whileTrue(new ManualPickupAssistCommand(swerve, superstructure));
+
+    // new JoystickButton(driver, XboxController.Button.kA.value)
+    //   .whileTrue(new AutoBalanceCommand(swerve));
 
     new JoystickButton(driver, XboxController.Button.kLeftStick.value)
       .whileTrue(new AlignChargeStationCommand(swerve));

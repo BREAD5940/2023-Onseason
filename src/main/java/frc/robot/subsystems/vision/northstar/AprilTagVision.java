@@ -34,8 +34,8 @@ public class AprilTagVision extends SubsystemBase {
         private final AprilTagVisionIO[] io;
         private final AprilTagVisionIOInputs[] inputs;
 
-        private double xyStdDevCoefficient;
-        private double thetaStdDevCoefficient;
+        private double xyStdDevCoefficient = 0.006;
+        private double thetaStdDevCoefficient = 0.002;
         private static final double fieldBorderMargin = 0.5;
         private static final PolynomialRegression xyStdDevModel;
         private static final PolynomialRegression thetaStdDevModel;
@@ -46,6 +46,13 @@ public class AprilTagVision extends SubsystemBase {
         private Pose2d currentPose;
         private List<TimestampedVisionUpdate> visionUpdates;
         private List<Pose2d> allRobotPoses;
+
+        public enum StdDevMode {
+                HIGH_TELEOP_TRUST, 
+                LOW_TELEOP_TRUST, 
+                DRIVE_AUTO_TRUST, 
+                BALANCE_AUTO_TRUST
+        }
 
         static {
                 cameraPoses = new Pose3d[] {
@@ -203,10 +210,6 @@ public class AprilTagVision extends SubsystemBase {
                 visionConsumer.accept(visionUpdates);
         }
 
-        public static void setTrustLevel(boolean isTrustHigh) {
-                // mStdDevScalar = isTrustHigh ? 0.2 : 2.0;
-        }
-
         public void processVersion1(double[] values, int instanceIndex, List<Pose3d> tagPose3ds, List<Integer> tagIds, List<Pose2d> visionPose2ds, double timestamp) {
                 // Loop over observations
                 for (int i = 0; i < values.length; i += 15) {
@@ -319,8 +322,10 @@ public class AprilTagVision extends SubsystemBase {
                                         .toPose2d();
                                 // xyStdDevCoefficient = 0.003;
                                 // thetaStdDevCoefficient = 0.002;
-                                xyStdDevCoefficient = 0.03;
-                                thetaStdDevCoefficient = 0.002;
+                                // xyStdDevCoefficient = 0.006;
+                                // thetaStdDevCoefficient = 0.004;
+                                // xyStdDevCoefficient = 0.03;
+                                // thetaStdDevCoefficient = 0.002;
                                 Logger.getInstance().recordOutput("Camera Pose (Multi Tag) " + instanceIndex, cameraPose);
                                 break;
                         case 2:
@@ -428,5 +433,21 @@ public class AprilTagVision extends SubsystemBase {
                                                                 Math.pow(rvec.get(0, 0), 2)
                                                                                 + Math.pow(rvec.get(1, 0), 2)
                                                                                 + Math.pow(rvec.get(2, 0), 2))));
+        }
+
+        public void setStdDevMode(StdDevMode mode) {
+                if (mode == StdDevMode.HIGH_TELEOP_TRUST) {
+                        xyStdDevCoefficient = 0.006;
+                        thetaStdDevCoefficient = 0.004;
+                } else if (mode == StdDevMode.LOW_TELEOP_TRUST) {
+                        xyStdDevCoefficient = 0.006;
+                        thetaStdDevCoefficient = 0.004;
+                } else if (mode == StdDevMode.DRIVE_AUTO_TRUST) {
+                        xyStdDevCoefficient = 0.06;
+                        thetaStdDevCoefficient = 0.004;
+                } else if (mode == StdDevMode.BALANCE_AUTO_TRUST) {
+                        xyStdDevCoefficient = 0.03;
+                        thetaStdDevCoefficient = 0.002;
+                }
         }
 }

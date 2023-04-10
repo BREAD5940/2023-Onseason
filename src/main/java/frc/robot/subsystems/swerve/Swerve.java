@@ -92,6 +92,7 @@ public class Swerve extends SubsystemBase {
         Logger.getInstance().processInputs("Swerve/Gyro", gyroInputs);
         for (int i = 0; i < 4; i++) {
             moduleIOs[i].updateInputs(moduleInputs[i]);
+            moduleIOs[i].updateTunableNumbers();
             Logger.getInstance().processInputs("Swerve/Module" + Integer.toString(i), moduleInputs[i]);
         }
         Logger.getInstance().recordOutput("Swerve/loopCycleTime",
