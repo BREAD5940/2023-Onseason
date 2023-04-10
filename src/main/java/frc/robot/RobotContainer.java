@@ -62,9 +62,9 @@ public class RobotContainer {
   public static final Superstructure superstructure = new Superstructure(elevatorIO, armIO, endEffectorIO,
       floorIntakeIO);
   public static final LimelightDetectionsClassifier limelightVision = new LimelightDetectionsClassifier("limelight");
-  private static final AprilTagVisionIO leftCamera = new AprilTagVisionIONorthstar("northstar-left");
-  private static final AprilTagVisionIO rightCamera = new AprilTagVisionIONorthstar("northstar-right");
-  private static final AprilTagVisionIO centerCamera = new AprilTagVisionIONorthstar("northstar-center");
+  public static final AprilTagVisionIO leftCamera = new AprilTagVisionIONorthstar("northstar-left");
+  public static final AprilTagVisionIO rightCamera = new AprilTagVisionIONorthstar("northstar-right");
+  public static final AprilTagVisionIO centerCamera = new AprilTagVisionIONorthstar("northstar-center");
   public static final AprilTagVision northstarVision = new AprilTagVision(leftCamera, rightCamera, centerCamera);
   public static final PoseEstimator poseEstimator = new PoseEstimator(VecBuilder.fill(0.005, 0.005, 0.0005));
   
@@ -74,7 +74,8 @@ public class RobotContainer {
 
   public static final Testmode testmode = new Testmode();
   public static final FaultChecker faultChecker = new FaultChecker();
-
+  public static final CameraPoseTester cameraPoseTester = new CameraPoseTester(northstarVision);
+  
 
   private static AutonomousSelector autonomousSelector;
 
@@ -82,7 +83,6 @@ public class RobotContainer {
     configureControls();
     configureNorthstarVision();
 	faultChecker.start();
-	CameraPoseTester tester = new CameraPoseTester(northstarVision);
   }
 
   private void configureControls() {

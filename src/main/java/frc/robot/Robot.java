@@ -140,6 +140,9 @@ public class Robot extends LoggedRobot {
     m_robotContainer.configureAutonomousSelector(); // Needed down here so auto paths exist when the selector is created
     RobotContainer.limelightVision.enableLeds(false);
 	
+	RobotContainer.cameraPoseTester.startAlignmentCheck(RobotContainer.centerCamera.getIdentifier(), RobotContainer.leftCamera.getIdentifier());
+	RobotContainer.cameraPoseTester.startAlignmentCheck(RobotContainer.centerCamera.getIdentifier(), RobotContainer.rightCamera.getIdentifier());
+
   }
 
   @Override
@@ -147,6 +150,14 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
     Logger.getInstance().recordOutput("Alliance Color", alliance.toString());
     RobotContainer.operatorControls.updateSelection();
+	RobotContainer.cameraPoseTester.update();
+	Logger.getInstance().recordOutput(
+		"faultChecker/vision/centerCameraVSleftCamera",
+		RobotContainer.cameraPoseTester.updateAlignmentCheck(RobotContainer.centerCamera.getIdentifier(), RobotContainer.leftCamera.getIdentifier()).toString());
+	Logger.getInstance().recordOutput(
+		"faultChecker/vision/centerCameraVSrightCamera",
+		RobotContainer.cameraPoseTester.updateAlignmentCheck(RobotContainer.centerCamera.getIdentifier(), RobotContainer.rightCamera.getIdentifier()).toString());
+
   }
 
   @Override

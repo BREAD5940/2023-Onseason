@@ -18,6 +18,7 @@ public class Testmode {
         SWERVE_CURRENT_CHECK,
         SUPERSTRUCTURE_HOME,
         SUPERSTRUCTURE_CURRENT_CHECK,
+		CAMERA_POSE_CHECK,
         LED_DANCE
     }
 
@@ -30,7 +31,9 @@ public class Testmode {
         state = State.PRE_START;
     }
 
+	/** only run during test mode */
     public void periodic() {
+		RobotContainer.northstarVision.periodic();
         RobotContainer.leds.setDangerBlink(true);
 
         Logger.getInstance().recordOutput("TesterState", state.toString());
@@ -81,11 +84,20 @@ public class Testmode {
             }
 
             /* SuperStructure Current Test */
-            if(state == State.SUPERSTRUCTURE_CURRENT_CHECK){
+            if (state == State.SUPERSTRUCTURE_CURRENT_CHECK) {
                 RobotContainer.superstructure.runTestMode(true);
             } else {
                 RobotContainer.superstructure.periodic();
             }
+
+			if (state == State.CAMERA_POSE_CHECK) {
+				RobotContainer.cameraPoseTester.update();
+
+				String CVL = RobotContainer.cameraPoseTester.updateAlignmentCheck(RobotContainer.centerCamera.getIdentifier(), RobotContainer.leftCamera.getIdentifier()).toString();
+				String CVR = RobotContainer.cameraPoseTester.updateAlignmentCheck(RobotContainer.centerCamera.getIdentifier(), RobotContainer.rightCamera.getIdentifier()).toString();
+				Logger.getInstance().recordOutput("faultChecker/vision/centerCameraVSleftCamera", CVL);
+				Logger.getInstance().recordOutput("faultChecker/vision/centerCameraVSrightCamera", CVR);
+			}
 
             /* LED dance */
             if (state == State.LED_DANCE) {

@@ -130,7 +130,6 @@ public class FaultChecker extends Thread {
 			RobotContainer.superstructure.resetError();
 			
 			for (int i = 0; i < 4; i++) {
-				System.out.println(swerveOrder[i]);
 				CANerrors.add(new Pair<Boolean, String>(RobotContainer.swerve.getDriveErrorConc(i) > allowableCANerror, "DriveErrorConc " + swerveOrder[i]));
 				CANerrors.add(new Pair<Boolean, String>(RobotContainer.swerve.getSteerErrorConc(i) > allowableCANerror, "SteerErrorConc " + swerveOrder[i]));
 				CANerrors.add(new Pair<Boolean, String>(RobotContainer.swerve.getAzimuthErrorConc(i) > allowableCANerror, "AzimuthErrorConc " + swerveOrder[i]));
@@ -153,6 +152,12 @@ public class FaultChecker extends Thread {
 				CANJNI.getCANStatus(status);
 				// serialMXP.writeString("<0,0,0,0>");
 				serialMXP.writeString("<" + "stuff will go here" + "," + ((int) (status.percentBusUtilization * 100)) + "," + priorityCANerror + "_" + priorityETHerror + "," + "?>");
+			}
+
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 
 			System.out.print("---------- END OF ERRORS ----------");
