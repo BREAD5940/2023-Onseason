@@ -1,10 +1,6 @@
 plugins {
     id "java"
-<<<<<<< HEAD
     id "edu.wpi.first.GradleRIO" version "2023.4.3"
-=======
-    id "edu.wpi.first.GradleRIO" version "2023.4.2"
->>>>>>> origin/gamma
     id "com.peterabeles.gversion" version "1.10"
 }
 
