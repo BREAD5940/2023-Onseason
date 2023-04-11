@@ -52,4 +52,6 @@ public interface ModuleIO {
 
     /** resets sticky faults to allow error to change from anything back to "ok" */
     public default void clearFault(){}
+    /** Updates set of tunable numbers */
+    public default void updateTunableNumbers() {}
 }

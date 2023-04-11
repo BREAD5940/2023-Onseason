@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.commons.Alert;
 import frc.robot.commons.Conversions;
+import frc.robot.commons.LoggedTunableNumber;
 import frc.robot.commons.Alert.AlertType;
 
 import static frc.robot.Constants.Drive.*;
@@ -46,10 +47,14 @@ import static frc.robot.Constants.FaultChecker.*;
 public class ModuleIOTalonFX implements ModuleIO {
 
     private final com.ctre.phoenixpro.hardware.TalonFX drive;
+    private final TalonFXConfigurator configurator;
     private final TalonFX steer;
     private final double offset;
     public final CANCoder azimuth;
     public double[] desiredState = { 0, 0 };
+
+    LoggedTunableNumber kP = new LoggedTunableNumber("Drive/kP", 0.002);
+    LoggedTunableNumber kD = new LoggedTunableNumber("Drive/kD", 0.000004);
 
     private DutyCycleOut dutyCycleOut = new DutyCycleOut(0.0, true, false);
     private VelocityVoltage velocityVoltageOut = new VelocityVoltage(0.0, true, 0.0, 0, false);
@@ -62,16 +67,16 @@ public class ModuleIOTalonFX implements ModuleIO {
 
         // Configure the driving motor
         drive = new com.ctre.phoenixpro.hardware.TalonFX(driveID, CANIVORE_BUS_NAME);
-        TalonFXConfigurator configurator = drive.getConfigurator();
+        configurator = drive.getConfigurator();
 
         FeedbackConfigs feedbackConfigs = new FeedbackConfigs();
         feedbackConfigs = new FeedbackConfigs();
         feedbackConfigs.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
 
         Slot0Configs slot0Configs = new Slot0Configs();
-        slot0Configs.kP = wheelSpeedMetersPerSecondToIntegratedSensorUnits(0.0028) * 10.0;
+        slot0Configs.kP = wheelSpeedMetersPerSecondToIntegratedSensorUnits(kP.get()) * 10.0;
         slot0Configs.kI = wheelSpeedMetersPerSecondToIntegratedSensorUnits(0.0) * 10.0;
-        slot0Configs.kD = wheelSpeedMetersPerSecondToIntegratedSensorUnits(0.000004) * 10.0;
+        slot0Configs.kD = wheelSpeedMetersPerSecondToIntegratedSensorUnits(kD.get()) * 10.0;
         slot0Configs.kS = 0.6;
         slot0Configs.kV = 10.7 / wheelSpeedMetersPerSecondToIntegratedSensorUnits(ROBOT_MAX_SPEED);
 
@@ -194,6 +199,19 @@ public class ModuleIOTalonFX implements ModuleIO {
                     "Steer motor with id " + steer.getDeviceID()
                             + "did not zero properly. Please restart robot or align it properly before match begins.",
                     AlertType.ERROR);
+        }
+    }
+
+    @Override
+    public void updateTunableNumbers() {
+        if (kP.hasChanged(0) || kD.hasChanged(0)) {
+            Slot0Configs slot0Configs = new Slot0Configs();
+            slot0Configs.kP = wheelSpeedMetersPerSecondToIntegratedSensorUnits(kP.get()) * 10.0;
+            slot0Configs.kI = wheelSpeedMetersPerSecondToIntegratedSensorUnits(0.0) * 10.0;
+            slot0Configs.kD = wheelSpeedMetersPerSecondToIntegratedSensorUnits(kD.get()) * 10.0;
+            slot0Configs.kS = 0.6;
+            slot0Configs.kV = 10.7/wheelSpeedMetersPerSecondToIntegratedSensorUnits(ROBOT_MAX_SPEED);
+            configurator.apply(slot0Configs);
         }
     }
 

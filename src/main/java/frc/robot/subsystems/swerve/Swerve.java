@@ -18,7 +18,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -55,9 +54,13 @@ public class Swerve extends SubsystemBase {
     private SwerveState systemState = SwerveState.PERCENT;
     private boolean requestVelocity = false;
     private boolean requestPercent = false;
+    private boolean requestXConfiguration = false;
     private boolean fieldRelative = true;
     private boolean auto = false;
     private double lastFPGATimestamp = 0.0;
+    public static boolean alignedChargeStation = false;
+    public static boolean aligningChargeStation = false;
+    public static boolean autoBalancing = false;
 
     // For fault detection
     private int[] steerErrCount = new int[4];
@@ -68,7 +71,8 @@ public class Swerve extends SubsystemBase {
     /* Swerve States Enum */
     enum SwerveState {
         VELOCITY,
-        PERCENT
+        PERCENT,
+        X_CONFIGURATION
     }
 
     /** Constructs a new swerve object */
@@ -98,6 +102,7 @@ public class Swerve extends SubsystemBase {
         Logger.getInstance().recordOutput("blah", Timer.getFPGATimestamp());
         for (int i = 0; i < 4; i++) {
             moduleIOs[i].updateInputs(moduleInputs[i]);
+            moduleIOs[i].updateTunableNumbers();
             Logger.getInstance().processInputs("Swerve/Module" + Integer.toString(i), moduleInputs[i]);
 
              /** Check motors for errors and add to tally */
@@ -161,6 +166,8 @@ public class Swerve extends SubsystemBase {
 
             if (requestVelocity) {
                 nextSystemState = SwerveState.VELOCITY;
+            } else if (requestXConfiguration) {
+                nextSystemState = SwerveState.X_CONFIGURATION;
             }
         } else if (systemState == SwerveState.VELOCITY) {
             SwerveDriveKinematics.desaturateWheelSpeeds(setpointStatesOptimized, ROBOT_MAX_SPEED);
@@ -176,6 +183,29 @@ public class Swerve extends SubsystemBase {
 
             if (requestPercent) {
                 nextSystemState = SwerveState.PERCENT;
+            } else if (requestXConfiguration) {
+                nextSystemState = SwerveState.X_CONFIGURATION;
+            }
+        } else if (systemState == SwerveState.X_CONFIGURATION) {
+            for (int i = 0; i < 4; i++) {
+                SwerveModuleState state = new SwerveModuleState(
+                    0.0,
+                    i % 2 == 0 ? Rotation2d.fromDegrees(45.0) : Rotation2d.fromDegrees(-45.0)
+                );
+                double[] desiredState = getContinousOutput(
+                    state, 
+                    moduleInputs[i].moduleAngleRads
+                );
+                moduleIOs[i].setDriveVelocity(desiredState[0], auto);
+                moduleIOs[i].setTurnAngle(Units.radiansToDegrees(desiredState[1]));
+                desiredVelocities[i] = desiredState[0];
+                desiredAngles[i] = desiredState[1];
+            }
+
+            if (requestPercent) {
+                nextSystemState = SwerveState.PERCENT;
+            } else if (requestVelocity) {
+                nextSystemState = SwerveState.VELOCITY;
             }
         }
         systemState = nextSystemState;
@@ -191,6 +221,7 @@ public class Swerve extends SubsystemBase {
         Logger.getInstance().recordOutput("Swerve Velocity (mag.)", getVelocity().getNorm());
         Logger.getInstance().recordOutput("Swerve X Velocity",
                 getVelocity().rotateBy(RobotContainer.poseEstimator.getLatestPose().getRotation()).getX());
+        Logger.getInstance().recordOutput("AutoBalancing", autoBalancing);
         Logger.getInstance().recordOutput("Swerve Y Velocity",
                 getVelocity().rotateBy(RobotContainer.poseEstimator.getLatestPose().getRotation()).getY());
         Logger.getInstance().recordOutput("Swerve Setpoints/Swerve Desired dX", robotSetpoints.vxMetersPerSecond);
@@ -217,6 +248,7 @@ public class Swerve extends SubsystemBase {
         this.fieldRelative = fieldRelative;
         this.requestPercent = true;
         this.requestVelocity = false;
+        this.requestXConfiguration = false;
     }
 
     /** Requests a provided velocity to the swerve drive */
@@ -225,8 +257,16 @@ public class Swerve extends SubsystemBase {
         this.fieldRelative = fieldRelative;
         this.requestPercent = false;
         this.requestVelocity = true;
+        this.requestXConfiguration = false;
         this.auto = auto;
     }
+
+    /** Requests the robot to go in its X-configuration */
+    public void requestXConfiguration() {
+        this.requestPercent = false;
+        this.requestVelocity = false;
+        this.requestXConfiguration = true;
+    }  
 
     /** Updates the swerve drive odometry */
     public void updateOdometry() {
@@ -418,4 +458,9 @@ public class Swerve extends SubsystemBase {
             }
         }
     }
+    /** Returns the change in pitch of the robot in degrees per second */
+    public double getChangeInPitch() {
+        return gyroInputs.changeInPitch;
+    }
+
 }

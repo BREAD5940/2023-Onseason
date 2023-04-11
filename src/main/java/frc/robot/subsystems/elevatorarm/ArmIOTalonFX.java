@@ -12,6 +12,9 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
 import static frc.robot.Constants.FaultChecker.*;
+import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.commons.LoggedTunableNumber;
+
 import static frc.robot.Constants.Arm.*;
 public class ArmIOTalonFX implements ArmIO {
 
@@ -23,6 +26,11 @@ public class ArmIOTalonFX implements ArmIO {
     public static void main(String[] args) {        
         
     }
+
+    LoggedTunableNumber kP = new LoggedTunableNumber("Arm/kP", 0.015);
+    LoggedTunableNumber kD = new LoggedTunableNumber("Arm/kD", 0.05);
+    LoggedTunableNumber kMotionCruiseVelocity = new LoggedTunableNumber("Arm/kMotionCruiseVelocity", 400.0); 
+    LoggedTunableNumber kMaxAccel = new LoggedTunableNumber("Arm/kMaxAccel", 2300.0); 
 
     public ArmIOTalonFX() {
         /* configurations for the arm encoder */
@@ -36,12 +44,12 @@ public class ArmIOTalonFX implements ArmIO {
         armConfig.remoteFilter0.remoteSensorDeviceID = armAzimuth.getDeviceID();
         armConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
         armConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
-        armConfig.slot0.kP = CANCoderSensorUnitsToDegrees(0.03) * 1023.0;
+        armConfig.slot0.kP = CANCoderSensorUnitsToDegrees(kP.get()) * 1023.0;
         armConfig.slot0.kI = CANCoderSensorUnitsToDegrees(0) * 1023.0;
-        armConfig.slot0.kD = CANCoderSensorUnitsToDegrees(0.01) * 1023.0;
+        armConfig.slot0.kD = CANCoderSensorUnitsToDegrees(kD.get()) * 1023.0;
         armConfig.slot0.kF = 0.0;
-        armConfig.motionCruiseVelocity = degreesPerSecondToCANCoderSensorUnits(ARM_MAX_VELOCITY);
-        armConfig.motionAcceleration = degreesPerSecondToCANCoderSensorUnits(2500.0);
+        armConfig.motionCruiseVelocity = degreesPerSecondToCANCoderSensorUnits(kMotionCruiseVelocity.get());
+        armConfig.motionAcceleration = degreesPerSecondToCANCoderSensorUnits(kMaxAccel.get());
         armConfig.voltageCompSaturation = 10.5;
         armConfig.neutralDeadband = 0.001;
         armConfig.statorCurrLimit = new StatorCurrentLimitConfiguration(true, 100, 100, 1.5);
@@ -90,6 +98,10 @@ public class ArmIOTalonFX implements ArmIO {
         // } 
         // lastVelocityTarget = currentVelocityTarget;
         // double armKG = Math.cos(getAngle()) * kG.get();
+        if (!DriverStation.isEnabled()) {
+            arm.set(ControlMode.PercentOutput, 0.0);
+            return;
+        }
         arm.set(ControlMode.MotionMagic, degreesToCANCoderSensorUnits(angleDegrees));
     }
 
@@ -119,7 +131,23 @@ public class ArmIOTalonFX implements ArmIO {
     }
 
     @Override
-    public void updateTunableNumbers() { }
+    public void updateTunableNumbers() {
+        if (kP.hasChanged(0)) {
+            arm.config_kP(0, CANCoderSensorUnitsToDegrees(kP.get()) * 1023.0);
+        }
+
+        if (kD.hasChanged(0)) {
+            arm.config_kD(0, CANCoderSensorUnitsToDegrees(kD.get()) * 1023.0);
+        }
+
+        if (kMotionCruiseVelocity.hasChanged(0)) {
+            arm.configMotionCruiseVelocity(degreesPerSecondToCANCoderSensorUnits(kMotionCruiseVelocity.get()));
+        }
+
+        if (kMaxAccel.hasChanged(0)) {
+            arm.configMotionAcceleration(degreesPerSecondToCANCoderSensorUnits(kMaxAccel.get()));
+        }
+    }
 
     private static double CANCoderSensorUnitsToDegrees(double sensorUnits) {
         return sensorUnits * (360.0) / 4096.0;

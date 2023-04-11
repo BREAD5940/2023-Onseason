@@ -36,8 +36,8 @@ public class AprilTagVision extends SubsystemBase {
         private final AprilTagVisionIO[] io;
         private final AprilTagVisionIOInputs[] inputs;
 
-        private double xyStdDevCoefficient;
-        private double thetaStdDevCoefficient;
+        private double xyStdDevCoefficient = 0.006;
+        private double thetaStdDevCoefficient = 0.002;
         private static final double fieldBorderMargin = 0.5;
         private static final PolynomialRegression xyStdDevModel;
         private static final PolynomialRegression thetaStdDevModel;
@@ -48,7 +48,17 @@ public class AprilTagVision extends SubsystemBase {
         private Pose2d currentPose;
         private List<TimestampedVisionUpdate> visionUpdates;
         private List<Pose2d> allRobotPoses;
+<<<<<<< HEAD
 		private Map<String, RobotPose> mostResentRobotPoses = new HashMap<>();
+=======
+
+        public enum StdDevMode {
+                HIGH_TELEOP_TRUST, 
+                LOW_TELEOP_TRUST, 
+                DRIVE_AUTO_TRUST, 
+                BALANCE_AUTO_TRUST
+        }
+>>>>>>> origin/gamma
 
         static {
 
@@ -128,7 +138,10 @@ public class AprilTagVision extends SubsystemBase {
         }
 
         public void periodic() {
+<<<<<<< HEAD
 				mostResentRobotPoses = new HashMap<>();
+=======
+>>>>>>> origin/gamma
                 Logger.getInstance().recordOutput("AprilTagVision/StdDevScalar", mStdDevScalar.get());
 
                 for (int i = 0; i < io.length; i++) {
@@ -150,7 +163,11 @@ public class AprilTagVision extends SubsystemBase {
                         for (int frameIndex = 0; frameIndex < inputs[instanceIndex].timestamps.length; frameIndex++) {
                                 var timestamp = inputs[instanceIndex].timestamps[frameIndex];
                                 var values = inputs[instanceIndex].frames[frameIndex];
+<<<<<<< HEAD
                                 int version = 2;//(int) inputs[instanceIndex].version;
+=======
+                                int version = (int) inputs[instanceIndex].version;
+>>>>>>> origin/gamma
 
                                 Logger.getInstance()
                                                 .recordOutput(
@@ -159,6 +176,7 @@ public class AprilTagVision extends SubsystemBase {
                                                                 Timer.getFPGATimestamp() - timestamp);
                                 Pose3d cameraPose = null;
 
+<<<<<<< HEAD
                                 // Default value (100) represents an unloaded value
                                 if (version == 100) {
                                         continue;
@@ -183,6 +201,16 @@ public class AprilTagVision extends SubsystemBase {
                                                 if (values.length < 15) {
                                                         continue;
                                                 }
+=======
+                                switch (version) {
+                                        case 1:
+                                                processVersion1(values, instanceIndex, tagPose3ds, tagIds, visionPose2ds, timestamp);
+                                                break;
+                                        case 2:
+                                                processVersion2(values, instanceIndex, cameraPose, tagPose3ds, tagIds, timestamp);
+                                                break;
+                                        default:
+>>>>>>> origin/gamma
                                                 // Default to version 1 if "version" is not 1 or 2
                                                 processVersion1(values, instanceIndex, tagPose3ds, tagIds, visionPose2ds, timestamp);
                                                 break;
@@ -235,10 +263,13 @@ public class AprilTagVision extends SubsystemBase {
                 visionConsumer.accept(visionUpdates);
         }
 
+<<<<<<< HEAD
         public static void setTrustLevel(boolean isTrustHigh) {
                 // mStdDevScalar = isTrustHigh ? 0.2 : 2.0;
         }
 
+=======
+>>>>>>> origin/gamma
         public void processVersion1(double[] values, int instanceIndex, List<Pose3d> tagPose3ds, List<Integer> tagIds, List<Pose2d> visionPose2ds, double timestamp) {
                 // Loop over observations
                 for (int i = 0; i < values.length; i += 15) {
@@ -335,8 +366,11 @@ public class AprilTagVision extends SubsystemBase {
 
         public void processVersion2(double[] values, int instanceIndex, Pose3d cameraPose, List<Pose3d> tagPose3ds, List<Integer> tagIds, double timestamp) {
                 Pose2d robotPose = null;
+<<<<<<< HEAD
 				Pose3d robotPose3d = null; // robot pose for fault checker
 				Pose3d robotPose3dAlt = null; // alt robot pose for fault checker
+=======
+>>>>>>> origin/gamma
 
                 switch ((int) values[0]) {
                         case 1:
@@ -347,10 +381,23 @@ public class AprilTagVision extends SubsystemBase {
                                         values[3],
                                         values[4],
                                         new Rotation3d(new Quaternion(values[5], values[6], values[7], values[8])));
+<<<<<<< HEAD
                                 robotPose3d = cameraPose.transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse());
 								robotPose = robotPose3d.toPose2d();
                                 xyStdDevCoefficient = 0.003;
                                 thetaStdDevCoefficient = 0.002;
+=======
+                                robotPose =
+                                cameraPose
+                                        .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
+                                        .toPose2d();
+                                // xyStdDevCoefficient = 0.003;
+                                // thetaStdDevCoefficient = 0.002;
+                                // xyStdDevCoefficient = 0.006;
+                                // thetaStdDevCoefficient = 0.004;
+                                // xyStdDevCoefficient = 0.03;
+                                // thetaStdDevCoefficient = 0.002;
+>>>>>>> origin/gamma
                                 Logger.getInstance().recordOutput("Camera Pose (Multi Tag) " + instanceIndex, cameraPose);
                                 break;
                         case 2:
@@ -369,16 +416,28 @@ public class AprilTagVision extends SubsystemBase {
                                                 values[11],
                                                 values[12],
                                                 new Rotation3d(new Quaternion(values[13], values[14], values[15], values[16])));
+<<<<<<< HEAD
                                 Pose3d robotPose0 =
                                         cameraPose0
                                                 .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse());
                                 Pose3d robotPose1 =
                                         cameraPose1
                                                 .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse());
+=======
+                                Pose2d robotPose0 =
+                                        cameraPose0
+                                                .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
+                                                .toPose2d();
+                                Pose2d robotPose1 =
+                                        cameraPose1
+                                                .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
+                                                .toPose2d();
+>>>>>>> origin/gamma
 
                                 // Select pose using projection errors and current rotation
                                 if (error0 < error1 * ambiguityThreshold) {
                                         cameraPose = cameraPose0;
+<<<<<<< HEAD
                                         robotPose = robotPose0.toPose2d();
 										robotPose3d = robotPose0;
                                 } else if (error1 < error0 * ambiguityThreshold) {
@@ -404,16 +463,39 @@ public class AprilTagVision extends SubsystemBase {
                 }
                 System.out.println(robotPose);
 
+=======
+                                        robotPose = robotPose0;
+                                } else if (error1 < error0 * ambiguityThreshold) {
+                                        cameraPose = cameraPose1;
+                                        robotPose = robotPose1;
+                                } else if (Math.abs(
+                                        robotPose0.getRotation().minus(currentPose.getRotation()).getRadians())
+                                < Math.abs(
+                                        robotPose1.getRotation().minus(currentPose.getRotation()).getRadians())) {
+                                        cameraPose = cameraPose0;
+                                        robotPose = robotPose0;
+                                } else {
+                                        cameraPose = cameraPose1;
+                                        robotPose = robotPose1;
+                                }
+                                Logger.getInstance().recordOutput("Camera Pose (Single Tag) " + instanceIndex, cameraPose);
+                                break;
+                }
+                
+>>>>>>> origin/gamma
                 // Exit if no data
                 if (cameraPose == null || robotPose == null) {
                         return;
                 }
 
+<<<<<<< HEAD
 				//gets the robot for the fault checker
 				if (robotPose3d != null) {
 					mostResentRobotPoses.put(io[instanceIndex].getIdentifier(), new RobotPose(robotPose3d, robotPose3dAlt));
 				}
 
+=======
+>>>>>>> origin/gamma
                 // Exit if robot pose is off the field
                 if (robotPose.getX() < -fieldBorderMargin
                 || robotPose.getX() > FieldConstants.fieldLength + fieldBorderMargin
@@ -470,9 +552,27 @@ public class AprilTagVision extends SubsystemBase {
                                                                                 + Math.pow(rvec.get(2, 0), 2))));
         }
 
+<<<<<<< HEAD
 
 		/** gets the poses for the faultchecker */
 		public Map<String, RobotPose> getRobotPosesForFaultChecker() {
 			return mostResentRobotPoses;
 		}
+=======
+        public void setStdDevMode(StdDevMode mode) {
+                if (mode == StdDevMode.HIGH_TELEOP_TRUST) {
+                        xyStdDevCoefficient = 0.006;
+                        thetaStdDevCoefficient = 0.004;
+                } else if (mode == StdDevMode.LOW_TELEOP_TRUST) {
+                        xyStdDevCoefficient = 0.006;
+                        thetaStdDevCoefficient = 0.004;
+                } else if (mode == StdDevMode.DRIVE_AUTO_TRUST) {
+                        xyStdDevCoefficient = 0.06;
+                        thetaStdDevCoefficient = 0.004;
+                } else if (mode == StdDevMode.BALANCE_AUTO_TRUST) {
+                        xyStdDevCoefficient = 0.03;
+                        thetaStdDevCoefficient = 0.002;
+                }
+        }
+>>>>>>> origin/gamma
 }

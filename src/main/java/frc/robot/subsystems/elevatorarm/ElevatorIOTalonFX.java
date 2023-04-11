@@ -11,6 +11,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.commons.LoggedTunableNumber;
 
 import static frc.robot.Constants.Elevator.*;
@@ -23,7 +24,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     TalonFX follower = new TalonFX(ELEVATOR_RIGHT_ID, CANIVORE_BUS_NAME);
 
     LoggedTunableNumber kP = new LoggedTunableNumber("Elevator/kP", 0.5);
-    LoggedTunableNumber kD = new LoggedTunableNumber("Elevator/kD", 0.075);
+    LoggedTunableNumber kD = new LoggedTunableNumber("Elevator/kD", 50.0);
     LoggedTunableNumber kForwardsKa = new LoggedTunableNumber("Elevator/kForwardskA", 0.01);
     LoggedTunableNumber kBackwardsKa = new LoggedTunableNumber("Elevator/kBackwardskA", 0.005);
     LoggedTunableNumber kMaxVelocity = new LoggedTunableNumber("Elevator/kMaxVelocity", 3.435000);
@@ -89,6 +90,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     @Override
     public void setHeight(double heightMeters, boolean goSlow) {
+        if (!DriverStation.isEnabled()) {
+            leader.set(ControlMode.PercentOutput, 0.0);
+            return;
+        }
         if (mLastCommandedPosition != heightMeters) {
             mLastCommandedPosition = heightMeters;
             if (Math.abs(getHeight() - heightMeters) < 0.25) {

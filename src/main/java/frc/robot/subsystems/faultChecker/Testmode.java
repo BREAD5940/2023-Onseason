@@ -102,7 +102,6 @@ public class Testmode {
             /* LED dance */
             if (state == State.LED_DANCE) {
                 RobotContainer.leds.setDangerBlink(false);
-                RobotContainer.leds.setHappyBlink(true);
             } else {
                 RobotContainer.leds.setDangerBlink(true);
             }

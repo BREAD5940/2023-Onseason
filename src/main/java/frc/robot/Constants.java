@@ -88,10 +88,10 @@ public final class Constants {
         // };
 
         public static final Rotation2d[] AZIMUTH_OFFSETS = {
-                Rotation2d.fromDegrees(100.9), // FL
-                Rotation2d.fromDegrees(36.3), // FR
-                Rotation2d.fromDegrees(112.1), // BL
-                Rotation2d.fromDegrees(239.4) // BR
+            Rotation2d.fromDegrees(279.93), // FL
+            Rotation2d.fromDegrees(293.55), // FR
+            Rotation2d.fromDegrees(27.16), // BL
+            Rotation2d.fromDegrees(150.38) //BR
         };
 
         // Drive-by shooting constants
@@ -99,11 +99,13 @@ public final class Constants {
         public static final double RADIAL_SHOT_SCALAR = 0.9;
 
         // Measurements/Gearings
-        public static final double DRIVE_GEARING = 1 / 5.5;
-        // public static final double STEER_GEARING = (24.0/8) * (72.0/14);
-        public static final double STEER_GEARING = (24.0 / 12) * (72.0 / 14);
+        // public static final double DRIVE_GEARING = 1/5.5; MBR BELTED DRIVE GEAR RATIO
+        public static final double DRIVE_GEARING = (14.0/44.0) * (28.0/18.0) * (15.0/45.0);
+        public static final double STEER_GEARING = (24.0/8) * (72.0/14);
+        // public static final double STEER_GEARING = (24.0/12) * (72.0/14); MBR BELTED STEER GEAR RATIO
         public static final double ROBOT_WIDTH = Units.inchesToMeters(27.0 - 2.625 * 2.0);
         public static final double ROBOT_LENGTH = Units.inchesToMeters(28.0 - 2.625 * 2.0);
+        public static final double ROBOT_MAX_VELOCITY = 4.95;
         // Madtown field callibration constant factor is 0.97
         public static final double WHEEL_RADIUS = Units.inchesToMeters(2.0) * 0.9442667069;
         public static final Translation2d FIELD_TO_TARGET = new Translation2d(Units.feetToMeters(27),
@@ -237,11 +239,12 @@ public final class Constants {
         public static final double FLOOR_INTAKE_KF = 0.0;
         public static final double FLOOR_INTAKE_KG = 0.0;
 
+        
         public static final double FLOOR_INTAKE_ZERO = -5.0; // -4.65
 
         public static final int FLOOR_INTAKE_AZIMUTH_ID = 32;
         public static final boolean FLOOR_INTAKE_AZIMUTH_INVERTED = true;
-        public static final double FLOOR_INTAKE_AZIMUTH_DEGREE_OFFSET = 130.605 + 5.0;
+        public static final double FLOOR_INTAKE_AZIMUTH_DEGREE_OFFSET = 193.359;//57.744;//130.605 + 5.0;
         public static final double FLOOR_INTAKE_NULL_RANGE = 300.0;
         public static final boolean FLOOR_INTAKE_PHASE_INVERTED = true;
     }
@@ -277,9 +280,10 @@ public final class Constants {
 
     // Constants pertaining to the LEDs
     public static class LEDs {
-        public static final int[] PURPLE = { 255, 0, 255 };
-        public static final int[] YELLOW = { 255, 217, 0 };
-        public static final int[] GREEN = { 0, 0, 255 };
+        public static final int[] PURPLE = {255, 0, 255};
+        public static final int[] YELLOW = {255, 217, 0};
+        public static final int[] BLUE = {0, 0, 255};
+        public static final int[] TURQUOISE = {48, 213, 200};
     }
 
     // Constants pertaining to robot locations on the field

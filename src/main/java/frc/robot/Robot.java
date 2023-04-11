@@ -26,6 +26,8 @@ import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.subsystems.climber.Climber.ClimberStates;
 import frc.robot.subsystems.vision.northstar.AprilTagVision;
+import frc.robot.subsystems.vision.northstar.AprilTagVision.StdDevMode;
+
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
@@ -107,11 +109,11 @@ public class Robot extends LoggedRobot {
     throwD = PathPlanner.loadPath("Throw D", new PathConstraints(3.5, 2.5));
     throwE = PathPlanner.loadPath("Throw E", new PathConstraints(3.5, 2.5));
 
-    threePieceA = PathPlanner.loadPath("Three Piece A", new PathConstraints(4.0, 2.5));
-    threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(4.0, 2.5));
-    threePieceC = PathPlanner.loadPath("Three Piece C", new PathConstraints(4.0, 2.5));
-    threePieceD = PathPlanner.loadPath("Three Piece D", new PathConstraints(4.0, 2.5));
-    threePieceBalance = PathPlanner.loadPath("Three Piece Balance", new PathConstraints(4.0, 3.0));
+    threePieceA = PathPlanner.loadPath("Three Piece A", new PathConstraints(4.0, 3.0));
+    threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(4.0, 3.0));
+    threePieceC = PathPlanner.loadPath("Three Piece C", new PathConstraints(4.0, 3.0));
+    threePieceD = PathPlanner.loadPath("Three Piece D", new PathConstraints(4.0, 3.0));
+    threePieceBalance = PathPlanner.loadPath("Three Piece Balance", new PathConstraints(3.0, 3.0));
     threePieceSetup = PathPlanner.loadPath("Three Piece Setup", new PathConstraints(4.0, 3.0));
 
     threePieceSlowA = PathPlanner.loadPath("Three Piece A", new PathConstraints(3.5, 2.5));
@@ -295,8 +297,7 @@ public class Robot extends LoggedRobot {
       RobotContainer.superstructure.requestThrow();
     }
 
-    AprilTagVision.setTrustLevel(RobotContainer.operator.getPOV() == 135 || RobotContainer.operator.getPOV() == 180
-        || RobotContainer.operator.getPOV() == 225);
+    RobotContainer.northstarVision.setStdDevMode(StdDevMode.HIGH_TELEOP_TRUST);
   }
 
   @Override

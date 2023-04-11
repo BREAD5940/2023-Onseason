@@ -37,7 +37,11 @@ public class AprilTagVisionIONorthstar implements AprilTagVisionIO {
                 .subscribe(
                         new double[] {}, PubSubOption.keepDuplicates(true), PubSubOption.sendAll(true));
         fpsSubscriber = outputTable.getIntegerTopic("fps").subscribe(0);
+<<<<<<< HEAD
         versionSubscriber = outputTable.getDoubleTopic("version").subscribe(100);
+=======
+        versionSubscriber = outputTable.getDoubleTopic("version").subscribe(2.0);
+>>>>>>> origin/gamma
 
         disconnectedAlert = new Alert("No data from \"" + identifier + "\"", AlertType.ERROR);
         disconnectedTimer.start();
