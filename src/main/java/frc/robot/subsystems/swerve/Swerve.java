@@ -96,6 +96,7 @@ public class Swerve extends SubsystemBase {
 
     @Override
     public void periodic() {
+        long start = Logger.getInstance().getRealTimestamp();
         /** Update inputs */
         gyroIO.updateInputs(gyroInputs);
         Logger.getInstance().processInputs("Swerve/Gyro", gyroInputs);
@@ -234,6 +235,8 @@ public class Swerve extends SubsystemBase {
         Logger.getInstance().recordOutput("Robot-Relative Swerve Velocity (angle)",
                 getVelocity().getAngle().getDegrees());
         Logger.getInstance().recordOutput("Odometry/PoseRaw", poseRaw);
+
+        Logger.getInstance().recordOutput("LoggedRobot/SwerevePeriodicMicro", (Logger.getInstance().getRealTimestamp()-start)/1000);
 
     }
 

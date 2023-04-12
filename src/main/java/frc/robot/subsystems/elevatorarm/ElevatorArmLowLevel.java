@@ -60,6 +60,8 @@ public class ElevatorArmLowLevel {
 
     /** Method to be called periodically */
     public void onLoop() {
+        long start = Logger.getInstance().getRealTimestamp();
+
         double elevatorHeight = MathUtil.clamp(heightSetpoint, armInputs.angleDegrees > ARM_MAX_LIMITED_ELEVATOR_ROM ? ELEVATOR_MIN_LIMITED_ARM_ROM : ELEVATOR_MIN, ELEVATOR_MAX);
         double armAngle = MathUtil.clamp(angleSetpoint, ARM_MIN, elevatorInputs.posMeters < ELEVATOR_MIN_LIMITED_ARM_ROM ? ARM_MAX_LIMITED_ELEVATOR_ROM : ARM_MAX);
         desiredState = new double[] {elevatorHeight, armAngle};
@@ -141,6 +143,8 @@ public class ElevatorArmLowLevel {
             systemState = nextSystemState;
             mStateStartTime = BreadUtil.getFPGATimeSeconds();
         }
+
+        Logger.getInstance().recordOutput("LoggedRobot/ElevatorArmLowLevelMS", (Logger.getInstance().getRealTimestamp()-start)/1000);
 
     }    
 

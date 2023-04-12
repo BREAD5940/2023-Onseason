@@ -134,6 +134,8 @@ public class AprilTagVision extends SubsystemBase {
         }
 
         public void periodic() {
+                long start = Logger.getInstance().getRealTimestamp();
+
 		mostResentRobotPoses = new HashMap<>();
                 Logger.getInstance().recordOutput("AprilTagVision/StdDevScalar", mStdDevScalar.get());
 
@@ -239,6 +241,9 @@ public class AprilTagVision extends SubsystemBase {
 
                 // Send results to pose esimator
                 visionConsumer.accept(visionUpdates);
+
+                Logger.getInstance().recordOutput("LoggedRobot/AprilTagPeriodicMicro", (Logger.getInstance().getRealTimestamp()-start)/1000);
+
         }
 
         public void processVersion1(double[] values, int instanceIndex, List<Pose3d> tagPose3ds, List<Integer> tagIds, List<Pose2d> visionPose2ds, double timestamp) {
