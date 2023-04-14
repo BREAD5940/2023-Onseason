@@ -78,6 +78,9 @@ public class Robot extends LoggedRobot {
   public static PathPlannerTrajectory throwD;
   public static PathPlannerTrajectory throwE;
 
+  public static PathPlannerTrajectory twoPieceChargeStationA;
+  public static PathPlannerTrajectory twoPieceChargeStationB;
+
   public static Alliance alliance = DriverStation.Alliance.Red;
 
   @Override
@@ -136,6 +139,9 @@ public class Robot extends LoggedRobot {
     twoPieceBalanceBumpA = PathPlanner.loadPath("Two Piece Balance Bump A", new PathConstraints(2.0, 2.0));
     twoPieceBalanceBumpB = PathPlanner.loadPath("Two Piece Balance Bump B", new PathConstraints(2.0, 2.0));
     twoPieceBalanceBumpC = PathPlanner.loadPath("Two Piece Balance Bump C", new PathConstraints(2.0, 2.0));
+
+    twoPieceChargeStationA = PathPlanner.loadPath("Two Piece Charge Station A", new PathConstraints(2.0, 2.0));
+    twoPieceChargeStationB = PathPlanner.loadPath("Two Piece Charge Station B", new PathConstraints(2.0, 2.0));
 
     onePieceBalanceA = PathPlanner.loadPath("One Piece Balance A", new PathConstraints(2.0, 2.0));
     onePieceBalanceB = PathPlanner.loadPath("One Piece Balance B", new PathConstraints(2.0, 2.0));
