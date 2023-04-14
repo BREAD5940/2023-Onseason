@@ -443,8 +443,8 @@ public class AprilTagVision extends SubsystemBase {
                         xyStdDevCoefficient = 0.006;
                         thetaStdDevCoefficient = 0.004;
                 } else if (mode == StdDevMode.DRIVE_AUTO_TRUST) {
-                        xyStdDevCoefficient = 0.06;
-                        thetaStdDevCoefficient = 0.004;
+                        xyStdDevCoefficient = 0.03;
+                        thetaStdDevCoefficient = 0.002;
                 } else if (mode == StdDevMode.BALANCE_AUTO_TRUST) {
                         xyStdDevCoefficient = 0.03;
                         thetaStdDevCoefficient = 0.002;

@@ -135,7 +135,7 @@ public final class Constants {
 
         public static final double ELEVATOR_HOMING_POSITION = Units.inchesToMeters(1.0);
 
-        public static final double ELEVATOR_MIN_LIMITED_ARM_ROM = 0.18;
+        public static final double ELEVATOR_MIN_LIMITED_ARM_ROM = 0.12;
         public static final double ELEVATOR_MIN = Units.inchesToMeters(-5.0);
         public static final double ELEVATOR_MAX = 1.248288847926422;
         public static final double ELEVATOR_SETPOINT_TOLERANCE = Units.inchesToMeters(3.0);
@@ -168,7 +168,7 @@ public final class Constants {
 
         public static final int ARM_AZIMUTH_ID = 31;
         public static final boolean ARM_AZIMUTH_INVERTED = true;
-        public static final double ARM_AZIMUTH_DEGREE_OFFSET = 312.451171875 - 90.0; // Subtract 90 from the offset because the zero was obtained when the arm was pointing straight up
+        public static final double ARM_AZIMUTH_DEGREE_OFFSET = 313.682 - 90.0; // Subtract 90 from the offset because the zero was obtained when the arm was pointing straight up
         public static final double ARM_GEAR_RATIO = (1.0/78.7) * (60.0/27.0);
         public static final double ARM_MAX_VELOCITY = ((1.0/78.7) * 6380.0 * 360.0)/60.0;
 
@@ -237,7 +237,7 @@ public final class Constants {
 
         public static final int FLOOR_INTAKE_AZIMUTH_ID = 32;
         public static final boolean FLOOR_INTAKE_AZIMUTH_INVERTED = true;
-        public static final double FLOOR_INTAKE_AZIMUTH_DEGREE_OFFSET = 193.359;//57.744;//130.605 + 5.0;
+        public static final double FLOOR_INTAKE_AZIMUTH_DEGREE_OFFSET = 193.887;
         public static final double FLOOR_INTAKE_NULL_RANGE = 300.0;
         public static final boolean FLOOR_INTAKE_PHASE_INVERTED = true;
     }

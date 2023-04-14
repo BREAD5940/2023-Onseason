@@ -35,7 +35,7 @@ public class ThreePieceBumpMode extends SequentialCommandGroup {
                 new WaitCommand(1.5),
                 new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE))
             )),
-            new WaitCommand(0.4),
+            new WaitCommand(0.1),
             new InstantCommand(() -> superstructure.requestScore()), 
             new WaitCommand(0.5),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0)),

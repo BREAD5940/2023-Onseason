@@ -40,7 +40,7 @@ public class AlignChargeStationCommand extends CommandBase {
   @Override
   public void initialize() {
     // TOOD: define target pose
-    targetPose = AllianceFlipUtil.apply(new Pose2d(new Translation2d(fieldLength - 12.764470036936714, 5.24633), Rotation2d.fromDegrees(180.0)));
+    targetPose = AllianceFlipUtil.apply(new Pose2d(new Translation2d(fieldLength - 12.664470036936714, 5.24633), Rotation2d.fromDegrees(180.0)));
     Swerve.alignedChargeStation = false;
     Swerve.aligningChargeStation = true;
 
