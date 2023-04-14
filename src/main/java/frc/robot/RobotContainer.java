@@ -35,6 +35,7 @@ import frc.robot.subsystems.endeffector.EndEffectorIOTalonFX;
 import frc.robot.subsystems.floorintake.FloorIntakeIO;
 import frc.robot.subsystems.floorintake.FloorIntakeIOTalonFX;
 import frc.robot.subsystems.swerve.AlignChargeStationCommand;
+import frc.robot.subsystems.swerve.AutoBalanceCommand;
 import frc.robot.subsystems.swerve.AutoPickupRoutine;
 import frc.robot.subsystems.swerve.AutoPlaceCommand;
 import frc.robot.subsystems.swerve.ManualPickupAssistCommand;
@@ -150,7 +151,7 @@ public class RobotContainer {
     // );
 
     new JoystickButton(driver, XboxController.Button.kX.value)
-        .whileTrue(new AutoPlaceCommand(swerve, superstructure, () -> operatorControls.getLastSelectedScoringLocation(), () -> operatorControls.getLastSelectedLevel()));
+        .whileTrue(new AutoPlaceCommand(swerve, superstructure, () -> operatorControls.getLastSelectedGamePiece(), () -> operatorControls.getLastSelectedLevel()));
     
 
     // new JoystickButton(driver, XboxController.Button.kA.value)
@@ -161,6 +162,9 @@ public class RobotContainer {
 
     new JoystickButton(driver, XboxController.Button.kA.value)
       .whileTrue(new ManualPickupAssistCommand(swerve, superstructure));
+
+    // new JoystickButton(driver, XboxController.Button.kA.value)
+    //   .whileTrue(new AutoBalanceCommand(swerve));
 
     new JoystickButton(driver, XboxController.Button.kLeftStick.value)
       .whileTrue(new AlignChargeStationCommand(swerve));

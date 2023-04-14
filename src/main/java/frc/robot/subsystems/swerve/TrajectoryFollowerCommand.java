@@ -25,6 +25,7 @@ import frc.robot.commons.AllianceFlipUtil;
 import frc.robot.commons.BreadHolonomicDriveController;
 import frc.robot.commons.LoggedTunableNumber;
 import frc.robot.subsystems.vision.northstar.AprilTagVision;
+import frc.robot.subsystems.vision.northstar.AprilTagVision.StdDevMode;
 
 public class TrajectoryFollowerCommand extends CommandBase {
 
@@ -48,6 +49,7 @@ public class TrajectoryFollowerCommand extends CommandBase {
     private double X_CONTROLLER_D = 0.0;
     private double Y_CONTROLLER_D = 0.0;
     private double THETA_CONTROLLER_D = 0.0;
+    private final double kBridgeMiddlePos = 3.431;
 
     public final BreadHolonomicDriveController autonomusController = new BreadHolonomicDriveController(
         new PIDController(X_CONTROLLER_P, 0, X_CONTROLLER_D), 
@@ -80,6 +82,11 @@ public class TrajectoryFollowerCommand extends CommandBase {
         balanceTimer.reset();
         balanceTimer.stop();
         balanceStarted = false;
+        if (dontBalanceAtEnd) {
+            RobotContainer.northstarVision.setStdDevMode(StdDevMode.DRIVE_AUTO_TRUST);
+        } else {
+            RobotContainer.northstarVision.setStdDevMode(StdDevMode.BALANCE_AUTO_TRUST);
+        }
     }
 
     @Override
@@ -129,18 +136,8 @@ public class TrajectoryFollowerCommand extends CommandBase {
             return timer.get() >= trajectory.getTotalTimeSeconds();
         } else {
             Pose2d poseError = wpilibGoal.poseMeters.relativeTo(RobotContainer.poseEstimator.getLatestPose());
-            if (timer.get() >= trajectory.getTotalTimeSeconds() && Math.abs(swerve.getPitch()) < Units.degreesToRadians(4.0) && !balanceStarted && poseError.getTranslation().getNorm() < 0.07) {
-                balanceStarted  = true;
-                balanceTimer.start();
-            } 
-
-            if (timer.get() >= trajectory.getTotalTimeSeconds() && Math.abs(swerve.getPitch()) > Units.degreesToRadians(4.0)) {
-                balanceStarted = false;
-                balanceTimer.stop();
-                balanceTimer.reset();
-            }
-
-            return timer.get() >= trajectory.getTotalTimeSeconds() && balanceTimer.get() > 0.25;
+            // return timer.get() >= trajectory.getTotalTimeSeconds() && poseError.getTranslation().getNorm() < 0.14;
+            return false;
         }
     }
 

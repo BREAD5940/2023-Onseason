@@ -47,8 +47,9 @@ public class AutoPlaceCommand extends CommandBase {
     private boolean scored = false;
     private boolean converged = false;
     private Level level;
+    private GamePiece gamePiece;
 
-    //private Supplier<Integer> scoringLocationSup; 
+    private Supplier<GamePiece> gamePieceSup; 
     private Supplier<Level> levelSup;
 
     private final PIDController xController = new PIDController(4.0, 0.0, 0.004);
@@ -60,11 +61,11 @@ public class AutoPlaceCommand extends CommandBase {
 
     LoggedTunableNumber thetaP = new LoggedTunableNumber("AutoPlace/ThetaP", 5.0);
 
-    public AutoPlaceCommand(Swerve swerve, Superstructure superstructure, Supplier<Integer> scoringLocationSup, Supplier<Level> levelSup) {
+    public AutoPlaceCommand(Swerve swerve, Superstructure superstructure, Supplier<GamePiece> gamePieceSupplier, Supplier<Level> levelSup) {
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
         this.swerve = swerve;
         this.superstructure = superstructure;
-       // this.scoringLocationSup = scoringLocationSup;
+        this.gamePieceSup = gamePieceSupplier;
         this.levelSup = levelSup;
         addRequirements(swerve, superstructure);
     }
@@ -76,12 +77,14 @@ public class AutoPlaceCommand extends CommandBase {
         linedUp = false;
         scored = false;
         converged = false;
-        int scoringLocation = getScoringLocationClosestToRobot(level); //scoringLocationSup.get();
-
-        if (DriverStation.getAlliance() == Alliance.Blue) {
-            scoringLocation = 10 - scoringLocation;
-        }
         this.level = levelSup.get();
+        this.gamePiece = gamePieceSup.get();
+
+        int scoringLocation = getScoringLocationClosestToRobot(level, gamePiece); //scoringLocationSup.get();
+
+        // if (DriverStation.getAlliance() == Alliance.Blue) {
+        //     scoringLocation = 10 - scoringLocation;
+        // }
         // if (level == Level.HIGH) {
         //     Translation2d xyNodeTranslation = AllianceFlipUtil.apply(Grids.highTranslations[scoringLocation - 1]);
         //     nodeLocation = new Pose3d(
@@ -108,14 +111,21 @@ public class AutoPlaceCommand extends CommandBase {
         if (isCubeNode) {
             targetRobotPose = new Pose2d(X_SCORING_POSITION + 0.1, nodeLocation.getY(), new Rotation2d(Math.PI));
         } else {
-            targetRobotPose = new Pose2d(X_SCORING_POSITION, nodeLocation.getY(), new Rotation2d(Math.PI));
+            if (level == Level.HIGH) {
+                targetRobotPose = new Pose2d(X_SCORING_POSITION - 0.03, nodeLocation.getY(), new Rotation2d(Math.PI));
+            } else {
+                targetRobotPose = new Pose2d(X_SCORING_POSITION, nodeLocation.getY(), new Rotation2d(Math.PI));
+            }
         }
         preTargetRobotPose = new Pose2d(targetRobotPose.getX() + Units.inchesToMeters(4), targetRobotPose.getY(), targetRobotPose.getRotation());
         shouldUseLimelight = !(scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8 || level == Level.LOW);
+
+        Logger.getInstance().recordOutput("AutoPlace/TargetRobotPose", targetRobotPose);
     }
 
     @Override
     public void execute() { 
+        System.out.println("Auto Place Command Running!");
         thetaController.setP(thetaP.get());
 
         Pose2d realGoal = AllianceFlipUtil.apply(targetRobotPose);
@@ -236,42 +246,62 @@ public class AutoPlaceCommand extends CommandBase {
         return -1;
     }
 
-    private int getScoringLocationClosestToRobot(Level level) {
+    private int getScoringLocationClosestToRobot(Level level, GamePiece gamePiece) {
         Pose3d closestNode = new Pose3d();
         Pose3d testNode = new Pose3d();
         int closestScoringLocation = -1;
         double errorOfCurrentClosest = Double.POSITIVE_INFINITY;
         Pose2d currentPose = RobotContainer.poseEstimator.getLatestPose();
-
+        int scoringLocation = 0;
         for (int i = 1; i <= 9; i++) {
+            scoringLocation = i;
+            if (DriverStation.getAlliance() == Alliance.Blue) {
+                scoringLocation = 10 - i;
+            }
+
+            boolean isCubeNode = (scoringLocation == 2 || scoringLocation == 5 || scoringLocation == 8);
+
             if (level == Level.HIGH) {
-                Translation2d xyNodeTranslation = AllianceFlipUtil.apply(Grids.highTranslations[i - 1]);
+                Translation2d xyNodeTranslation = AllianceFlipUtil.apply(Grids.highTranslations[scoringLocation - 1]);
                 testNode = new Pose3d(
                         xyNodeTranslation.getX(),
                         xyNodeTranslation.getY(),
                         HIGH_TAPE_OFF_GROUND,
                         new Rotation3d());
             } else if (level == Level.MID) {
-                Translation2d xyNodeTranslation = AllianceFlipUtil.apply(Grids.midTranslations[i - 1]);
+                Translation2d xyNodeTranslation = AllianceFlipUtil.apply(Grids.midTranslations[scoringLocation - 1]);
                 testNode = new Pose3d(
                         xyNodeTranslation.getX(),
                         xyNodeTranslation.getY(),
                         MID_TAPE_OFF_GROUND,
                         new Rotation3d());
             } else if (level == Level.LOW) {
-                Translation2d xyNodeTranslation = AllianceFlipUtil.apply(Grids.lowTranslations[i - 1]);
+                Translation2d xyNodeTranslation = AllianceFlipUtil.apply(Grids.lowTranslations[scoringLocation - 1]);
                 testNode = new Pose3d(
                         xyNodeTranslation.getX(),
                         xyNodeTranslation.getY(),
                         0.0,
                         new Rotation3d());
             }
-            double error = testNode.toPose2d().relativeTo(currentPose).getTranslation().getNorm();
+            Pose2d testRobotPose;
+            if (isCubeNode) {
+                testRobotPose = new Pose2d(X_SCORING_POSITION + 0.1, testNode.getY(), new Rotation2d(Math.PI));
+            } else {
+                if (level == Level.HIGH) {
+                    testRobotPose = new Pose2d(X_SCORING_POSITION - 0.03, testNode.getY(), new Rotation2d(Math.PI));
+                } else {
+                    testRobotPose = new Pose2d(X_SCORING_POSITION, testNode.getY(), new Rotation2d(Math.PI));
+                }
+            }
+            testRobotPose = AllianceFlipUtil.apply(testRobotPose);
+            double error = testRobotPose.relativeTo(currentPose).getTranslation().getNorm();
             
             if (error < errorOfCurrentClosest) {
-                errorOfCurrentClosest = closestNode.toPose2d().relativeTo(currentPose).getTranslation().getNorm();
-                closestScoringLocation = i;
-                closestNode = testNode;
+                if ((gamePiece == GamePiece.CUBE && isCubeNode) || (gamePiece == GamePiece.CONE && !isCubeNode)) {
+                    errorOfCurrentClosest = error;
+                    closestScoringLocation = scoringLocation;
+                    closestNode = testNode;
+                }
             }
         }
         nodeLocation = closestNode;

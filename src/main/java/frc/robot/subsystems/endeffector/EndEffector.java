@@ -14,9 +14,10 @@ public class EndEffector {
     LoggedTunableNumber intakeConePercent = new LoggedTunableNumber("EndEffector/IntakeConePercent", 1.0);
     LoggedTunableNumber intakeCubePercent = new LoggedTunableNumber("EndEffector/IntakeCubePercent", 0.5);
 
-    LoggedTunableNumber holdingPercent = new LoggedTunableNumber("EndEffector/HoldingPercent", 0.1);
-    LoggedTunableNumber spitCubePercent = new LoggedTunableNumber("EndEffector/SpitCubePercent", -1.0);
-    LoggedTunableNumber spitLowPercent = new LoggedTunableNumber("EndEffector/SpitLowPercent", -0.5);
+    LoggedTunableNumber holdingPercent = new LoggedTunableNumber(
+        "EndEffector/HoldingPercent", 0.1);
+    LoggedTunableNumber spitCubePercent = new LoggedTunableNumber("EndEffector/SpitCubePercent", -0.35);
+    LoggedTunableNumber spitLowPercent = new LoggedTunableNumber("EndEffector/SpitLowPercent", -0.15);
 
 
     /* Instantiate the IO instance in the constructor */
@@ -82,7 +83,7 @@ public class EndEffector {
     /* For throwing cubes */
     public void throwCube() {
         endEffectorIO.setPercent(-1.0);
-        endEffectorIO.setCurrentLimit(140, 160.0);
+        endEffectorIO.setCurrentLimit(180, 200.0);
     }
 
     /* Enables/disables brake mode */
