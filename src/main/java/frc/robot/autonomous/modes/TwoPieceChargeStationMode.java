@@ -21,7 +21,7 @@ public class TwoPieceChargeStationMode extends SequentialCommandGroup {
         addRequirements(superstructure, swerve);
         addCommands(
                 // Move forward and score the preloaded cone on the high pole
-                new InstantCommand(() -> swerve.requestPercent(new ChassisSpeeds(0.5, 0, 0), false)),
+                new InstantCommand(() -> swerve.requestPercent(new ChassisSpeeds(0.0, 0, 0), false)),
                 new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CONE)),
                 new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_PRE_CONE_HIGH)),
                 new InstantCommand(() -> superstructure.requestScore()),
@@ -30,19 +30,24 @@ public class TwoPieceChargeStationMode extends SequentialCommandGroup {
                 new InstantCommand(() -> superstructure.requestIdle()), 
 
                 // Drive backwards over the charge station, intake the cube, and drive back over
-                new TrajectoryFollowerCommand(Robot.twoPieceChargeStationA, swerve, true),
-                new WaitCommand(0.2),
+                new TrajectoryFollowerCommand(Robot.twoPieceChargeStationA, 
+                () -> Robot.twoPieceChargeStationA.getInitialHolonomicPose().getRotation(), swerve, true).raceWith(new SequentialCommandGroup(
+                    new WaitCommand(2.0),
+                    new RunCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0))
+                )),
                 new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)),
-                new TrajectoryFollowerCommand(Robot.twoPieceChargeStationB, swerve, true)
-                        .alongWith(new SequentialCommandGroup(
-                                new WaitCommand(2.5),
-                                new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE)))),
+                new WaitCommand(0.25),
+                new TrajectoryFollowerCommand(Robot.twoPieceChargeStationB, swerve, true, 1.0).raceWith(new SequentialCommandGroup(
+                    new WaitCommand(1.0),
+                    new RunCommand(() -> superstructure.requestIdle())
+                )),
+                new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE)),
                 new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_PRE_CUBE_HIGH)),
                 new InstantCommand(() -> superstructure.requestScore()),
-                new WaitCommand(2.0),
-
-                // Stop robot and superstructure
-                new InstantCommand(() -> superstructure.requestIdle()),
+                new WaitCommand(1.0),
+                new InstantCommand(() -> superstructure.requestIdle()), 
+                new WaitCommand(0.25),
+                new TrajectoryFollowerCommand(Robot.twoPieceChargeStationC, swerve, false),
                 new RunCommand(() -> swerve.requestPercent(new ChassisSpeeds(0, 0, 0), false))
         );
     }

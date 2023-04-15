@@ -50,6 +50,7 @@ public class TrajectoryFollowerCommand extends CommandBase {
     private double Y_CONTROLLER_D = 0.0;
     private double THETA_CONTROLLER_D = 0.0;
     private final double kBridgeMiddlePos = 3.431;
+    private final double convergenceTime;
 
     public final BreadHolonomicDriveController autonomusController = new BreadHolonomicDriveController(
         new PIDController(X_CONTROLLER_P, 0, X_CONTROLLER_D), 
@@ -57,16 +58,25 @@ public class TrajectoryFollowerCommand extends CommandBase {
         new PIDController(THETA_CONTROLLER_P, 0, THETA_CONTROLLER_D)
     );
 
-    public TrajectoryFollowerCommand(PathPlannerTrajectory trajectory, Supplier<Rotation2d> startHeading, Swerve swerve, boolean dontBalanceAtEnd) {
+    public TrajectoryFollowerCommand(PathPlannerTrajectory trajectory, Supplier<Rotation2d> startHeading, Swerve swerve, boolean dontBalanceAtEnd, double convergenceTime) {
         this.trajectory = trajectory;
         this.startHeading = startHeading;
         this.swerve = swerve;
         this.dontBalanceAtEnd = dontBalanceAtEnd;
+        this.convergenceTime = convergenceTime;
         addRequirements(swerve);
     }
 
+    public TrajectoryFollowerCommand(PathPlannerTrajectory trajectory, Supplier<Rotation2d> startHeading, Swerve swerve, boolean dontBalanceAtEnd) {
+        this(trajectory, startHeading, swerve, dontBalanceAtEnd, 0.0);
+    }
+
     public TrajectoryFollowerCommand(PathPlannerTrajectory trajectory, Swerve swerve, boolean dontBalanceAtEnd) {
-        this(trajectory, null, swerve, dontBalanceAtEnd);
+        this(trajectory, null, swerve, dontBalanceAtEnd, 0.0);
+    }
+
+    public TrajectoryFollowerCommand(PathPlannerTrajectory trajectory, Swerve swerve, boolean dontBalanceAtEnd, double convergenceTime) {
+        this(trajectory, null, swerve, dontBalanceAtEnd, convergenceTime);
     }
 
     @Override
@@ -133,7 +143,7 @@ public class TrajectoryFollowerCommand extends CommandBase {
         PathPlannerState goal = (PathPlannerState) trajectory.sample(timer.get());
         Trajectory.State wpilibGoal = AllianceFlipUtil.apply(goal);
         if (dontBalanceAtEnd) {
-            return timer.get() >= trajectory.getTotalTimeSeconds();
+            return timer.get() >= trajectory.getTotalTimeSeconds() + convergenceTime;
         } else {
             Pose2d poseError = wpilibGoal.poseMeters.relativeTo(RobotContainer.poseEstimator.getLatestPose());
             // return timer.get() >= trajectory.getTotalTimeSeconds() && poseError.getTranslation().getNorm() < 0.14;

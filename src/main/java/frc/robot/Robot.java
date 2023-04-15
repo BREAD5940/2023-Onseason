@@ -80,6 +80,7 @@ public class Robot extends LoggedRobot {
 
   public static PathPlannerTrajectory twoPieceChargeStationA;
   public static PathPlannerTrajectory twoPieceChargeStationB;
+  public static PathPlannerTrajectory twoPieceChargeStationC;
 
   public static Alliance alliance = DriverStation.Alliance.Red;
 
@@ -142,6 +143,7 @@ public class Robot extends LoggedRobot {
 
     twoPieceChargeStationA = PathPlanner.loadPath("Two Piece Charge Station A", new PathConstraints(2.0, 2.0));
     twoPieceChargeStationB = PathPlanner.loadPath("Two Piece Charge Station B", new PathConstraints(2.0, 2.0));
+    twoPieceChargeStationC = PathPlanner.loadPath("Two Piece Charge Station C", new PathConstraints(2.0, 2.0));
 
     onePieceBalanceA = PathPlanner.loadPath("One Piece Balance A", new PathConstraints(2.0, 2.0));
     onePieceBalanceB = PathPlanner.loadPath("One Piece Balance B", new PathConstraints(2.0, 2.0));
