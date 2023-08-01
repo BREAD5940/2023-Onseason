@@ -61,6 +61,8 @@ public class Robot extends LoggedRobot {
   public static PathPlannerTrajectory threePieceSlowD; 
   public static PathPlannerTrajectory threePieceSlowSetup;
   public static PathPlannerTrajectory threePieceLinkB;
+  public static PathPlannerTrajectory threePieceLinkA;
+  public static PathPlannerTrajectory threePieceLinkC;
 
   public static PathPlannerTrajectory twoPieceBalanceA;
   public static PathPlannerTrajectory twoPieceBalanceB;
@@ -116,6 +118,8 @@ public class Robot extends LoggedRobot {
     throwE = PathPlanner.loadPath("Throw E", new PathConstraints(3.5, 2.5));
 
     threePieceA = PathPlanner.loadPath("Three Piece A", new PathConstraints(4.0, 3.0));
+    threePieceLinkA = PathPlanner.loadPath("Three Piece A", new PathConstraints(2.75, 1.75));
+    threePieceLinkC = PathPlanner.loadPath("Three Piece Link C", new PathConstraints(4.0, 3.0));
     threePieceB = PathPlanner.loadPath("Three Piece B", new PathConstraints(4.0, 3.0));
     threePieceC = PathPlanner.loadPath("Three Piece C", new PathConstraints(4.0, 3.0));
     threePieceD = PathPlanner.loadPath("Three Piece D", new PathConstraints(4.0, 3.0));
