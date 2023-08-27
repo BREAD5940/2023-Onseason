@@ -79,9 +79,9 @@ public class RobotContainer {
 
   private void configureControls() {
     swerve.setDefaultCommand(new RunCommand(() -> {
-      double x = BreadUtil.deadband(driver.getRightY(), 0.1);
-      double y = BreadUtil.deadband(driver.getRightX(), 0.1);
-      double omega = BreadUtil.deadband(driver.getLeftX(), 0.1);
+      double x = BreadUtil.deadband(driver.getLeftY(), 0.1);
+      double y = BreadUtil.deadband(driver.getLeftX(), 0.1);
+      double omega = BreadUtil.deadband(driver.getRightX(), 0.1);
 
       // Movement Outputs
       double scale = RobotContainer.driver.getLeftBumper() ? 0.25 : 1.0;
