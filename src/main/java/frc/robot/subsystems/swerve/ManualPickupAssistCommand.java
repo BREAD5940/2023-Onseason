@@ -1,5 +1,7 @@
 package frc.robot.subsystems.swerve;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.MathUsageId;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -37,8 +39,8 @@ public class ManualPickupAssistCommand extends CommandBase {
     @Override
     public void execute() {
         Pose2d measurement = RobotContainer.poseEstimator.getLatestPose();
-        double x = RobotContainer.driver.getRightY();
-        double y = RobotContainer.driver.getRightX();
+        double x = RobotContainer.driver.getLeftY();
+        double y = RobotContainer.driver.getLeftX();
         double dx;
         double dy;
         if (Robot.alliance == DriverStation.Alliance.Blue) {
