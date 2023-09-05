@@ -8,6 +8,7 @@ import frc.robot.autonomous.modes.OnePieceBalanceMode;
 import frc.robot.autonomous.modes.PreloadMode;
 import frc.robot.autonomous.modes.ThreePieceBalanceMode;
 import frc.robot.autonomous.modes.ThreePieceBumpMode;
+import frc.robot.autonomous.modes.ThreePieceFloorConeMode;
 import frc.robot.autonomous.modes.ThreePieceMode;
 import frc.robot.autonomous.modes.ThrowBalanceMode;
 import frc.robot.autonomous.modes.TwoPieceBalanceBumpMode;
@@ -66,6 +67,10 @@ public class AutonomousSelector {
         autonomusSelector.addOption(
             "TWO_PIECE_CHARGE_STATION",
             Commands.waitUntil(superstructure::homedOnce).andThen(new TwoPieceChargeStationMode(superstructure, swerve))
+        );
+        autonomusSelector.addOption(
+            "THREE_PIECE_FLOOR_CONE",
+            Commands.waitUntil(superstructure::homedOnce).andThen(new ThreePieceFloorConeMode(superstructure, swerve))
         );
         SmartDashboard.putData("Autonomus Selector", autonomusSelector);
     }
