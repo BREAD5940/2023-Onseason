@@ -16,9 +16,9 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.TrajectoryFollowerCommand;
 
 import static frc.robot.Constants.Elevator.*;
-public class ThreePieceHighLinkMode extends SequentialCommandGroup {
+public class ThreePieceFloorConeMode extends SequentialCommandGroup {
 
-    public ThreePieceHighLinkMode(Superstructure superstructure, Swerve swerve) {
+    public ThreePieceFloorConeMode(Superstructure superstructure, Swerve swerve) {
         addRequirements(superstructure, swerve);
         addCommands(
             new InstantCommand(() -> swerve.requestPercent(new ChassisSpeeds(0, 0, 0), false)),
@@ -27,13 +27,13 @@ public class ThreePieceHighLinkMode extends SequentialCommandGroup {
             new InstantCommand(() -> superstructure.requestScore()),
             new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_CONE_PULL_OUT_HIGH)),
             new WaitCommand(0.4),
-            new TrajectoryFollowerCommand(Robot.threePieceLinkA, () -> Robot.threePieceSlowA.getInitialHolonomicPose().getRotation(), swerve, true).raceWith(
+            new TrajectoryFollowerCommand(Robot.threePieceFloorConeA, () -> Robot.threePieceSlowA.getInitialHolonomicPose().getRotation(), swerve, true).raceWith(
                 new RunCommand(() -> superstructure.requestFloorIntakeCone())
             ),
             new InstantCommand(() -> superstructure.requestFloorIntakeCone()), 
-            new TrajectoryFollowerCommand(Robot.threePieceLinkB, swerve, true),
+            new TrajectoryFollowerCommand(Robot.threePieceFloorConeB, swerve, true),
             new AutoPlaceCommand(swerve, superstructure, () -> GamePiece.CONE, () -> Level.MID).until(() -> superstructure.getSystemState() == SuperstructureState.PULL_OUT_CONE),
-            new TrajectoryFollowerCommand(Robot.threePieceLinkC, swerve, true).raceWith(
+            new TrajectoryFollowerCommand(Robot.threePieceFloorConeC, swerve, true).raceWith(
                 new RunCommand(() -> superstructure.requestFloorIntakeCube(() -> 0.0))
             ),
             new InstantCommand(() -> superstructure.requestFloorIntakeCube(() -> 1.0)), 
