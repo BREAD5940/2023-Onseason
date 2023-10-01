@@ -153,7 +153,8 @@ public final class Constants {
         public static final double ELEVATOR_FLOOR_INTAKE_CUBE = 0.1;
         public static final double ELEVATOR_DOUBLE_SUBSTATION_CONE = 1.15;
         // public static final double ELEVATOR_DOUBLE_SUBSTATION_CUBE = 1.115;
-        public static final double ELEVATOR_SINGLE_SUBSTATION_CONE = 0.184;
+        // public static final double ELEVATOR_SINGLE_SUBSTATION_CONE = 0.184;
+        public static final double ELEVATOR_SINGLE_SUBSTATION_CONE = 0.05;
         public static final double ELEVATOR_SPIT_POSE = 0.5;
 
         public static final TalonFXInvertType ELEVATOR_LEFT_INVERT_TYPE = TalonFXInvertType.CounterClockwise;
@@ -172,7 +173,8 @@ public final class Constants {
         public static final double ARM_GEAR_RATIO = (1.0/78.7) * (60.0/27.0);
         public static final double ARM_MAX_VELOCITY = ((1.0/78.7) * 6380.0 * 360.0)/60.0;
 
-        public static final double ARM_MAX_LIMITED_ELEVATOR_ROM = 117.24609375; 
+        // public static final double ARM_MAX_LIMITED_ELEVATOR_ROM = 117.24609375; 
+        public static final double ARM_MAX_LIMITED_ELEVATOR_ROM = 126; 
         public static final double ARM_NEUTRAL_ANGLE = 110.0;
         public static final double ARM_MIN = 8.61328125;
         public static final double ARM_MAX = 236.77734375;
@@ -187,7 +189,8 @@ public final class Constants {
         public static final double ARM_FLOOR_INTAKE_CUBE = 15.0;
         public static final double ARM_DOUBLE_SUBSTATION_CONE = 178.4;
         // public static final double ARM_DOUBLE_SUBSTATION_CUBE = 211.6;
-        public static final double ARM_SINGLE_SUBSTATION_CONE = 126;
+        // public static final double ARM_SINGLE_SUBSTATION_CONE = 126;
+        public static final double ARM_SINGLE_SUBSTATION_CONE = 124;
         public static final double ARM_UNJAM_POSITION = 26.0;
         public static final double ARM_PRE_THROW = 25.0;
         public static final double ARM_POST_THROW = 160.0;
