@@ -89,6 +89,7 @@ public class FloorIntakeIOTalonFX implements FloorIntakeIO {
         inputs.deployPositionTarget = CANCoderSensorUnitsToDegrees(deploy.getActiveTrajectoryPosition());
         inputs.deployVelocityTarget = CANCoderSensorUnitsToDegreesPerSecond(deploy.getActiveTrajectoryVelocity());
         inputs.deployDutyCycle = deploy.getMotorOutputPercent();
+        inputs.azimuthAbsolutePosition = floorIntakeAzimuth.getAbsolutePosition();
     }
 
     @Override

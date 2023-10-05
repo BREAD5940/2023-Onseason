@@ -240,7 +240,8 @@ public final class Constants {
 
         public static final int FLOOR_INTAKE_AZIMUTH_ID = 32;
         public static final boolean FLOOR_INTAKE_AZIMUTH_INVERTED = true;
-        public static final double FLOOR_INTAKE_AZIMUTH_DEGREE_OFFSET = 193.887;
+        // public static final double FLOOR_INTAKE_AZIMUTH_DEGREE_OFFSET = 193.887;
+        public static final double FLOOR_INTAKE_AZIMUTH_DEGREE_OFFSET = 14.238;
         public static final double FLOOR_INTAKE_NULL_RANGE = 300.0;
         public static final boolean FLOOR_INTAKE_PHASE_INVERTED = true;
     }

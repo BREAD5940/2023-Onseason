@@ -16,6 +16,7 @@ public interface FloorIntakeIO {
         public double velDegreesPerSecondCC = 0.0;
         public double deployCurrentAmps = 0.0;
         public double deployAppliedVoltage = 0.0;
+        public double azimuthAbsolutePosition = 0.0;
         
         public double deployTempCelcius = 0.0;
         public double deployPositionTarget = 0.0;
