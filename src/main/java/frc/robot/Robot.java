@@ -219,6 +219,7 @@ public class Robot extends LoggedRobot {
     }
     RobotContainer.limelightVision.enableLeds(true);
 
+
     if (RobotContainer.driver.getRightTriggerAxis() > 0.05 && !intakeTriggered) {
       Supplier<Double> pressure = () -> {
         if (RobotContainer.driver.getYButton() && RobotContainer.driver.getRightTriggerAxis() > 0.95) {
@@ -234,14 +235,6 @@ public class Robot extends LoggedRobot {
     if (RobotContainer.driver.getRightTriggerAxis() <= 0.05 && intakeTriggered) {
       intakeTriggered = false;
       RobotContainer.superstructure.requestIdle();
-    }
-
-    if (RobotContainer.driver.getRightBumperPressed()) {
-      RobotContainer.superstructure.requestIntakeSingleSubstationCone();
-    }
-
-    if (RobotContainer.driver.getRightBumperPressed()) {
-      RobotContainer.superstructure.requestIntakeConeDoubleSubstation();
     }
 
     if (RobotContainer.operator.getAButtonPressed()) {
