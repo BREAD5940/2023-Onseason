@@ -27,7 +27,7 @@ public class ThreePieceBalanceThrowMode extends SequentialCommandGroup {
         addRequirements(superstructure, swerve);
         addCommands(
 
-            // 
+            //  
             new InstantCommand(() -> swerve.requestPercent(new ChassisSpeeds(0, 0, 0), false)),
             new InstantCommand(() -> superstructure.requestPreScore(Level.HIGH, GamePiece.CONE)),
             new WaitUntilCommand(() -> superstructure.atElevatorSetpoint(ELEVATOR_PRE_CONE_HIGH)),
