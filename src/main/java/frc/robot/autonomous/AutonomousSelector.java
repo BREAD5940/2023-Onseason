@@ -16,6 +16,7 @@ import frc.robot.autonomous.modes.TwoPieceBalanceMode;
 import frc.robot.autonomous.modes.TwoPieceBumpMode;
 import frc.robot.autonomous.modes.TwoPieceChargeStationMode;
 import frc.robot.autonomous.modes.TwoPieceMode;
+import frc.robot.autonomous.modes.ThreePieceBalanceThrowMode;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.swerve.Swerve;
 
@@ -55,6 +56,10 @@ public class AutonomousSelector {
         autonomusSelector.addOption(
             "THREE_PIECE_BALANCE",
             Commands.waitUntil(superstructure::homedOnce).andThen(new ThreePieceBalanceMode(superstructure, swerve))
+        );
+        autonomusSelector.addOption(
+            "THREE_PIECE_BALANCE_THROW",
+            Commands.waitUntil(superstructure::homedOnce).andThen(new ThreePieceBalanceThrowMode(superstructure, swerve))
         );
         autonomusSelector.addOption(
             "THREE_PIECE_BUMP",
