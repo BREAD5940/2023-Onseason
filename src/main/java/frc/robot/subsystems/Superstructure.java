@@ -484,7 +484,7 @@ public class Superstructure extends SubsystemBase {
         } else if (systemState == SuperstructureState.FLOOR_INTAKE_CONE_B) {
             // Outputs
             if (elevatorArmLowLevel.getState()[0] > 0.4) {
-                elevatorArmLowLevel.requestDesiredState(0.5, 29.67578125, goSlow);
+                elevatorArmLowLevel.requestDesiredState(0.5, 24.67578125, goSlow);
             } else {
                 elevatorArmLowLevel.requestDesiredState(0.5, 90.0, goSlow);
             }
@@ -492,14 +492,14 @@ public class Superstructure extends SubsystemBase {
             endEffector.intakeCone();
 
             // Transitions
-            if (elevatorArmLowLevel.atArmSetpoint(29.67578125) && elevatorArmLowLevel.atElevatorSetpoint(0.5)) {
+            if (elevatorArmLowLevel.atArmSetpoint(24.67578125) && elevatorArmLowLevel.atElevatorSetpoint(0.5)) {
                 nextSystemState = SuperstructureState.FLOOR_INTAKE_CONE_C;
             } else if (!requestFloorIntakeCone) {
                 nextSystemState = SuperstructureState.IDLE;
             }
         } else if (systemState == SuperstructureState.FLOOR_INTAKE_CONE_C) {
             // Outputs
-            elevatorArmLowLevel.requestDesiredState(0.15, 29.67578125, goSlow);
+            elevatorArmLowLevel.requestDesiredState(0.15, 24.67578125, goSlow);
             if (elevatorArmLowLevel.atElevatorSetpoint(0.15)) {
                 floorIntake.requestClosedLoop(0.15, 0.0);
             } else {

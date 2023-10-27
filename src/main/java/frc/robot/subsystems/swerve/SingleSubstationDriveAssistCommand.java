@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
+import frc.robot.commons.BreadUtil;
 import frc.robot.subsystems.Superstructure;
 
 public class SingleSubstationDriveAssistCommand extends CommandBase {
@@ -35,8 +36,8 @@ public class SingleSubstationDriveAssistCommand extends CommandBase {
     @Override
     public void execute() {
         Pose2d measurement = RobotContainer.poseEstimator.getLatestPose();
-        double x = RobotContainer.driver.getLeftY();
-        double y = RobotContainer.driver.getLeftX();
+        double x = BreadUtil.deadband(RobotContainer.driver.getLeftY(), 0.1);
+        double y = BreadUtil.deadband(RobotContainer.driver.getLeftX(), 0.1);
         double dx;
         double dy;
       
