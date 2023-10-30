@@ -29,9 +29,9 @@ public class SingleSubstationDriveAssistCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        headingGoal = DriverStation.getAlliance() == Alliance.Blue ? new Rotation2d(Math.PI / 2.0) : new Rotation2d(3 * Math.PI / 2.0);
+        headingGoal = DriverStation.getAlliance() == Alliance.Blue ? new Rotation2d(Math.PI / 2.0) : new Rotation2d(Math.PI / 2.0);
         RobotContainer.superstructure.requestIntakeSingleSubstationCone();
-    }
+    }   
 
     @Override
     public void execute() {

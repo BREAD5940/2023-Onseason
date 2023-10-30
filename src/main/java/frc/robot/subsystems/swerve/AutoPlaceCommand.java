@@ -112,9 +112,9 @@ public class AutoPlaceCommand extends CommandBase {
             targetRobotPose = new Pose2d(X_SCORING_POSITION + 0.1, nodeLocation.getY(), new Rotation2d(Math.PI));
         } else {
             if (level == Level.HIGH) {
-                targetRobotPose = new Pose2d(X_SCORING_POSITION - 0.03, nodeLocation.getY(), new Rotation2d(Math.PI));
+                targetRobotPose = new Pose2d(X_SCORING_POSITION - 0.01, nodeLocation.getY(), new Rotation2d(Math.PI));
             } else {
-                targetRobotPose = new Pose2d(X_SCORING_POSITION, nodeLocation.getY(), new Rotation2d(Math.PI));
+                targetRobotPose = new Pose2d(X_SCORING_POSITION - 0.03, nodeLocation.getY(), new Rotation2d(Math.PI));
             }
         }
         preTargetRobotPose = new Pose2d(targetRobotPose.getX() + Units.inchesToMeters(4), targetRobotPose.getY(), targetRobotPose.getRotation());
@@ -225,6 +225,7 @@ public class AutoPlaceCommand extends CommandBase {
         Logger.getInstance().recordOutput("AutoPlace/TargetRobotPose", targetRobotPose);
         Logger.getInstance().recordOutput("AutoPlace/PreTargetRobotPose", preTargetRobotPose);
         Logger.getInstance().recordOutput("AutoPlace/Converged", converged);
+        Logger.getInstance().recordOutput("Autoplace/PoseError", poseError);
         
     }
 
@@ -288,9 +289,9 @@ public class AutoPlaceCommand extends CommandBase {
                 testRobotPose = new Pose2d(X_SCORING_POSITION + 0.1, testNode.getY(), new Rotation2d(Math.PI));
             } else {
                 if (level == Level.HIGH) {
-                    testRobotPose = new Pose2d(X_SCORING_POSITION - 0.03, testNode.getY(), new Rotation2d(Math.PI));
+                    testRobotPose = new Pose2d(X_SCORING_POSITION - 0.01, testNode.getY(), new Rotation2d(Math.PI));
                 } else {
-                    testRobotPose = new Pose2d(X_SCORING_POSITION, testNode.getY(), new Rotation2d(Math.PI));
+                    testRobotPose = new Pose2d(X_SCORING_POSITION - 0.03, testNode.getY(), new Rotation2d(Math.PI));
                 }
             }
             testRobotPose = AllianceFlipUtil.apply(testRobotPose);
