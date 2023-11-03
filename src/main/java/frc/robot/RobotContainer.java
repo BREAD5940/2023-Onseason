@@ -66,8 +66,10 @@ public class RobotContainer {
   private static final AprilTagVisionIO centerCamera = new AprilTagVisionIONorthstar("northstar-center");
   public static final AprilTagVision northstarVision = new AprilTagVision(leftCamera, rightCamera, centerCamera);
   public static final PoseEstimator poseEstimator = new PoseEstimator(VecBuilder.fill(0.003, 0.003, 0.0002));
-  
-  public static final ClimberIOTalonFX climberIO = new ClimberIOTalonFX();
+  // public static final ClimberIOTalonFX climberIO = new ClimberIOTalonFX();
+  public static final ClimberIO climberIO = new ClimberIO() {
+    
+  };
   public static final Climber climber = new Climber(climberIO);
   public static final LEDs leds = new LEDs(0, 74);
 
