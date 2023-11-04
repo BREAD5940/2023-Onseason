@@ -29,7 +29,7 @@ public class Swerve extends SubsystemBase {
     // Hardware, kinematics, and odometry
     private final GyroIO gyroIO;
     private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
-    private final ModuleIO[] moduleIOs = new ModuleIO[4];
+    public final ModuleIO[] moduleIOs = new ModuleIO[4];
     private final ModuleIOInputsAutoLogged[] moduleInputs = {
             new ModuleIOInputsAutoLogged(),
             new ModuleIOInputsAutoLogged(),

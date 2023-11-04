@@ -12,9 +12,13 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.XboxController;
@@ -22,6 +26,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commons.LoggedTunableNumber;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.subsystems.climber.Climber.ClimberStates;
@@ -87,6 +92,9 @@ public class Robot extends LoggedRobot {
   public static PathPlannerTrajectory twoPieceChargeStationC;
 
   public static Alliance alliance = DriverStation.Alliance.Red;
+
+  // REMOVE LATER
+  double moduleAngle = 360.0;
 
   @Override
   public void robotInit() {
@@ -158,6 +166,8 @@ public class Robot extends LoggedRobot {
     RobotContainer.swerve.resetAllToAbsolute();
     m_robotContainer.configureAutonomousSelector(); // Needed down here so auto paths exist when the selector is created
     RobotContainer.limelightVision.enableLeds(false);
+
+    
   }
 
   @Override
@@ -209,6 +219,7 @@ public class Robot extends LoggedRobot {
     }
 
     alliance = DriverStation.getAlliance();
+    m_robotContainer.swerve.setNeutralModes(NeutralMode.Coast);
   }
 
   @Override
@@ -305,6 +316,10 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void testPeriodic() {
+    for (int i=0; i<4; i++) {
+      m_robotContainer.swerve.moduleIOs[i].setDrivePercent(0.0);
+      m_robotContainer.swerve.moduleIOs[i].setTurnAngle(moduleAngle);
+    }
   }
 
   @Override

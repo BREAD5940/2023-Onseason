@@ -1,10 +1,8 @@
 package frc.robot.subsystems.swerve;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
@@ -14,27 +12,21 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
-import com.ctre.phoenixpro.configs.ClosedLoopGeneralConfigs;
-import com.ctre.phoenixpro.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenixpro.configs.CurrentLimitsConfigs;
 import com.ctre.phoenixpro.configs.FeedbackConfigs;
 import com.ctre.phoenixpro.configs.MotorOutputConfigs;
 import com.ctre.phoenixpro.configs.Slot0Configs;
-import com.ctre.phoenixpro.configs.Slot1Configs;
 import com.ctre.phoenixpro.configs.TalonFXConfigurator;
-import com.ctre.phoenixpro.configs.VoltageConfigs;
+import com.ctre.phoenixpro.controls.CoastOut;
 import com.ctre.phoenixpro.controls.DutyCycleOut;
-import com.ctre.phoenixpro.controls.VelocityDutyCycle;
+import com.ctre.phoenixpro.controls.NeutralOut;
+import com.ctre.phoenixpro.controls.StaticBrake;
 import com.ctre.phoenixpro.controls.VelocityVoltage;
 import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
-
-import edu.wpi.first.math.estimator.AngleStatistics;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DutyCycle;
-import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.commons.Alert;
 import frc.robot.commons.Conversions;
 import frc.robot.commons.LoggedTunableNumber;
@@ -50,6 +42,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     private final TalonFX steer;
     private final double offset;
     public final CANCoder azimuth;
+    private final InvertedValue driveDirection; 
     public double[] desiredState = {0, 0};
 
     LoggedTunableNumber kP = new LoggedTunableNumber("Drive/kP", 0.002);
@@ -60,6 +53,7 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     public ModuleIOTalonFX(int driveID, int steerID, int azimuthID, Rotation2d offset, InvertedValue driveDirection, TalonFXInvertType steerReversed, boolean azimuthReversed, String moduleIdentifier) {
         this.offset = offset.getDegrees();
+        this.driveDirection = driveDirection;
 
         // Configure the driving motor
         drive = new com.ctre.phoenixpro.hardware.TalonFX(driveID, CANIVORE_BUS_NAME);
@@ -93,7 +87,7 @@ public class ModuleIOTalonFX implements ModuleIO {
 
         drive.setRotorPosition(0.0);
 
-        // Create CAN Coder object
+        // Create CANCoder object
         azimuth = new CANCoder(azimuthID, CANIVORE_BUS_NAME);
         azimuth.configMagnetOffset(0.0); 
         azimuth.configSensorDirection(false);
@@ -158,7 +152,19 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     @Override
     public void setDriveBrakeMode(boolean enable) {
-        // drive.setNeutralMode(enable ? NeutralMode.Brake : NeutralMode.Coast);
+        MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
+        if (enable) {
+            motorOutputConfigs.Inverted = driveDirection;
+            motorOutputConfigs.PeakForwardDutyCycle = 1.0;
+            motorOutputConfigs.PeakReverseDutyCycle = -1.0;
+            motorOutputConfigs.NeutralMode = NeutralModeValue.Brake;
+        } else {
+            motorOutputConfigs.Inverted = driveDirection;
+            motorOutputConfigs.PeakForwardDutyCycle = 1.0;
+            motorOutputConfigs.PeakReverseDutyCycle = -1.0;
+            motorOutputConfigs.NeutralMode = NeutralModeValue.Coast;
+        }
+        configurator.apply(motorOutputConfigs);
     }
 
     @Override
