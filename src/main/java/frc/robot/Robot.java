@@ -18,20 +18,20 @@ import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commons.LoggedTunableNumber;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
 import frc.robot.subsystems.climber.Climber.ClimberStates;
-import frc.robot.subsystems.vision.limelight.LimelightDetectionsClassifier;
-import frc.robot.subsystems.vision.northstar.AprilTagVision;
 import frc.robot.subsystems.vision.northstar.AprilTagVision.StdDevMode;
 
 public class Robot extends LoggedRobot {
@@ -46,6 +46,8 @@ public class Robot extends LoggedRobot {
   private boolean requestedHome = false;
   private boolean intakeTriggered = false;
   private boolean coneIntakeTriggered = false;
+
+  public static Timer timer = new Timer();
 
   public static PathPlannerTrajectory threePieceA;
   public static PathPlannerTrajectory threePieceB;
@@ -90,6 +92,9 @@ public class Robot extends LoggedRobot {
   public static PathPlannerTrajectory twoPieceChargeStationA;
   public static PathPlannerTrajectory twoPieceChargeStationB;
   public static PathPlannerTrajectory twoPieceChargeStationC;
+
+  public static PathPlannerTrajectory fifteenForward;
+  public static PathPlannerTrajectory fifteenBack;
 
   public static Alliance alliance = DriverStation.Alliance.Red;
 
@@ -141,13 +146,13 @@ public class Robot extends LoggedRobot {
     threePieceSlowB = PathPlanner.loadPath("Three Piece B", new PathConstraints(3.5, 2.5));
     threePieceSlowC = PathPlanner.loadPath("Three Piece C", new PathConstraints(3.5, 2.5));
     threePieceSlowD = PathPlanner.loadPath("Three Piece D", new PathConstraints(3.5, 2.5));
-    threePieceSlowSetup = PathPlanner.loadPath("Three Piece Setup", new PathConstraints(3.5, 2.5));
+    threePieceSlowSetup = PathPlanner.loadPath("Three Piece Setup", new PathConstraints(4.5, 4.5));
 
     threePieceBumpA = PathPlanner.loadPath("Three Piece Bump A", new PathConstraints(3.5, 2.5));
     threePieceBumpB = PathPlanner.loadPath("Three Piece Bump B", new PathConstraints(3.5, 2.5));
     threePieceBumpC = PathPlanner.loadPath("Three Piece Bump C", new PathConstraints(3.5, 2.5));
     threePieceBumpD = PathPlanner.loadPath("Three Piece Bump D", new PathConstraints(3.5, 2.5));
-    threePieceBumpE = PathPlanner.loadPath("Three Piece Bump E", new PathConstraints(3.5, 2.5));
+    threePieceBumpE = PathPlanner.loadPath("Three Piece Bump E", new PathConstraints(4.5, 4.5));
 
     twoPieceBalanceA = PathPlanner.loadPath("Two Piece Balance A", new PathConstraints(2.0, 2.0));
     twoPieceBalanceB = PathPlanner.loadPath("Two Piece Balance B", new PathConstraints(2.0, 2.0));
@@ -163,11 +168,16 @@ public class Robot extends LoggedRobot {
 
     onePieceBalanceA = PathPlanner.loadPath("One Piece Balance A", new PathConstraints(2.0, 2.0));
     onePieceBalanceB = PathPlanner.loadPath("One Piece Balance B", new PathConstraints(2.0, 2.0));
+
+    fifteenForward = PathPlanner.loadPath("Fifteen Forward", new PathConstraints(2.0, 1.0));
+    fifteenBack = PathPlanner.loadPath("Fifteen Back", new PathConstraints(2.0, 1.0));
+    
     RobotContainer.swerve.resetAllToAbsolute();
     m_robotContainer.configureAutonomousSelector(); // Needed down here so auto paths exist when the selector is created
     RobotContainer.limelightVision.enableLeds(false);
 
-    
+    m_robotContainer.swerve.setNeutralModes(NeutralMode.Coast);
+
   }
 
   @Override
@@ -175,6 +185,14 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
     Logger.getInstance().recordOutput("Alliance Color", alliance.toString());
     RobotContainer.operatorControls.updateSelection();
+
+    if (RobotContainer.driver.getRawButtonPressed(XboxController.Button.kStart.value)) {
+      if (DriverStation.getAlliance() == Alliance.Blue) {
+        RobotContainer.poseEstimator.resetPose(new Pose2d());
+      } else {
+        RobotContainer.poseEstimator.resetPose(new Pose2d(new Translation2d(), new Rotation2d(Math.PI)));
+      }
+    }
   }
 
   @Override
@@ -200,11 +218,16 @@ public class Robot extends LoggedRobot {
     }
 
     alliance = DriverStation.getAlliance();
+    timer.reset();
+    timer.start();
   }
 
   @Override
   public void autonomousPeriodic() {
     RobotContainer.limelightVision.enableLeds(true);
+    if (timer.get() > 14.5) {
+      RobotContainer.swerve.setNeutralModes(NeutralMode.Coast);
+    }
   }
 
   @Override
@@ -219,7 +242,7 @@ public class Robot extends LoggedRobot {
     }
 
     alliance = DriverStation.getAlliance();
-    m_robotContainer.swerve.setNeutralModes(NeutralMode.Coast);
+    m_robotContainer.swerve.setNeutralModes(NeutralMode.Brake);
   }
 
   @Override

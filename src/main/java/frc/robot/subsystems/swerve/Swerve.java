@@ -23,6 +23,7 @@ import frc.robot.RobotContainer;
 import frc.robot.commons.BreadUtil;
 
 import static frc.robot.Constants.Drive.*;
+import static frc.robot.Constants.CarpetCalibration.*;
 
 public class Swerve extends SubsystemBase {
 
@@ -328,10 +329,34 @@ public class Swerve extends SubsystemBase {
     public SwerveModulePosition[] getDeltaSwerveModulePositions() {
         SwerveModulePosition[] wheelDeltas = new SwerveModulePosition[4];
         for (int i = 0; i < 4; i++) {
-            wheelDeltas[i] = new SwerveModulePosition(
-                    (moduleInputs[i].driveDistanceMeters - lastModulePositionsMeters[i]),
-                    new Rotation2d(moduleInputs[i].moduleAngleRads));
+            double dist = moduleInputs[i].driveDistanceMeters - lastModulePositionsMeters[i];
+            Rotation2d robotRelativeWheelAngle = new Rotation2d(moduleInputs[i].moduleAngleRads);
 
+            // Applies carpet calibration offsets depending on the angles of the wheels
+            Rotation2d fieldRelativeRobotAngle = RobotContainer.poseEstimator.getLatestPose().getRotation();
+            Rotation2d fieldRelativeWheelAngle = fieldRelativeRobotAngle.plus(robotRelativeWheelAngle);
+
+            if (dist < 0.0) {
+                fieldRelativeWheelAngle = fieldRelativeWheelAngle.rotateBy(Rotation2d.fromDegrees(180.0));
+            }
+
+            double adjustedXDist;
+            double adjustedYDist;
+            if (fieldRelativeWheelAngle.getCos() >= 0.0) {
+                adjustedXDist = Math.abs(dist) * fieldRelativeWheelAngle.getCos() * CARPET_CAL_FACTOR_0DEG; 
+            } else {
+                adjustedXDist = Math.abs(dist) * fieldRelativeWheelAngle.getCos() * CARPET_CAL_FACTOR_180DEG;
+            }
+
+            if (fieldRelativeWheelAngle.getSin() >= 0.0) {
+                adjustedYDist = Math.abs(dist) * fieldRelativeWheelAngle.getSin() * CARPET_CAL_FACTOR_90DEG;
+            } else {
+                adjustedYDist = Math.abs(dist) * fieldRelativeWheelAngle.getSin() * CARPET_CAL_FACTOR_MINUS_90DEG;
+            }
+
+            double adjustedDist = Math.hypot(adjustedXDist, adjustedYDist) * Math.signum(dist);
+
+            wheelDeltas[i] = new SwerveModulePosition(adjustedDist, robotRelativeWheelAngle);
             lastModulePositionsMeters[i] = moduleInputs[i].driveDistanceMeters;
         }
 
