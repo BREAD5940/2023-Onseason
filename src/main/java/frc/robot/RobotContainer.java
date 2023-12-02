@@ -22,6 +22,7 @@ import frc.robot.commons.BreadUtil;
 import frc.robot.commons.PoseEstimator;
 import frc.robot.drivers.LEDs;
 import frc.robot.autonomous.AutonomousSelector;
+import frc.robot.autonomous.modes.ForwardBackwardsTest;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIO;
@@ -35,6 +36,7 @@ import frc.robot.subsystems.endeffector.EndEffectorIOTalonFX;
 import frc.robot.subsystems.floorintake.FloorIntakeIO;
 import frc.robot.subsystems.floorintake.FloorIntakeIOTalonFX;
 import frc.robot.subsystems.swerve.AlignChargeStationCommand;
+import frc.robot.subsystems.swerve.AutoAlignCommand;
 import frc.robot.subsystems.swerve.AutoBalanceCommand;
 import frc.robot.subsystems.swerve.AutoPickupRoutine;
 import frc.robot.subsystems.swerve.AutoPlaceCommand;
@@ -154,7 +156,7 @@ public class RobotContainer {
     // );
 
     new JoystickButton(driver, XboxController.Button.kX.value)
-        .whileTrue(new AutoPlaceCommand(swerve, superstructure, () -> operatorControls.getLastSelectedGamePiece(), () -> operatorControls.getLastSelectedLevel()));
+        .whileTrue(new AutoAlignCommand(swerve, superstructure, () -> operatorControls.getLastSelectedGamePiece(), () -> operatorControls.getLastSelectedLevel()));
     
 
     // new JoystickButton(driver, XboxController.Button.kA.value)
@@ -182,6 +184,7 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     return autonomousSelector.get();
+    // return new ForwardBackwardsTest(swerve, superstructure);
   }
 
   public void configureAutonomousSelector() {

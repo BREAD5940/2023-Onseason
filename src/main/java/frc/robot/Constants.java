@@ -4,23 +4,18 @@
 
 package frc.robot;
 
+import static frc.robot.FieldConstants.aprilTags;
+
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenixpro.signals.InvertedValue;
 
-import Jama.Matrix;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
-
-import static frc.robot.FieldConstants.*;
 
 // All Constants
 public final class Constants {
@@ -288,5 +283,31 @@ public final class Constants {
         public static final Pose2d FIELD_SIDE_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(51.4), aprilTags.get(4).getY() - Units.inchesToMeters(29), new Rotation2d());
         public static final Pose2d WALL_SIDE_PICKUP_LOCATION = new Pose2d(aprilTags.get(4).getX() - Units.inchesToMeters(51.4), aprilTags.get(4).getY() + Units.inchesToMeters(29), new Rotation2d());
     }
-  
+
+    // Constants that allow us to offset for carpet direction  
+    public static class CarpetCalibration {
+
+        // public static final Translation2d[] loadingZoneSideCarpetCorners = 
+        //     new Translation2d[] {
+        //         new Translation2d(0.0, fieldLength),
+                
+        //     };
+            
+        // public static final Translation2d[] communitySideCarpetCorners = 
+        //     new Translation2d[] {
+
+        //     };
+
+        // public static final Translation2d[][] carpets = {loadingZoneSideCarpetCorners, communitySideCarpetCorners};
+
+        // public static final double CARPET_CAL_FACTOR_0DEG = 0.9651653486;
+        // public static final double CARPET_CAL_FACTOR_180DEG = 0.9802568446; 
+        // public static final double CARPET_CAL_FACTOR_90DEG = 0.9669415904; 
+        // public static final double CARPET_CAL_FACTOR_MINUS_90DEG = 0.9651653486;
+        public static final double CARPET_CAL_FACTOR_0DEG = 1.0;
+        public static final double CARPET_CAL_FACTOR_180DEG = 1.0; 
+        public static final double CARPET_CAL_FACTOR_90DEG = 1.0; 
+        public static final double CARPET_CAL_FACTOR_MINUS_90DEG = 1.0;
+    
+    }
 }
