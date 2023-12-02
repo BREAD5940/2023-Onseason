@@ -1,9 +1,10 @@
 # 2023 Onseason
-Code for 5940's 2023 robot 
 
 ![Robot Image](/Images/Robot.jpg)
 
 ---
+
+Code for Team 5940's 2023 robot, Pain d'Epi.
 
 ## Highlights
   - 3 + Balance Autonomous Mode
