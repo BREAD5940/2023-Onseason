@@ -7,16 +7,12 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.commons.AveragingFilter;
 import frc.robot.commons.Conversions;
 
 import static frc.robot.Constants.EndEffector.*;
-import static frc.robot.Constants.Electrical.*;
 
 public class EndEffectorIOTalonFX implements EndEffectorIO {
     private TalonFX motor;

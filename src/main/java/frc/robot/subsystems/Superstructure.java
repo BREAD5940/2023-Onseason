@@ -17,7 +17,6 @@ import frc.robot.subsystems.elevatorarm.ElevatorIO;
 import frc.robot.subsystems.endeffector.EndEffector;
 import frc.robot.subsystems.endeffector.EndEffectorIO;
 import frc.robot.subsystems.floorintake.FloorIntake;
-import frc.robot.subsystems.floorintake.FloorIntake.FloorIntakeStates;
 import frc.robot.subsystems.floorintake.FloorIntakeIO;
 
 import static frc.robot.Constants.Elevator.*;

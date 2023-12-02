@@ -1,5 +1,15 @@
 package frc.robot.subsystems.swerve;
 
+import static frc.robot.Constants.Vision.HIGH_TAPE_OFF_GROUND;
+import static frc.robot.Constants.Vision.MID_TAPE_OFF_GROUND;
+import static frc.robot.Constants.Vision.X_SCORING_POSITION;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
+
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
@@ -13,27 +23,17 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.FieldConstants.Grids;
 import frc.robot.RobotContainer;
 import frc.robot.commons.AllianceFlipUtil;
-import frc.robot.commons.LoggedTunableNumber;
 import frc.robot.commons.LimelightHelpers.LimelightTarget_Retro;
+import frc.robot.commons.LoggedTunableNumber;
 import frc.robot.commons.PoseEstimator.TimestampedVisionUpdate;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.Level;
+import frc.robot.subsystems.Superstructure.SuperstructureState;
 import frc.robot.subsystems.vision.limelight.LimelightDetectionsClassifier;
-
-import static frc.robot.FieldConstants.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.Logger;
-
-import static frc.robot.Constants.Vision.*;
-import static frc.robot.Constants.Elevator.*;
 
 public class AutoPlaceCommand extends CommandBase {
 
@@ -112,7 +112,7 @@ public class AutoPlaceCommand extends CommandBase {
             targetRobotPose = new Pose2d(X_SCORING_POSITION + 0.1, nodeLocation.getY(), new Rotation2d(Math.PI));
         } else {
             if (level == Level.HIGH) {
-                targetRobotPose = new Pose2d(X_SCORING_POSITION - 0.01, nodeLocation.getY(), new Rotation2d(Math.PI));
+                targetRobotPose = new Pose2d(X_SCORING_POSITION - 0.04, nodeLocation.getY(), new Rotation2d(Math.PI));
             } else {
                 targetRobotPose = new Pose2d(X_SCORING_POSITION - 0.03, nodeLocation.getY(), new Rotation2d(Math.PI));
             }
@@ -123,9 +123,9 @@ public class AutoPlaceCommand extends CommandBase {
         Logger.getInstance().recordOutput("AutoPlace/TargetRobotPose", targetRobotPose);
     }
 
+    
     @Override
     public void execute() { 
-        System.out.println("Auto Place Command Running!");
         thetaController.setP(thetaP.get());
 
         Pose2d realGoal = AllianceFlipUtil.apply(targetRobotPose);
@@ -208,9 +208,16 @@ public class AutoPlaceCommand extends CommandBase {
                     scored = true;
                 }
             } else if (!isCubeNode) {
-                if (superstructure.atElevatorSetpoint(level == Level.HIGH ? Superstructure.preConeHighHeight.get() : Superstructure.preConeHighHeight.get() - Superstructure.coneOffset.get())) {
-                    superstructure.requestScore();
-                    scored = true;
+                if (level == Level.HIGH) {
+                    if (superstructure.getElevatorHeight() > Superstructure.preConeHighHeight.get() - 0.5) {
+                        superstructure.requestScore();
+                        scored = true;
+                    } 
+                } else if (level == Level.MID) {
+                    if (superstructure.getElevatorHeight() > Superstructure.preConeHighHeight.get() - Superstructure.coneOffset.get() - 0.5 && RobotContainer.superstructure.getSystemState() == SuperstructureState.PRE_PLACE_CONE) {
+                        superstructure.requestScore();
+                        scored = true;
+                    }
                 }
             }
         }

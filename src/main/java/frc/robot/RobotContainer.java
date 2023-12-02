@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -22,11 +21,9 @@ import frc.robot.commons.BreadUtil;
 import frc.robot.commons.PoseEstimator;
 import frc.robot.drivers.LEDs;
 import frc.robot.autonomous.AutonomousSelector;
-import frc.robot.autonomous.modes.ForwardBackwardsTest;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIO;
-import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.elevatorarm.ArmIO;
 import frc.robot.subsystems.elevatorarm.ArmIOTalonFX;
 import frc.robot.subsystems.elevatorarm.ElevatorIO;
@@ -36,11 +33,8 @@ import frc.robot.subsystems.endeffector.EndEffectorIOTalonFX;
 import frc.robot.subsystems.floorintake.FloorIntakeIO;
 import frc.robot.subsystems.floorintake.FloorIntakeIOTalonFX;
 import frc.robot.subsystems.swerve.AlignChargeStationCommand;
-import frc.robot.subsystems.swerve.AutoAlignCommand;
-import frc.robot.subsystems.swerve.AutoBalanceCommand;
-import frc.robot.subsystems.swerve.AutoPickupRoutine;
 import frc.robot.subsystems.swerve.AutoPlaceCommand;
-import frc.robot.subsystems.swerve.ManualPickupAssistCommand;
+import frc.robot.subsystems.swerve.DoubleSubstationDriveAssistCommand;
 import frc.robot.subsystems.swerve.SingleSubstationDriveAssistCommand;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.vision.limelight.LimelightDetectionsClassifier;
@@ -70,7 +64,7 @@ public class RobotContainer {
   public static final PoseEstimator poseEstimator = new PoseEstimator(VecBuilder.fill(0.003, 0.003, 0.0002));
   // public static final ClimberIOTalonFX climberIO = new ClimberIOTalonFX();
   public static final ClimberIO climberIO = new ClimberIO() {
-    
+
   };
   public static final Climber climber = new Climber(climberIO);
   public static final LEDs leds = new LEDs(0, 74);
@@ -88,15 +82,14 @@ public class RobotContainer {
       double y = BreadUtil.deadband(driver.getLeftX(), 0.1);
       double omega = BreadUtil.deadband(driver.getRightX(), 0.1);
 
-      // Movement Outputs
       double scale = RobotContainer.driver.getLeftBumper() ? 0.25 : 1.0;
       double dx;
       double dy;
-      
+
       if (Robot.alliance == DriverStation.Alliance.Blue) {
         dx = Math.pow(-x, 1) * scale;
         dy = Math.pow(-y, 1) * scale;
-        
+
       } else {
         dx = Math.pow(-x, 1) * scale * -1;
         dy = Math.pow(-y, 1) * scale * -1;
@@ -104,7 +97,6 @@ public class RobotContainer {
       double rot = Math.pow(-omega, 3) * 1.5 * scale;
       swerve.requestPercent(new ChassisSpeeds(dx, dy, rot), true);
 
-      // Sets the 0 of the robot
       if (driver.getRawButtonPressed(XboxController.Button.kStart.value)) {
         if (DriverStation.getAlliance() == Alliance.Blue) {
           poseEstimator.resetPose(new Pose2d());
@@ -114,68 +106,21 @@ public class RobotContainer {
       }
     }, swerve));
 
-    new JoystickButton(operator, XboxController.Button.kBack.value).onTrue(new InstantCommand(() -> superstructure.requestHome()));
-
-    // superstructure.setDefaultCommand(new RunCommand(() -> {
-    // if (RobotContainer.operator.getRightBumperPressed()) {
-    // RobotContainer.superstructure.requestFloorIntakeCone();
-    // }
-
-    // if (RobotContainer.operator.getLeftBumperPressed()) {
-    // RobotContainer.superstructure.requestFloorIntakeCube();
-    // }
-
-    // if (RobotContainer.operator.getAButtonPressed()) {
-    // RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CONE);
-    // }
-
-    // if (RobotContainer.operator.getBButtonPressed()) {
-    // RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CONE);
-    // }
-
-    // if (RobotContainer.operator.getXButtonPressed()) {
-    // RobotContainer.superstructure.requestPreScore(Level.HIGH, GamePiece.CUBE);
-    // }
-
-    // if (RobotContainer.operator.getYButtonPressed()) {
-    // RobotContainer.superstructure.requestPreScore(Level.MID, GamePiece.CUBE);
-    // }
-
-    // if (RobotContainer.operator.getRightStickButtonPressed()) {
-    // RobotContainer.superstructure.requestScore();
-    // }
-
-    // if (RobotContainer.operator.getLeftStickButtonPressed()) {
-    // RobotContainer.superstructure.requestIdle();
-    // }
-    // }, superstructure));
-
-    // new JoystickButton(operator,
-    // XboxController.Button.kRightBumper.value).onTrue(
-    // new InstantCommand(() -> superstructure.requestFloorIntakeCone())
-    // );
+    new JoystickButton(operator, XboxController.Button.kBack.value)
+        .onTrue(new InstantCommand(() -> superstructure.requestHome()));
 
     new JoystickButton(driver, XboxController.Button.kX.value)
-        .whileTrue(new AutoAlignCommand(swerve, superstructure, () -> operatorControls.getLastSelectedGamePiece(), () -> operatorControls.getLastSelectedLevel()));
-    
-
-    // new JoystickButton(driver, XboxController.Button.kA.value)
-    //     .whileTrue(new AutoPickupRoutine(driver::getAButton, driver::getBButton, swerve, superstructure));
-
-    // new JoystickButton(driver, XboxController.Button.kB.value)
-    //     .whileTrue(new AutoPickupRoutine(driver::getAButton, driver::getBButton, swerve, superstructure));
+        .whileTrue(new AutoPlaceCommand(swerve, superstructure, () -> operatorControls.getLastSelectedGamePiece(),
+            () -> operatorControls.getLastSelectedLevel()));
 
     new JoystickButton(driver, XboxController.Button.kA.value)
-      .whileTrue(new ManualPickupAssistCommand(swerve, superstructure));
+        .whileTrue(new DoubleSubstationDriveAssistCommand(swerve, superstructure));
 
     new JoystickButton(driver, XboxController.Button.kRightBumper.value)
-      .whileTrue(new SingleSubstationDriveAssistCommand(swerve, superstructure));
-
-    // new JoystickButton(driver, XboxController.Button.kA.value)
-    //   .whileTrue(new AutoBalanceCommand(swerve));
+        .whileTrue(new SingleSubstationDriveAssistCommand(swerve, superstructure));
 
     new JoystickButton(driver, XboxController.Button.kLeftStick.value)
-      .whileTrue(new AlignChargeStationCommand(swerve));
+        .whileTrue(new AlignChargeStationCommand(swerve));
   }
 
   private void configureNorthstarVision() {
@@ -184,7 +129,6 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     return autonomousSelector.get();
-    // return new ForwardBackwardsTest(swerve, superstructure);
   }
 
   public void configureAutonomousSelector() {

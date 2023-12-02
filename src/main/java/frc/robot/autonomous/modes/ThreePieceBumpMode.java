@@ -14,7 +14,6 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.TrajectoryFollowerCommand;
 
 import static frc.robot.Constants.Elevator.*;
-import static frc.robot.Constants.Arm.*;
 
 public class ThreePieceBumpMode extends SequentialCommandGroup {
 

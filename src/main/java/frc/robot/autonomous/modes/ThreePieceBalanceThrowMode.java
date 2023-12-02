@@ -16,8 +16,6 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.TrajectoryFollowerCommand;
 
 import static frc.robot.Constants.Elevator.*;
-import static frc.robot.Constants.Arm.*;
-
 
 // Initialize class for mode
 public class ThreePieceBalanceThrowMode extends SequentialCommandGroup {

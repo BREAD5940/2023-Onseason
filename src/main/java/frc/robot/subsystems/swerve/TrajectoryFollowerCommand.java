@@ -8,13 +8,10 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -24,7 +21,6 @@ import frc.robot.RobotContainer;
 import frc.robot.commons.AllianceFlipUtil;
 import frc.robot.commons.BreadHolonomicDriveController;
 import frc.robot.commons.LoggedTunableNumber;
-import frc.robot.subsystems.vision.northstar.AprilTagVision;
 import frc.robot.subsystems.vision.northstar.AprilTagVision.StdDevMode;
 
 public class TrajectoryFollowerCommand extends CommandBase {
@@ -140,13 +136,9 @@ public class TrajectoryFollowerCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        PathPlannerState goal = (PathPlannerState) trajectory.sample(timer.get());
-        Trajectory.State wpilibGoal = AllianceFlipUtil.apply(goal);
         if (dontBalanceAtEnd) {
             return timer.get() >= trajectory.getTotalTimeSeconds() + convergenceTime;
         } else {
-            Pose2d poseError = wpilibGoal.poseMeters.relativeTo(RobotContainer.poseEstimator.getLatestPose());
-            // return timer.get() >= trajectory.getTotalTimeSeconds() && poseError.getTranslation().getNorm() < 0.14;
             return false;
         }
     }

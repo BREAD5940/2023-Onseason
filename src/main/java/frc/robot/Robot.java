@@ -38,8 +38,6 @@ public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
-  private boolean intakeDeployed = false;
-  private boolean spitDeployed = false;
 
   PowerDistribution pdp;
 
@@ -98,7 +96,6 @@ public class Robot extends LoggedRobot {
 
   public static Alliance alliance = DriverStation.Alliance.Red;
 
-  // REMOVE LATER
   double moduleAngle = 360.0;
 
   @Override
@@ -176,7 +173,7 @@ public class Robot extends LoggedRobot {
     m_robotContainer.configureAutonomousSelector(); // Needed down here so auto paths exist when the selector is created
     RobotContainer.limelightVision.enableLeds(false);
 
-    m_robotContainer.swerve.setNeutralModes(NeutralMode.Coast);
+    RobotContainer.swerve.setNeutralModes(NeutralMode.Coast);
 
   }
 
@@ -242,7 +239,7 @@ public class Robot extends LoggedRobot {
     }
 
     alliance = DriverStation.getAlliance();
-    m_robotContainer.swerve.setNeutralModes(NeutralMode.Brake);
+    RobotContainer.swerve.setNeutralModes(NeutralMode.Brake);
   }
 
   @Override
@@ -340,8 +337,8 @@ public class Robot extends LoggedRobot {
   @Override
   public void testPeriodic() {
     for (int i=0; i<4; i++) {
-      m_robotContainer.swerve.moduleIOs[i].setDrivePercent(0.0);
-      m_robotContainer.swerve.moduleIOs[i].setTurnAngle(moduleAngle);
+      RobotContainer.swerve.moduleIOs[i].setDrivePercent(0.0);
+      RobotContainer.swerve.moduleIOs[i].setTurnAngle(moduleAngle);
     }
   }
 

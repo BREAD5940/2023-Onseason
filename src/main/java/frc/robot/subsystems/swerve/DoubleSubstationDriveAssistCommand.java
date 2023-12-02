@@ -1,8 +1,5 @@
 package frc.robot.subsystems.swerve;
 
-import org.littletonrobotics.junction.Logger;
-
-import edu.wpi.first.math.MathUsageId;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -15,7 +12,7 @@ import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Superstructure;
 
-public class ManualPickupAssistCommand extends CommandBase {
+public class DoubleSubstationDriveAssistCommand extends CommandBase {
 
     private final Swerve swerve;
     private final Superstructure superstructure;
@@ -23,7 +20,7 @@ public class ManualPickupAssistCommand extends CommandBase {
     private Rotation2d headingGoal;
     private boolean deployed = false;
 
-    public ManualPickupAssistCommand(Swerve swerve, Superstructure superstructure) {
+    public DoubleSubstationDriveAssistCommand(Swerve swerve, Superstructure superstructure) {
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
         this.swerve = swerve;
         this.superstructure = superstructure;
